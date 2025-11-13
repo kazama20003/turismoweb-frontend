@@ -6,7 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 gsap.registerPlugin(ScrollTrigger)
 
-export default function HeroSection() {
+export function HeroSection() {
   const titleRef = useRef<HTMLHeadingElement>(null)
   const descRef = useRef<HTMLParagraphElement>(null)
   const buttonsRef = useRef<HTMLDivElement>(null)
@@ -86,14 +86,14 @@ export default function HeroSection() {
         <div className="flex-1 flex flex-col justify-end">
           <div className="w-full px-8 sm:px-12 lg:px-16 pb-16 md:pb-20">
             <div className="max-w-2xl">
-              <h1 ref={titleRef} className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-                GRANDEZA DEL
-                <br />
+              <h1 ref={titleRef} className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight cursor-text">
                 VALLE SAGRADO
+                <br />
+                DEL PERÚ
               </h1>
-              <p ref={descRef} className="text-lg md:text-xl text-white/90 italic font-light max-w-md mb-8">
-                Enraizada en el majestuoso y sagrado Valle del Perú, Majestusa es una bodega familiar donde la tradición
-                se encuentra con la innovación.
+              <p ref={descRef} className="text-lg md:text-xl text-white/90 italic font-light max-w-md mb-8 cursor-text">
+                En el corazón del Pueblo Sagrado del Perú, donde los ecos de los Inkas aún susurran entre los valles,
+                Majestusa florece como un símbolo de tradición y renovación.
               </p>
             </div>
           </div>
@@ -101,10 +101,10 @@ export default function HeroSection() {
 
         <div ref={buttonsRef} className="w-full px-8 sm:px-12 lg:px-16 pb-16 md:pb-20 flex justify-end">
           <div className="flex gap-6 items-center">
-            <button className="px-8 py-3 bg-black text-white font-semibold rounded-full hover:bg-black/80 transition-all duration-300">
+            <button className="px-8 py-3 bg-black text-white font-semibold rounded-full hover:bg-black/80 transition-all duration-300 cursor-text">
               PLAN YOUR VISIT
             </button>
-            <button className="px-8 py-3 bg-transparent text-white font-semibold rounded-full hover:bg-white/10 transition-all duration-300">
+            <button className="px-8 py-3 bg-transparent text-white font-semibold rounded-full hover:bg-white/10 transition-all duration-300 cursor-text">
               SHOP NOW
             </button>
           </div>
