@@ -166,11 +166,18 @@
     background-color: hsl(var(--sidebar-border));
   }
 }
-/* Estilos para potenciar el efecto revelador del cursor */
-.cursor-big-ball {
-  filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.3));
+/* Oculta el cursor del sistema SOLO donde se coloque esta clase */
+.hide-system-cursor {
+  cursor: none !important;
 }
 
-.cursor-small-ball {
-  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.2));
+/* Para inputs, botones, links, NO ocultamos el cursor */
+.hide-system-cursor input,
+.hide-system-cursor textarea {
+  cursor: text !important;
+}
+
+.hide-system-cursor button,
+.hide-system-cursor a {
+  cursor: pointer !important;
 }

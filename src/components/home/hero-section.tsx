@@ -1,97 +1,86 @@
-"use client"
+'use client'
 
-import { useEffect, useRef } from "react"
-import gsap from "gsap"
-import { ScrollTrigger } from "gsap/ScrollTrigger"
-
-gsap.registerPlugin(ScrollTrigger)
+import { useRef, useState, useEffect } from 'react'
 
 export function HeroSection() {
-  const titleRef = useRef<HTMLHeadingElement>(null)
-  const descRef = useRef<HTMLParagraphElement>(null)
-  const buttonsRef = useRef<HTMLDivElement>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [audioActive, setAudioActive] = useState(false) // inicia en mute REAL
 
   useEffect(() => {
-    gsap.set([titleRef.current, descRef.current], {
-      opacity: 0,
-      y: 50,
-    })
+    const audio = audioRef.current
+    if (!audio) return
 
-    gsap.set(buttonsRef.current, {
-      visibility: "hidden",
-      opacity: 0,
-      y: 50,
-    })
+    const unlockAudio = () => {
+      audio.play()
+        .then(() => {
+          setAudioActive(true)
+          console.log("Audio habilitado correctamente.")
+        })
+        .catch(err => {
+          console.log("Error al intentar reproducir:", err)
+        })
 
-    gsap.to(titleRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: titleRef.current,
-        start: "top 90%",
-        end: "top 70%",
-        scrub: 0.1,
-      },
-    })
+      // eliminar listeners después de activarlo
+      window.removeEventListener("click", unlockAudio)
+      window.removeEventListener("touchstart", unlockAudio)
+      window.removeEventListener("keydown", unlockAudio)
+    }
 
-    gsap.to(descRef.current, {
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: descRef.current,
-        start: "top 90%",
-        end: "top 70%",
-        scrub: 0.1,
-      },
-    })
-
-    gsap.to(buttonsRef.current, {
-      visibility: "visible",
-      opacity: 1,
-      y: 0,
-      duration: 0.6,
-      ease: "power2.out",
-      scrollTrigger: {
-        trigger: buttonsRef.current,
-        start: "top 92%",
-        end: "top 72%",
-        scrub: 0.1,
-      },
-    })
+    // primera interacción desbloquea audio
+    window.addEventListener("click", unlockAudio)
+    window.addEventListener("touchstart", unlockAudio)
+    window.addEventListener("keydown", unlockAudio)
 
     return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+      window.removeEventListener("click", unlockAudio)
+      window.removeEventListener("touchstart", unlockAudio)
+      window.removeEventListener("keydown", unlockAudio)
     }
   }, [])
 
+  const toggleAudio = async () => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    try {
+      if (audioActive) {
+        audio.pause()
+      } else {
+        await audio.play()
+      }
+      setAudioActive(!audioActive)
+    } catch (err) {
+      console.log("Error toggling audio:", err)
+    }
+  }
+
   return (
-    <section className="relative w-full h-screen overflow-hidden">
+    <section className="relative w-full h-screen overflow-hidden video-showcase hide-system-cursor">
+
+      {/* VIDEO BACKGROUND */}
       <div className="absolute inset-0 overflow-hidden">
         <iframe
-          src="https://player.vimeo.com/video/1136148208?h=b661ea2878&autoplay=1&muted=1&loop=1&background=1"
-          className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto transform -translate-x-1/2 -translate-y-1/2 scale-[1.2]"
+          src="https://player.vimeo.com/video/1136148208?h=b661ea2878&muted=1&loop=1&background=1"
+          className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto 
+                     -translate-x-1/2 -translate-y-1/2 scale-[1.2]"
           frameBorder="0"
           allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
-        ></iframe>
+        />
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent z-10" />
+      {/* OVERLAY */}
+      <div className="absolute inset-0 bg-black/40 z-10" />
 
+      {/* CONTENT */}
       <div className="relative z-20 w-full h-full flex flex-col justify-between">
         <div className="flex-1 flex flex-col justify-end">
           <div className="w-full px-8 sm:px-12 lg:px-16 pb-16 md:pb-20">
             <div className="max-w-2xl">
-              <h1 ref={titleRef} className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight cursor-text">
-                VALLE SAGRADO
-                <br />
-                DEL PERÚ
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
+                VALLE SAGRADO <br /> DEL PERÚ
               </h1>
-              <p ref={descRef} className="text-lg md:text-xl text-white/90 italic font-light max-w-md mb-8 cursor-text">
+
+              <p className="text-lg md:text-xl text-white/90 italic font-light max-w-md mb-8">
                 En el corazón del Pueblo Sagrado del Perú, donde los ecos de los Inkas aún susurran entre los valles,
                 Majestusa florece como un símbolo de tradición y renovación.
               </p>
@@ -99,17 +88,43 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div ref={buttonsRef} className="w-full px-8 sm:px-12 lg:px-16 pb-16 md:pb-20 flex justify-end">
+        {/* FOOTER */}
+        <div className="w-full px-8 sm:px-12 lg:px-16 pb-16 md:pb-20 flex justify-between items-end">
+
+          {/* AUDIO BUTTON */}
+          <button
+            onClick={toggleAudio}
+            className="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 transition-all flex items-center justify-center text-white backdrop-blur-sm"
+            aria-label="Toggle audio"
+          >
+            {audioActive ? (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 3a1 1 0 012 0v5a1 1 0 11-2 0V3zm3 7a1 1 0 012 0v2a1 1 0 11-2 0v-2zm3-5a1 1 0 112 0v7a1 1 0 11-2 0V5zM6 7a1 1 0 012 0v4a1 1 0 11-2 0V7z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.172a1 1 0 011.414 0A6.972 6.972 0 0118 10a6.972 6.972 0 01-1.929 4.828 1 1 0 01-1.414-1.414A4.972 4.972 0 0016 10c0-1.713-.672-3.259-1.757-4.372a1 1 0 010-1.414z" clipRule="evenodd" />
+              </svg>
+            )}
+          </button>
+
+          {/* BUTTONS */}
           <div className="flex gap-6 items-center">
-            <button className="px-8 py-3 bg-black text-white font-semibold rounded-full hover:bg-black/80 transition-all duration-300 cursor-text">
+            <button className="px-8 py-3 bg-black text-white font-semibold rounded-full hover:bg-black/80 transition-all">
               PLAN YOUR VISIT
             </button>
-            <button className="px-8 py-3 bg-transparent text-white font-semibold rounded-full hover:bg-white/10 transition-all duration-300 cursor-text">
+            <button className="px-8 py-3 bg-transparent text-white font-semibold rounded-full hover:bg-white/10 transition-all">
               SHOP NOW
             </button>
           </div>
         </div>
       </div>
+
+      {/* AUDIO FILE */}
+      <audio ref={audioRef} loop preload="auto">
+        <source src="/home/hero.m4a" type="audio/mp4" />
+      </audio>
+
     </section>
   )
 }
