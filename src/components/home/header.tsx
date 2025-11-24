@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { ShoppingCart, Search, User, Menu, X } from "lucide-react"
+import { ShoppingCart, Search, User, Menu, X, Globe } from "lucide-react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
@@ -10,17 +10,20 @@ gsap.registerPlugin(ScrollTrigger)
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isScrolled, setIsScrolled] = useState(false)
   const headerRef = useRef<HTMLHeadingElement>(null)
-  const navItems = ["RESTAURANT", "SHOP", "VISIT", "CLUB", "EVENTS", "ABOUT"]
+  const navItems = [
+    { name: "TOURS", href: "/tours" },
+    { name: "SHOP", href: "#" },
+    { name: "VISIT", href: "#" },
+    { name: "CLUB", href: "#" },
+    { name: "EVENTS", href: "#" },
+    { name: "ABOUT", href: "#" },
+  ]
 
   useEffect(() => {
     const header = headerRef.current
     if (!header) return
-
-    const navLinks = header.querySelectorAll("a, button")
-    const logoSpan = header.querySelector("span.logo-text")
-    const logoBox = header.querySelector(".logo-box")
-    const iconButtons = header.querySelectorAll(".icon-button")
 
     gsap.set(header, {
       backgroundColor: "rgba(255, 255, 255, 0)",
@@ -28,36 +31,24 @@ export default function Header() {
       backdropFilter: "blur(0px)",
     })
 
-    gsap.to(header, {
-      scrollTrigger: {
-        trigger: "body",
-        start: "top top",
-        end: "30px top",
-        scrub: 0.3,
-        onUpdate: (self) => {
-          const progress = self.progress
-          gsap.set(header, {
-            backgroundColor: `rgba(255, 255, 255, ${progress * 0.95})`,
-            backdropFilter: `blur(${progress * 10}px)`,
-            borderBottomWidth: `${progress * 1}px`,
-            borderBottomColor: `rgba(0, 0, 0, ${progress * 0.08})`,
-          })
+    ScrollTrigger.create({
+      trigger: "body",
+      start: "top top",
+      end: "80px top",
+      scrub: 0.5,
+      onUpdate: (self) => {
+        const progress = self.progress
+        setIsScrolled(progress > 0.5)
 
-          const textColor = progress > 0.5 ? "rgb(0, 0, 0)" : "rgb(255, 255, 255)"
-          navLinks.forEach((link) => {
-            if (link.tagName === "A" || link.tagName === "BUTTON") {
-              gsap.set(link, { color: textColor })
-            }
-          })
-
-          if (logoSpan) gsap.set(logoSpan, { color: textColor })
-          if (logoBox) gsap.set(logoBox, { backgroundColor: progress > 0.5 ? "rgb(0, 0, 0)" : "rgb(255, 255, 255)" })
-
-          iconButtons.forEach((btn) => {
-            const icon = btn.querySelector("svg")
-            if (icon) gsap.set(icon, { color: textColor })
-          })
-        },
+        gsap.to(header, {
+          backgroundColor: `rgba(255, 255, 255, ${progress * 0.98})`,
+          backdropFilter: `blur(${progress * 12}px)`,
+          borderBottomWidth: `${progress * 1}px`,
+          borderBottomColor: `rgba(0, 0, 0, ${progress * 0.1})`,
+          boxShadow: progress > 0.3 ? `0 4px 20px rgba(0, 0, 0, ${progress * 0.08})` : "none",
+          duration: 0.3,
+          ease: "power2.out",
+        })
       },
     })
 
@@ -66,64 +57,106 @@ export default function Header() {
     }
   }, [])
 
+  const textColorClass = isScrolled ? "text-black" : "text-white"
+  const hoverBgClass = isScrolled ? "hover:bg-black/10" : "hover:bg-white/10"
+  const borderColorClass = isScrolled ? "border-black" : "border-white"
+  const logoBoxBgClass = isScrolled ? "bg-black" : "bg-white"
+  const logoBoxTextClass = isScrolled ? "text-white" : "text-black"
+
   return (
-    <header ref={headerRef} className="fixed top-0 w-full z-50 transition-all duration-300">
+    <header
+      ref={headerRef}
+      className="fixed top-0 w-full z-50 border-b border-transparent transition-shadow duration-500"
+    >
       <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <nav className="hidden md:flex items-center gap-6 lg:gap-8">
             {navItems.map((item) => (
-              <Link key={item} href="#" className="text-xs font-bold transition-colors text-white hover:text-primary">
-                {item}
+              <Link
+                key={item.name}
+                href={item.href}
+                className={`text-xs font-bold transition-colors duration-300 ${textColorClass} hover:opacity-70`}
+              >
+                {item.name}
               </Link>
             ))}
           </nav>
 
           <div className="flex items-center gap-2 absolute left-1/2 transform -translate-x-1/2">
-            <div className="logo-box w-8 h-8  flex items-center justify-center">
-              <span className=" text-sm ">P</span>
+            <div
+              className={`w-8 h-8 flex items-center justify-center transition-colors duration-300 ${logoBoxBgClass}`}
+            >
+              <span className={`text-sm font-bold transition-colors duration-300 ${logoBoxTextClass}`}>P</span>
             </div>
-            <span className="logo-text font-bold text-lg tracking-wider text-white">eru</span>
+            <span className={`font-bold text-lg tracking-wider transition-colors duration-300 ${textColorClass}`}>
+              eru
+            </span>
           </div>
 
-          {/* Right Actions */}
-          <div className="flex items-center gap-4 md:gap-6 ml-auto">
+          <div className="flex items-center gap-2 md:gap-4 ml-auto">
             <Link
               href="#"
-              className="hidden sm:inline-block px-4 py-2 border border-white text-xs font-bold text-white rounded-full hover:bg-white hover:text-black transition-colors"
+              className={`hidden sm:inline-block px-4 py-2 border text-xs font-bold rounded-full transition-all duration-300 ${borderColorClass} ${textColorClass} ${
+                isScrolled ? "hover:bg-black hover:text-white" : "hover:bg-white hover:text-black"
+              }`}
             >
               RESERVATIONS
             </Link>
-            <button className="icon-button p-2 hover:bg-white/10 rounded-full transition-colors flex items-center justify-center">
-              <User size={28} className="text-white" />
+
+            <button
+              className={`p-2 rounded-full transition-all duration-300 ${hoverBgClass} flex items-center justify-center`}
+              aria-label="Cambiar idioma"
+            >
+              <Globe size={24} className={`transition-colors duration-300 ${textColorClass}`} />
             </button>
-            <button className="icon-button p-2 hover:bg-white/10 rounded-full transition-colors flex items-center justify-center">
-              <Search size={28} className="text-white" />
+
+            <button
+              className={`p-2 rounded-full transition-all duration-300 ${hoverBgClass} flex items-center justify-center`}
+              aria-label="Usuario"
+            >
+              <User size={24} className={`transition-colors duration-300 ${textColorClass}`} />
             </button>
-            <button className="icon-button p-2 hover:bg-white/10 rounded-full transition-colors relative flex items-center justify-center">
-              <ShoppingCart size={28} className="text-white" />
-              <span className="absolute top-1 right-1 w-4 h-4 bg-primary text-background text-xs rounded-full flex items-center justify-center">
+
+            <button
+              className={`p-2 rounded-full transition-all duration-300 ${hoverBgClass} flex items-center justify-center`}
+              aria-label="Buscar"
+            >
+              <Search size={24} className={`transition-colors duration-300 ${textColorClass}`} />
+            </button>
+
+            <button
+              className={`p-2 rounded-full transition-all duration-300 ${hoverBgClass} relative flex items-center justify-center`}
+              aria-label="Carrito"
+            >
+              <ShoppingCart size={24} className={`transition-colors duration-300 ${textColorClass}`} />
+              <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-primary-foreground text-xs rounded-full flex items-center justify-center font-bold">
                 0
               </span>
             </button>
+
             <button
-              className="md:hidden p-2 flex items-center justify-center"
+              className={`md:hidden p-2 rounded-full transition-all duration-300 ${hoverBgClass} flex items-center justify-center`}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Menú"
             >
-              {isMenuOpen ? <X size={28} className="text-white" /> : <Menu size={28} className="text-white" />}
+              {isMenuOpen ? (
+                <X size={24} className={`transition-colors duration-300 ${textColorClass}`} />
+              ) : (
+                <Menu size={24} className={`transition-colors duration-300 ${textColorClass}`} />
+              )}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isMenuOpen && (
-          <nav className="md:hidden pb-4 flex flex-col gap-4">
+          <nav className="md:hidden pb-4 flex flex-col gap-4 animate-in slide-in-from-top-2 duration-300">
             {navItems.map((item) => (
               <Link
-                key={item}
-                href="#"
-                className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                key={item.name}
+                href={item.href}
+                className={`text-sm font-medium transition-colors duration-300 ${textColorClass} hover:opacity-70`}
               >
-                {item}
+                {item.name}
               </Link>
             ))}
           </nav>
