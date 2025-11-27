@@ -4,85 +4,80 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Tourism-focused color palette with ocean blue and warm accents */
-  --background: oklch(0.99 0.005 240);
-  --foreground: oklch(0.2 0.02 240);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2 0.02 240);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2 0.02 240);
-  /* Ocean blue primary for tourism */
-  --primary: oklch(0.55 0.15 240);
-  --primary-foreground: oklch(0.99 0 0);
-  /* Warm sand secondary */
-  --secondary: oklch(0.92 0.03 80);
-  --secondary-foreground: oklch(0.25 0.02 240);
-  --muted: oklch(0.96 0.01 240);
-  --muted-foreground: oklch(0.5 0.02 240);
-  /* Sunset orange accent */
-  --accent: oklch(0.75 0.15 50);
-  --accent-foreground: oklch(0.99 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.9 0.01 240);
-  --input: oklch(0.9 0.01 240);
-  --ring: oklch(0.55 0.15 240);
-  /* Tourism-themed chart colors */
-  --chart-1: oklch(0.55 0.15 240); /* Ocean blue */
-  --chart-2: oklch(0.75 0.15 50); /* Sunset orange */
-  --chart-3: oklch(0.65 0.12 160); /* Tropical teal */
-  --chart-4: oklch(0.7 0.1 350); /* Coral pink */
-  --chart-5: oklch(0.8 0.08 100); /* Golden yellow */
+  /* Background changed to #fff (warm cream) */
+  --background: #fff;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  /* Primary changed to black for buttons */
+  --primary: #1a1a1a;
+  --primary-foreground: #fff;
+  /* Secondary same as background */
+  --secondary: #fff;
+  --secondary-foreground: #1a1a1a;
+  --muted: #e8e6e1;
+  --muted-foreground: #666666;
+  --accent: #fff;
+  --accent-foreground: #1a1a1a;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: rgba(0, 0, 0, 0.15);
+  --input: rgba(0, 0, 0, 0.15);
+  --ring: #1a1a1a;
+  --chart-1: #1a1a1a;
+  --chart-2: #666666;
+  --chart-3: #999999;
+  --chart-4: #cccccc;
+  --chart-5: #e8e6e1;
   --radius: 0.75rem;
-  /* Sidebar with ocean blue theme */
-  --sidebar: oklch(0.55 0.15 240);
-  --sidebar-foreground: oklch(0.99 0 0);
-  --sidebar-primary: oklch(0.75 0.15 50);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.48 0.15 240);
-  --sidebar-accent-foreground: oklch(0.99 0 0);
-  --sidebar-border: oklch(0.48 0.15 240);
-  --sidebar-ring: oklch(0.75 0.15 50);
+  --sidebar: #fff;
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: #1a1a1a;
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent: #e8e6e1;
+  --sidebar-accent-foreground: #1a1a1a;
+  --sidebar-border: rgba(0, 0, 0, 0.15);
+  --sidebar-ring: #1a1a1a;
 }
 
 .dark {
-  /* Updated dark mode with deep ocean theme inspired by Vercel dashboard */
-  --background: oklch(0.12 0.01 240);
-  --foreground: oklch(0.95 0.005 240);
-  --card: oklch(0.16 0.015 240);
-  --card-foreground: oklch(0.95 0.005 240);
-  --popover: oklch(0.14 0.015 240);
-  --popover-foreground: oklch(0.95 0.005 240);
-  --primary: oklch(0.65 0.15 240);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.2 0.015 240);
-  --secondary-foreground: oklch(0.95 0.005 240);
-  --muted: oklch(0.18 0.015 240);
-  --muted-foreground: oklch(0.6 0.01 240);
-  --accent: oklch(0.75 0.15 50);
-  --accent-foreground: oklch(0.99 0 0);
-  --destructive: oklch(0.5 0.2 27);
-  --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.22 0.015 240);
-  --input: oklch(0.22 0.015 240);
-  --ring: oklch(0.65 0.15 240);
-  --chart-1: oklch(0.65 0.15 240);
-  --chart-2: oklch(0.75 0.15 50);
-  --chart-3: oklch(0.65 0.12 160);
-  --chart-4: oklch(0.7 0.1 350);
-  --chart-5: oklch(0.8 0.08 100);
-  --sidebar: oklch(0.1 0.01 240);
-  --sidebar-foreground: oklch(0.95 0.005 240);
-  --sidebar-primary: oklch(0.75 0.15 50);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.18 0.015 240);
-  --sidebar-accent-foreground: oklch(0.95 0.005 240);
-  --sidebar-border: oklch(0.18 0.015 240);
-  --sidebar-ring: oklch(0.65 0.15 240);
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --card: #141414;
+  --card-foreground: #fafafa;
+  --popover: #141414;
+  --popover-foreground: #fafafa;
+  --primary: #fafafa;
+  --primary-foreground: #0a0a0a;
+  --secondary: #1f1f1f;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  --accent: #262626;
+  --accent-foreground: #fafafa;
+  --destructive: #dc2626;
+  --destructive-foreground: #fafafa;
+  --border: rgba(255, 255, 255, 0.15);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #fafafa;
+  --chart-1: #fafafa;
+  --chart-2: #a3a3a3;
+  --chart-3: #666666;
+  --chart-4: #404040;
+  --chart-5: #262626;
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #fafafa;
+  --sidebar-primary: #fafafa;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #1f1f1f;
+  --sidebar-accent-foreground: #fafafa;
+  --sidebar-border: rgba(255, 255, 255, 0.15);
+  --sidebar-ring: #fafafa;
 }
 
 @theme inline {
-  /* Updated to use Poppins font */
   --font-sans: var(--font-poppins);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -131,7 +126,7 @@
   }
 }
 
-/* Custom scrollbar styles for sidebar */
+/* Custom scrollbar styles */
 @layer utilities {
   .scrollbar-thin {
     scrollbar-width: thin;
@@ -146,28 +141,16 @@
   }
 
   .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--sidebar-border) / 0.5);
+    background-color: rgba(0, 0, 0, 0.2);
     border-radius: 3px;
   }
 
   .scrollbar-thin:hover::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--sidebar-border));
-  }
-
-  .scrollbar-track-transparent::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .scrollbar-thumb-sidebar-border\/50::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--sidebar-border) / 0.5);
-  }
-
-  .hover\:scrollbar-thumb-sidebar-border:hover::-webkit-scrollbar-thumb {
-    background-color: hsl(var(--sidebar-border));
+    background-color: rgba(0, 0, 0, 0.3);
   }
 }
 
-/* Added custom cursor styles for hiding system cursor and allowing interactions */
+/* Custom cursor styles */
 .hide-system-cursor {
   cursor: none !important;
 }
@@ -181,7 +164,6 @@
   cursor: pointer !important;
 }
 
-/* Added cursor styles to prevent selection and focus visual conflicts */
 [data-cursor-element="true"] {
   cursor: none !important;
   -webkit-user-select: none;
@@ -191,11 +173,7 @@
   box-shadow: none !important;
 }
 
-[data-cursor-element="true"]:focus {
-  outline: none !important;
-  box-shadow: none !important;
-}
-
+[data-cursor-element="true"]:focus,
 [data-cursor-element="true"]:active {
   outline: none !important;
   box-shadow: none !important;

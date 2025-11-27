@@ -14,11 +14,11 @@ export default function Header() {
   const headerRef = useRef<HTMLHeadingElement>(null)
   const navItems = [
     { name: "TOURS", href: "/tours" },
-    { name: "SHOP", href: "#" },
-    { name: "VISIT", href: "#" },
-    { name: "CLUB", href: "#" },
-    { name: "EVENTS", href: "#" },
-    { name: "ABOUT", href: "#" },
+    { name: "SHOP", href: "/shop" },
+    { name: "VISIT", href: "/visit" },
+    { name: "CLUB", href: "/club" },
+    { name: "EVENTS", href: "/events" },
+    { name: "ABOUT", href: "/about" },
   ]
 
   useEffect(() => {

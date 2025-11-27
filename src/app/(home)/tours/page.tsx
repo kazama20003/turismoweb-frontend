@@ -1,125 +1,425 @@
 "use client"
 
-import Header from "@/components/home/header"
+import { useState, useRef, useEffect } from "react"
+import { gsap } from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { Search, ArrowRight, Clock, Wine, Star } from "lucide-react"
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger)
+}
+
+const tours = [
+  {
+    id: 1,
+    title: "Maxwell Wine Tasting",
+    subtitle: "A Journey Through Flavour",
+    description:
+      "Immerse yourself in our signature tasting experience. Choose from curated wine flights showcasing the terroir of McLaren Vale, complemented by artisanal local produce.",
+    price: 20,
+    duration: "1 Hour",
+    image: "/elegant-wine-tasting-room-with-fireplace.jpg",
+    highlights: ["5 Premium Wines", "Tasting Notes", "Expert Guidance"],
+    featured: true,
+  },
+  {
+    id: 2,
+    title: "Vineyard Experience",
+    subtitle: "Walk Among the Vines",
+    description:
+      "Journey through our historic vineyards with passionate guides who share the stories behind every row. End with an exclusive tasting under the Australian sky.",
+    price: 45,
+    duration: "2 Hours",
+    image: "/aerial-view-of-green-vineyard-rows.jpg",
+    highlights: ["Guided Walk", "History & Heritage", "Sunset Tasting"],
+    featured: false,
+  },
+  {
+    id: 3,
+    title: "Private Cellar Tour",
+    subtitle: "Behind Closed Doors",
+    description:
+      "Descend into the heart of our winemaking. This intimate experience grants exclusive access to our barrel room, where our sommelier reveals the secrets of ageing and blending.",
+    price: 75,
+    duration: "1.5 Hours",
+    image: "/dark-wine-cellar-with-oak-barrels.jpg",
+    highlights: ["Barrel Tasting", "Limited Access", "Take Home Bottle"],
+    featured: true,
+  },
+  {
+    id: 4,
+    title: "Food & Wine Pairing",
+    subtitle: "Culinary Excellence",
+    description:
+      "A gastronomic journey where each course is meticulously paired with our finest vintages. Our chef and sommelier collaborate to create an unforgettable sensory experience.",
+    price: 95,
+    duration: "2.5 Hours",
+    image: "/gourmet-food-wine-pairing-elegant-restaurant.jpg",
+    highlights: ["5-Course Menu", "Sommelier Led", "Seasonal Menu"],
+    featured: false,
+  },
+]
+
+function TourCard({ tour, index }: { tour: (typeof tours)[0]; index: number }) {
+  const cardRef = useRef<HTMLDivElement>(null)
+  const imageRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const lineRef = useRef<HTMLDivElement>(null)
+  const isEven = index % 2 === 0
+
+  useEffect(() => {
+    const card = cardRef.current
+    const image = imageRef.current
+    const content = contentRef.current
+    const line = lineRef.current
+
+    if (!card || !image || !content || !line) return
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        card,
+        { opacity: 0, y: 60 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: card,
+            start: "top 80%",
+            toggleActions: "play none none none",
+          },
+        },
+      )
+
+      gsap.fromTo(
+        line,
+        { scaleY: 0 },
+        {
+          scaleY: 1,
+          duration: 0.6,
+          delay: 0.3,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: card,
+            start: "top 80%",
+            toggleActions: "play none none none",
+          },
+        },
+      )
+
+      const imageInner = image.querySelector("img")
+      if (imageInner) {
+        card.addEventListener("mouseenter", () => {
+          gsap.to(imageInner, { scale: 1.05, duration: 0.7, ease: "power2.out" })
+        })
+        card.addEventListener("mouseleave", () => {
+          gsap.to(imageInner, { scale: 1, duration: 0.7, ease: "power2.out" })
+        })
+      }
+    })
+
+    return () => ctx.revert()
+  }, [])
+
+  return (
+    <div ref={cardRef} className="group opacity-0 py-6">
+      <div className={`flex flex-col lg:flex-row ${isEven ? "" : "lg:flex-row-reverse"}`}>
+        {/* Image Section - Reducido aspect ratio a 4/3 en desktop */}
+        <div ref={imageRef} className="relative w-full lg:w-1/2 aspect-[4/3] overflow-hidden">
+          <img
+            src={tour.image || "/placeholder.svg"}
+            alt={tour.title}
+            className="absolute inset-0 w-full h-full object-cover object-center"
+          />
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+          {tour.featured && (
+            <div className="absolute top-6 left-6 flex items-center gap-2 bg-accent text-accent-foreground px-4 py-2 text-xs font-medium tracking-widest uppercase">
+              <Star className="w-3 h-3" />
+              Featured
+            </div>
+          )}
+
+          <div className="absolute bottom-6 left-6 lg:hidden">
+            <span className="text-white text-3xl font-serif">${tour.price}</span>
+            <span className="text-white/70 text-sm ml-1">per person</span>
+          </div>
+        </div>
+
+        {/* Content Section - Reducido padding */}
+        <div
+          ref={contentRef}
+          className="relative w-full lg:w-1/2 p-6 lg:p-8 xl:p-10 flex flex-col justify-center bg-secondary"
+        >
+          <div
+            ref={lineRef}
+            className="absolute top-0 left-6 lg:left-8 xl:left-10 w-px h-8 bg-foreground/20 origin-top"
+          />
+
+          <div className="space-y-4">
+            <span className="text-accent text-xs font-medium tracking-[0.3em] uppercase">{tour.subtitle}</span>
+
+            <h3 className="text-2xl md:text-3xl xl:text-4xl font-serif text-foreground leading-tight">{tour.title}</h3>
+
+            <div className="w-16 h-px bg-accent" />
+
+            <p className="text-muted-foreground leading-relaxed max-w-lg">{tour.description}</p>
+
+            <div className="flex flex-wrap gap-2">
+              {tour.highlights.map((highlight, i) => (
+                <span key={i} className="px-3 py-1.5 bg-muted text-muted-foreground text-xs tracking-wider">
+                  {highlight}
+                </span>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-6 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4" />
+                <span>{tour.duration}</span>
+              </div>
+              <div className="hidden lg:flex items-center gap-2">
+                <span className="text-2xl font-serif text-foreground">${tour.price}</span>
+                <span className="text-xs">per person</span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-4 pt-2">
+              <button className="group/btn inline-flex items-center gap-3 px-6 py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase transition-all hover:scale-[1.02] active:scale-[0.98]">
+                Book Now
+                <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+              </button>
+
+              <button className="inline-flex items-center gap-3 px-6 py-3 border border-foreground/20 text-foreground text-xs font-medium tracking-widest uppercase hover:bg-foreground hover:text-background transition-all hover:scale-[1.02] active:scale-[0.98]">
+                Gift Voucher
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function ToursPage() {
-  const tours = [
-    {
-      title: "Maxwell Wine Tasting",
-      description: "Choose your wine flight. Add snacks for a decadent tasting experience.",
-      price: "FROM $20",
-      duration: "DURATION: 1 HOUR",
-      image: "/wine-tasting-by-fireplace-with-wine-glass.jpg",
-    },
-    {
-      title: "Vineyard Experience",
-      description: "Walk through our historic vineyards with expert guides and taste exclusive wines.",
-      price: "FROM $45",
-      duration: "DURATION: 2 HOURS",
-      image: "/green-vineyard-rows-aerial-view.jpg",
-    },
-    {
-      title: "Private Cellar Tour",
-      description: "Exclusive access to our wine cellar with sommelier-led tasting session.",
-      price: "FROM $75",
-      duration: "DURATION: 1.5 HOURS",
-      image: "/wine-cellar-with-barrels.jpg",
-    },
-    {
-      title: "Food Pairing Experience",
-      description: "Gourmet food paired with our finest wines in an intimate setting.",
-      price: "FROM $95",
-      duration: "DURATION: 2.5 HOURS",
-      image: "/gourmet-food-wine-pairing-elegant.jpg",
-    },
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeFilter, setActiveFilter] = useState("all")
+  const heroRef = useRef<HTMLDivElement>(null)
+  const heroContentRef = useRef<HTMLDivElement>(null)
+  const heroVideoRef = useRef<HTMLDivElement>(null)
+  const introRef = useRef<HTMLDivElement>(null)
+  const ctaRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      if (heroVideoRef.current) {
+        gsap.to(heroVideoRef.current, {
+          scale: 1.1,
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        })
+      }
+
+      if (heroContentRef.current) {
+        gsap.to(heroContentRef.current, {
+          opacity: 0,
+          y: 100,
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: "top top",
+            end: "50% top",
+            scrub: true,
+          },
+        })
+      }
+
+      const heroElements = heroContentRef.current?.children
+      if (heroElements) {
+        gsap.fromTo(
+          heroElements,
+          { opacity: 0, y: 30 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            stagger: 0.2,
+            delay: 0.3,
+            ease: "power3.out",
+          },
+        )
+      }
+
+      if (introRef.current) {
+        gsap.fromTo(
+          introRef.current.children,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: introRef.current,
+              start: "top 80%",
+              toggleActions: "play none none none",
+            },
+          },
+        )
+      }
+
+      if (ctaRef.current) {
+        gsap.fromTo(
+          ctaRef.current,
+          { opacity: 0, y: 40 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "power3.out",
+            scrollTrigger: {
+              trigger: ctaRef.current,
+              start: "top 80%",
+              toggleActions: "play none none none",
+            },
+          },
+        )
+      }
+    })
+
+    return () => ctx.revert()
+  }, [])
+
+  const filters = [
+    { id: "all", label: "All Experiences" },
+    { id: "tasting", label: "Tastings" },
+    { id: "tour", label: "Tours" },
+    { id: "dining", label: "Dining" },
   ]
+
+  const filteredTours = tours.filter((tour) => {
+    const matchesSearch =
+      tour.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tour.description.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchesSearch
+  })
 
   return (
     <main className="min-h-screen bg-background">
-      <Header />
-
-      <section className="relative w-full h-[50vh] overflow-hidden">
-        <div className="absolute inset-0">
+      {/* Hero Section */}
+      <section ref={heroRef} className="relative h-[80vh] overflow-hidden">
+        <div ref={heroVideoRef} className="absolute inset-0">
           <video
             src="https://res.cloudinary.com/ddbzpbrje/video/upload/v1763011237/11929213_1920_1080_60fps_lq178j.mp4"
-            className="absolute top-1/2 left-1/2 min-w-full min-h-full w-auto h-auto 
-                       -translate-x-1/2 -translate-y-1/2 object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
             autoPlay
             muted
             loop
             playsInline
           />
+          <div className="absolute inset-0 bg-black/30" />
         </div>
-        <div className="absolute inset-0 bg-black/20 z-10" />
 
-        <div className="absolute bottom-8 left-8 z-20">
-          <h2 className="text-white text-2xl md:text-4xl font-bold tracking-wider">WELCOME TO THE</h2>
-          <h2 className="text-white text-2xl md:text-4xl font-bold tracking-wider">MAXWELL RESTAURANT</h2>
+        <div
+          ref={heroContentRef}
+          className="absolute inset-0 flex flex-col items-start justify-end text-left px-6 pb-12"
+        >
+          <span className="text-white/70 text-xs font-medium tracking-[0.3em] uppercase mb-3 opacity-0">
+            McLaren Vale, South Australia
+          </span>
+
+          <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-serif mb-2 opacity-0">Experiences</h1>
+
+          <p className="text-white/60 text-sm md:text-base max-w-md opacity-0">
+            Curated moments that celebrate the art of winemaking
+          </p>
         </div>
       </section>
 
-      <section className="py-20 px-4 md:px-8 bg-[#F5F3EF]">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-wider text-center mb-2 text-black">Add On To</h1>
-          <h2 className="text-5xl md:text-7xl font-bold tracking-wider italic text-center mb-16 text-black">
-            Your Experience
+      {/* Introduction Section */}
+      <section className="py-24 px-4 bg-secondary">
+        <div ref={introRef} className="max-w-4xl mx-auto text-center">
+          <span className="text-accent text-xs font-medium tracking-[0.3em] uppercase">Discover</span>
+          <h2 className="text-4xl md:text-6xl font-serif mt-4 mb-6 text-foreground">
+            Add On To Your
+            <span className="italic block mt-2">Experience</span>
           </h2>
+          <p className="text-muted-foreground text-lg leading-relaxed max-w-2xl mx-auto">
+            From intimate tastings to immersive vineyard walks, each experience is crafted to reveal the passion and
+            precision behind every bottle of Maxwell wine.
+          </p>
+        </div>
+      </section>
 
-          <div className="flex flex-col">
-            {tours.map((tour, index) => (
-              <div key={index}>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 bg-transparent py-8">
-                  {/* Image - Left Side (50% width) */}
-                  <div className="relative aspect-[4/3] lg:aspect-[16/10] overflow-hidden">
-                    <img
-                      src={tour.image || "/placeholder.svg"}
-                      alt={tour.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+      {/* Search & Filter Section */}
+      <section className="py-12 px-4 bg-secondary border-y border-border">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="relative w-full md:w-auto">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search experiences..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full md:w-80 pl-12 pr-4 py-3 bg-background border border-border text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-accent transition-colors"
+              />
+            </div>
 
-                  {/* Content - Right Side */}
-                  <div className="p-8 lg:p-12 flex flex-col justify-center bg-[#F5F3EF]">
-                    <h3 className="text-3xl md:text-4xl font-bold tracking-wider mb-4 text-black">{tour.title}</h3>
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+              {filters.map((filter) => (
+                <button
+                  key={filter.id}
+                  onClick={() => setActiveFilter(filter.id)}
+                  className={`px-6 py-3 text-xs font-medium tracking-wider uppercase whitespace-nowrap transition-all ${
+                    activeFilter === filter.id
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-background border border-border text-muted-foreground hover:text-foreground hover:border-foreground"
+                  }`}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
-                    {/* Separator line */}
-                    <div className="w-full h-px bg-black/20 mb-6" />
-
-                    {/* Description and Price/Duration row */}
-                    <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-8">
-                      <p className="text-sm leading-relaxed text-black/70 max-w-md">{tour.description}</p>
-                      <div className="flex flex-col items-start md:items-end text-xs font-bold tracking-wider text-black shrink-0">
-                        <span>{tour.price}</span>
-                        <span className="mt-1">{tour.duration}</span>
-                      </div>
-                    </div>
-
-                    {/* Buttons */}
-                    <div className="flex flex-wrap gap-4 mb-6">
-                      <button className="px-8 py-3 bg-black text-white text-xs font-bold tracking-wider rounded-full hover:bg-black/80 transition-all">
-                        MAKE A RESERVATION
-                      </button>
-                      <button className="px-8 py-3 border border-black text-black text-xs font-bold tracking-wider rounded-full hover:bg-black hover:text-white transition-all">
-                        GIFT VOUCHER
-                      </button>
-                    </div>
-
-                    {/* More Information link */}
-                    <button className="text-xs font-bold tracking-wider text-black hover:opacity-70 transition-opacity flex items-center gap-2 self-start">
-                      MORE INFORMATION
-                      <span>→</span>
-                    </button>
-                  </div>
-                </div>
-
-                {index < tours.length - 1 && (
-                  <div className="flex justify-center py-4">
-                    <div className="w-32 h-px bg-black/20" />
-                  </div>
-                )}
-              </div>
+      {/* Tours List */}
+      <section className="bg-secondary">
+        <div className="px-4 md:px-8 lg:px-12">
+          <div className="divide-y divide-foreground/10">
+            {filteredTours.map((tour, index) => (
+              <TourCard key={tour.id} tour={tour} index={index} />
             ))}
           </div>
+        </div>
+
+        {filteredTours.length === 0 && (
+          <div className="py-24 text-center">
+            <Wine className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">No experiences found matching your criteria.</p>
+          </div>
+        )}
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-24 px-4 bg-primary text-primary-foreground">
+        <div ref={ctaRef} className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-serif mb-6">Create Your Own Experience</h2>
+          <p className="text-primary-foreground/70 mb-8 max-w-xl mx-auto">
+            Looking for something bespoke? Our team can craft a private experience tailored to your preferences and
+            group size.
+          </p>
+          <button className="inline-flex items-center gap-3 px-10 py-5 bg-accent text-accent-foreground text-xs font-medium tracking-widest uppercase hover:bg-accent/90 transition-colors">
+            Enquire Now
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
       </section>
     </main>
