@@ -85,7 +85,7 @@ const navigationData = {
       items: [
         {
           title: "Vehículos",
-          url: "/dashboard/transports",
+          url: "/dashboard/transports/vehicles",
         },
         {
           title: "Rutas",

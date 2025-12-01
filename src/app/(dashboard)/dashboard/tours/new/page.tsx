@@ -51,15 +51,6 @@ export default function NewTourPage() {
   })
 
   const {
-    fields: itineraryFields,
-    append: appendItinerary,
-    remove: removeItinerary,
-  } = useFieldArray({
-    control: form.control,
-    name: "itinerary",
-  })
-
-  const {
     fields: discountFields,
     append: appendDiscount,
     remove: removeDiscount,
@@ -75,7 +66,7 @@ export default function NewTourPage() {
         toast.success("Tour creado exitosamente")
         router.push("/dashboard/tours")
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast.error(error.message || "Error al crear el tour")
       },
       onSettled: () => {
@@ -87,7 +78,7 @@ export default function NewTourPage() {
   return (
     <SidebarInset>
       <div className="m-4 rounded-lg overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-t-lg">
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 rounded-t-lg">
           <div className="flex items-center gap-2 px-4 w-full">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
