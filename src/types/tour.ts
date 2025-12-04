@@ -1,65 +1,63 @@
-export interface Tour extends CreateTourDto {
-  _id: string
-  createdAt: string
-  updatedAt: string
-  translations?: Record<string, Partial<Tour>>
+export interface CloudinaryImageDto {
+  url: string
+  secure_url: string
+  public_id: string
 }
 
-export interface CreateTourDto {
-  // Básicos
+export interface CoordinatesDto {
+  latitude: number
+  longitude: number
+}
+
+export interface ItineraryItem {
+  order: number
   title: string
   description: string
-  // Imágenes Cloudinary
-  images?: Array<{
-    url: string
-    publicId: string
-  }>
+  durationHours?: number
+  images?: string[]
+  activities?: string[]
+  meals?: {
+    breakfast: boolean
+    lunch: boolean
+    dinner: boolean
+  }
+  hotelNight?: boolean
+}
+
+export interface Discount {
+  people: number
+  discount: number
+}
+
+export type Difficulty = "easy" | "medium" | "hard"
+export type AvailabilityType = "unlimited" | "fixed_dates" | "date_range"
+
+export interface Tour {
+  _id: string
+  title: string
+  description: string
+  images?: CloudinaryImageDto[]
   videoUrl?: string
   locationName: string
-  coordinates?: {
-    lat: number
-    lng: number
-  }
+  coordinates?: CoordinatesDto
   durationDays: number
   durationHours?: number
-  difficulty?: "easy" | "medium" | "hard"
+  difficulty?: Difficulty
   minAge?: number
   capacity?: number
   meetingPoint?: string
   startTime?: string
   endTime?: string
-  // Beneficios y recomendaciones
   benefits?: string[]
   preparations?: string[]
-  // Itinerario
-  itinerary?: Array<{
-    order: number
-    title: string
-    description: string
-    durationHours?: number
-    images?: string[]
-    activities?: string[]
-    meals?: {
-      breakfast: boolean
-      lunch: boolean
-      dinner: boolean
-    }
-    hotelNight?: boolean
-  }>
-  // Transporte
+  itinerary?: ItineraryItem[]
   hasTransport?: boolean
   vehicleIds?: string[]
-  // Guía
   hasGuide?: boolean
-  // Precios
   currentPrice: number
   oldPrice?: number
-  discounts?: Array<{
-    people: number
-    discount: number
-  }>
-  // Disponibilidad y reglas de reserva
-  availabilityType?: "unlimited" | "fixed_dates" | "date_range"
+  discounts?: Discount[]
+  availabilityType?: AvailabilityType
   startDate?: string
   endDate?: string
   availableDates?: string[]
@@ -69,13 +67,10 @@ export interface CreateTourDto {
   cutoffHoursBeforeStart?: number
   instantConfirmation?: boolean
   isBookable?: boolean
-  // Incluye / excluye
   includes?: string[]
   excludes?: string[]
-  // Categorías y lenguajes
   categories?: string[]
   languages?: string[]
-  // Meta / rating
   rating?: number
   reviewsCount?: number
   cancellationPolicy?: string
@@ -84,15 +79,36 @@ export interface CreateTourDto {
   isActive?: boolean
   slug: string
   metaDescription?: string
+  createdAt?: string
+  updatedAt?: string
 }
+
+export type CreateTourDto = Omit<Tour, "_id" | "createdAt" | "updatedAt">
 
 export type UpdateTourDto = Partial<CreateTourDto>
 
+export interface UpdateTranslationItineraryItemDto {
+  order: number
+  title?: string
+  description?: string
+}
+
+export interface UpdateTourTranslationDto {
+  title?: string
+  description?: string
+  slug?: string
+  meetingPoint?: string
+  metaDescription?: string
+  includes?: string[]
+  excludes?: string[]
+  categories?: string[]
+  itinerary?: UpdateTranslationItineraryItemDto[]
+}
+
 export interface PaginatedResponse<T> {
   data: T[]
-  total: number
   page: number
   limit: number
+  total: number
   totalPages: number
 }
-    

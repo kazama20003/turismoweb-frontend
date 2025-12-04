@@ -1,8 +1,16 @@
-'use client'
+"use client"
 
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState, useEffect } from "react"
 
-export function HeroSection() {
+interface HeroSectionProps {
+  title: string
+  titleLine2: string
+  description: string
+  planVisit: string
+  shopNow: string
+}
+
+export function HeroSection({ title, titleLine2, description, planVisit, shopNow }: HeroSectionProps) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [audioActive, setAudioActive] = useState(false) // inicia en mute REAL
 
@@ -11,12 +19,13 @@ export function HeroSection() {
     if (!audio) return
 
     const unlockAudio = () => {
-      audio.play()
+      audio
+        .play()
         .then(() => {
           setAudioActive(true)
           console.log("Audio habilitado correctamente.")
         })
-        .catch(err => {
+        .catch((err) => {
           console.log("Error al intentar reproducir:", err)
         })
 
@@ -56,7 +65,6 @@ export function HeroSection() {
 
   return (
     <section className="relative w-full h-screen overflow-hidden video-showcase hide-system-cursor">
-
       {/* VIDEO BACKGROUND */}
       <div className="absolute inset-0 overflow-hidden">
         <iframe
@@ -76,26 +84,23 @@ export function HeroSection() {
         <div className="flex-1 flex flex-col justify-end">
           <div className="w-full px-8 sm:px-12 lg:px-16 pb-16 md:pb-20">
             <div className="max-w-2xl">
+              {/* Replace static text with translation props */}
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-                VALLE SAGRADO <br /> DEL PERÚ
+                {title} <br /> {titleLine2}
               </h1>
 
-              <p className="text-lg md:text-xl text-white/90 italic font-light max-w-md mb-8">
-                En el corazón del Pueblo Sagrado del Perú, donde los ecos de los Inkas aún susurran entre los valles,
-                Majestusa florece como un símbolo de tradición y renovación.
-              </p>
+              <p className="text-lg md:text-xl text-white/90 italic font-light max-w-md mb-8">{description}</p>
             </div>
           </div>
         </div>
 
         {/* FOOTER */}
         <div className="w-full px-8 sm:px-12 lg:px-16 pb-16 md:pb-20 flex justify-between items-end">
-
           {/* AUDIO BUTTON */}
           <button
             onClick={(e) => {
-              e.stopPropagation();
-              toggleAudio();
+              e.stopPropagation()
+              toggleAudio()
             }}
             className="w-12 h-12 rounded-full bg-white/20 hover:bg-white/30 transition-all flex items-center justify-center text-white backdrop-blur-sm"
             aria-label="Toggle audio"
@@ -106,24 +111,29 @@ export function HeroSection() {
               </svg>
             ) : (
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.172a1 1 0 011.414 0A6.972 6.972 0 0118 10a6.972 6.972 0 01-1.929 4.828 1 1 0 01-1.414-1.414A4.972 4.972 0 0016 10c0-1.713-.672-3.259-1.757-4.372a1 1 0 010-1.414z" clipRule="evenodd" />
+                <path
+                  fillRule="evenodd"
+                  d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.707.707L4.586 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.586l3.707-3.707a1 1 0 011.09-.217zM14.657 2.172a1 1 0 011.414 0A6.972 6.972 0 0118 10a6.972 6.972 0 01-1.929 4.828 1 1 0 01-1.414-1.414A4.972 4.972 0 0016 10c0-1.713-.672-3.259-1.757-4.372a1 1 0 010-1.414z"
+                  clipRule="evenodd"
+                />
               </svg>
             )}
           </button>
 
           {/* BUTTONS */}
           <div className="flex gap-6 items-center">
-            <button 
+            {/* Update button text with translations */}
+            <button
               onClick={(e) => e.stopPropagation()}
               className="px-8 py-3 bg-black text-white font-semibold rounded-full hover:bg-black/80 transition-all"
             >
-              PLAN YOUR VISIT
+              {planVisit}
             </button>
-            <button 
+            <button
               onClick={(e) => e.stopPropagation()}
               className="px-8 py-3 bg-transparent text-white font-semibold rounded-full hover:bg-white/10 transition-all"
             >
-              SHOP NOW
+              {shopNow}
             </button>
           </div>
         </div>
@@ -133,7 +143,6 @@ export function HeroSection() {
       <audio ref={audioRef} loop preload="auto">
         <source src="/home/hero.m4a" type="audio/mp4" />
       </audio>
-
     </section>
   )
 }

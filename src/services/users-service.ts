@@ -1,5 +1,3 @@
-"use client"
-
 import { api } from "@/lib/api"
 import type { User, CreateUserDto, UpdateUserDto, PaginatedResponse } from "@/types/user"
 
@@ -34,5 +32,14 @@ export const usersService = {
   async deleteUser(id: string) {
     const response = await api.delete<{ message: string }>(`/users/${id}`)
     return response.data
+  },
+
+  // GET /users?email=X
+  async getUserByEmail(email: string) {
+    const response = await api.get<PaginatedResponse<User>>("/users", {
+      params: { email },
+    })
+    // Return first user found or null
+    return response.data.data?.[0] || null
   },
 }

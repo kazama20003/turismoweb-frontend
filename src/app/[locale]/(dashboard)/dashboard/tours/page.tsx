@@ -1,5 +1,23 @@
 "use client"
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -21,18 +39,19 @@ import {
   Edit,
   Eye,
   Trash2,
+  Languages,
 } from "lucide-react"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { useEffect, useState } from "react"
-import { useTours, useDeleteTour } from "@/hooks/use-tours"
+import {
+  useTours,
+  useDeleteTour,
+  useAutoTranslateTour,
+  SUPPORTED_LANGUAGES,
+  type SupportedLanguageCode,
+} from "@/hooks/use-tours"
 import type { Tour } from "@/types/tour"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -40,8 +59,14 @@ import { useRouter } from "next/navigation"
 export default function ToursPage() {
   const router = useRouter()
   const { data: toursData, isLoading } = useTours()
-  const deleteTourMutation = useDeleteTour()
+  const deleteTourssMutation = useDeleteTour()
+  const autoTranslateMutation = useAutoTranslateTour()
+
   const [searchQuery, setSearchQuery] = useState("")
+  const [showTranslateDialog, setShowTranslateDialog] = useState(false)
+  const [selectedTourForTranslation, setSelectedTourForTranslation] = useState<string | null>(null)
+  const [selectedLanguages, setSelectedLanguages] = useState<SupportedLanguageCode[]>([])
+
   const [stats, setStats] = useState({
     total: 0,
     active: 0,
@@ -54,25 +79,46 @@ export default function ToursPage() {
       const tours = toursData.data
       const activeCount = tours.filter((t: Tour) => t.isActive !== false).length
       const capacitySum = tours.reduce((sum: number, t: Tour) => sum + (t.capacity || 0), 0)
+      const revenueSum = tours.reduce((sum: number, t: Tour) => sum + (t.currentPrice || 0), 0)
 
       setStats({
         total: tours.length,
         active: activeCount,
         totalCapacity: capacitySum,
-        totalRevenue: tours.length * 150, // placeholder calculation
+        totalRevenue: revenueSum,
       })
     }
   }, [toursData])
 
   const handleDeleteTour = async (tourId: string) => {
-    deleteTourMutation.mutate(tourId, {
-      onSuccess: () => {
-        toast.success("Tour eliminado correctamente")
-      },
-      onError: () => {
-        toast.error("Error al eliminar el tour")
-      },
-    })
+    deleteTourssMutation.trigger(tourId)
+    toast.success("Tour eliminado correctamente")
+  }
+
+  const handleAutoTranslate = async () => {
+    if (!selectedTourForTranslation || selectedLanguages.length === 0) {
+      toast.error("Por favor selecciona al menos un idioma")
+      return
+    }
+
+    try {
+      await autoTranslateMutation.trigger({ id: selectedTourForTranslation, languages: selectedLanguages })
+      toast.success("Tour traducido correctamente")
+      setShowTranslateDialog(false)
+      setSelectedTourForTranslation(null)
+      setSelectedLanguages([])
+    } catch {
+      toast.error("Error al traducir el tour")
+    }
+  }
+
+  const openTranslateDialog = (tourId: string) => {
+    setSelectedTourForTranslation(tourId)
+    setShowTranslateDialog(true)
+  }
+
+  const toggleLanguage = (lang: SupportedLanguageCode) => {
+    setSelectedLanguages((prev) => (prev.includes(lang) ? prev.filter((l) => l !== lang) : [...prev, lang]))
   }
 
   const filteredTours =
@@ -109,16 +155,10 @@ export default function ToursPage() {
     return "text-muted-foreground"
   }
 
-  const getTourStats = () => {
-    if (!toursData?.data) return { booked: 0, capacity: 0 }
-    const bookingsSum = toursData.data.reduce((sum: number) => sum + 1, 0)
-    return { booked: bookingsSum, capacity: stats.totalCapacity }
-  }
-
   return (
     <SidebarInset>
       <div className="m-4 rounded-lg overflow-hidden">
-        <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 rounded-t-lg">
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 rounded-t-lg">
           <div className="flex items-center gap-2 px-4 w-full">
             <SidebarTrigger className="-ml-1" />
             <Separator orientation="vertical" className="mr-2 h-4" />
@@ -280,6 +320,10 @@ export default function ToursPage() {
                                   <Edit className="mr-2 h-4 w-4" />
                                   Editar tour
                                 </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => openTranslateDialog(tour._id)}>
+                                  <Languages className="mr-2 h-4 w-4" />
+                                  Traducir automáticamente
+                                </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
                                   className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-950/20"
@@ -301,6 +345,43 @@ export default function ToursPage() {
           </Card>
         </main>
       </div>
+
+      {/* Translation Dialog - Updated with all 9 supported languages */}
+      <AlertDialog open={showTranslateDialog} onOpenChange={setShowTranslateDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Traducir Tour Automáticamente</AlertDialogTitle>
+            <AlertDialogDescription>Selecciona los idiomas a los que deseas traducir este tour.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-2 py-4">
+            {SUPPORTED_LANGUAGES.filter((lang) => lang.code !== "es").map((lang) => (
+              <div key={lang.code} className="flex items-center gap-2">
+                <Checkbox
+                  id={`lang-${lang.code}`}
+                  checked={selectedLanguages.includes(lang.code)}
+                  onCheckedChange={() => toggleLanguage(lang.code)}
+                />
+                <Label htmlFor={`lang-${lang.code}`} className="cursor-pointer">
+                  {lang.name}
+                </Label>
+              </div>
+            ))}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAutoTranslate} disabled={autoTranslateMutation.isMutating}>
+              {autoTranslateMutation.isMutating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Traduciendo...
+                </>
+              ) : (
+                "Traducir"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </SidebarInset>
   )
 }

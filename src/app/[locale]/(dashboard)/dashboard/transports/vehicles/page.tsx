@@ -5,7 +5,7 @@ import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Bus, Car, Users, CheckCircle, XCircle, Plus, MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react"
+import { Bus, Car, Users, CheckCircle, AlertTriangle, Plus, MoreHorizontal, Pencil, Trash2, Eye } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -137,9 +137,9 @@ export default function VehiclesPage() {
                     <SelectValue placeholder="Filtrar por estado" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos</SelectItem>
-                    <SelectItem value="active">Activos</SelectItem>
-                    <SelectItem value="inactive">Inactivos</SelectItem>
+                    <SelectItem value="all">Todos los estados</SelectItem>
+                    <SelectItem value="active">Disponibles</SelectItem>
+                    <SelectItem value="inactive">No disponibles</SelectItem>
                   </SelectContent>
                 </Select>
                 <Button onClick={handleNewVehicle}>
@@ -170,7 +170,7 @@ export default function VehiclesPage() {
 
             <Card className="border-border/40 bg-card/50 backdrop-blur">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Vehículos Activos</CardTitle>
+                <CardTitle className="text-sm font-medium">Disponibles</CardTitle>
                 <CheckCircle className="h-4 w-4 text-emerald-500" />
               </CardHeader>
               <CardContent>
@@ -179,19 +179,19 @@ export default function VehiclesPage() {
                   <span className="text-emerald-500">
                     {totalVehicles > 0 ? Math.round((activeVehicles / totalVehicles) * 100) : 0}%
                   </span>{" "}
-                  disponibles
+                  listos para operar
                 </p>
               </CardContent>
             </Card>
 
             <Card className="border-border/40 bg-card/50 backdrop-blur">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">En Mantenimiento</CardTitle>
-                <XCircle className="h-4 w-4 text-amber-500" />
+                <CardTitle className="text-sm font-medium">No Disponibles</CardTitle>
+                <AlertTriangle className="h-4 w-4 text-amber-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{inactiveVehicles}</div>
-                <p className="text-xs text-muted-foreground mt-1">fuera de servicio</p>
+                <p className="text-xs text-muted-foreground mt-1">en mantenimiento o fuera de servicio</p>
               </CardContent>
             </Card>
 
@@ -265,8 +265,15 @@ export default function VehiclesPage() {
                       className="object-cover"
                     />
                     <div className="absolute top-2 right-2">
-                      <Badge variant={vehicle.isActive ? "default" : "secondary"}>
-                        {vehicle.isActive ? "Activo" : "Inactivo"}
+                      <Badge
+                        variant={vehicle.isActive ? "default" : "secondary"}
+                        className={
+                          vehicle.isActive
+                            ? "bg-emerald-500 hover:bg-emerald-600"
+                            : "bg-amber-500 hover:bg-amber-600 text-white"
+                        }
+                      >
+                        {vehicle.isActive ? "Disponible" : "No disponible"}
                       </Badge>
                     </div>
                   </div>
@@ -274,7 +281,9 @@ export default function VehiclesPage() {
                     <div className="flex items-start justify-between">
                       <div>
                         <CardTitle className="text-lg">{vehicle.name}</CardTitle>
-                        <CardDescription>{vehicle._id}</CardDescription>
+                        <CardDescription>
+                          {vehicle.isActive ? "Listo para asignar a tours" : "En mantenimiento o reparación"}
+                        </CardDescription>
                       </div>
                       <Car className="h-5 w-5 text-muted-foreground" />
                     </div>

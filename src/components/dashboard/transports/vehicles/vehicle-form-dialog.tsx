@@ -103,21 +103,15 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: VehicleFormDi
       images: images.map((img) => ({ url: img.url, publicId: img.publicId })),
     }
 
-    if (vehicle) {
-      updateMutation.trigger(
-        { id: vehicle._id, data: payload },
-        {
-          onSuccess: () => {
-            onOpenChange(false)
-          },
-        },
-      )
-    } else {
-      createMutation.trigger(payload, {
-        onSuccess: () => {
-          onOpenChange(false)
-        },
-      })
+    try {
+      if (vehicle) {
+        await updateMutation.trigger({ id: vehicle._id, data: payload })
+      } else {
+        await createMutation.trigger(payload)
+      }
+      onOpenChange(false)
+    } catch (error) {
+      console.error("Error saving vehicle:", error)
     }
   }
 
@@ -205,7 +199,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: VehicleFormDi
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="isActive">Estado</Label>
+                <Label htmlFor="isActive">Disponibilidad</Label>
                 <Select
                   value={formData.isActive ? "active" : "inactive"}
                   onValueChange={(value) => setFormData((prev) => ({ ...prev, isActive: value === "active" }))}
@@ -214,8 +208,8 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: VehicleFormDi
                     <SelectValue placeholder="Selecciona estado" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">Activo</SelectItem>
-                    <SelectItem value="inactive">Inactivo</SelectItem>
+                    <SelectItem value="active">Disponible - Listo para operar</SelectItem>
+                    <SelectItem value="inactive">No disponible - En mantenimiento</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

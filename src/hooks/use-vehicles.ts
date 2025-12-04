@@ -1,7 +1,9 @@
-import useSWR from "swr"
+import useSWR, { mutate } from "swr"
 import useSWRMutation from "swr/mutation"
 import { vehiclesService } from "@/services/vehicles-service"
 import type { CreateVehicleDto, UpdateVehicleDto } from "@/types/vehicle"
+
+const VEHICLES_KEY = "vehicles-list"
 
 // Fetcher for SWR
 const fetchVehicles = async ([, page, limit]: [string, number, number]) => {
@@ -10,7 +12,7 @@ const fetchVehicles = async ([, page, limit]: [string, number, number]) => {
 
 // Hook for fetching vehicles with pagination
 export function useVehicles(page = 1, limit = 10) {
-  return useSWR(["vehicles", page, limit], fetchVehicles, {
+  return useSWR([VEHICLES_KEY, page, limit], fetchVehicles, {
     revalidateOnFocus: false,
   })
 }
@@ -24,53 +26,34 @@ export function useVehicle(id: string | null) {
   )
 }
 
+export function revalidateVehicles() {
+  // Revalidate all keys that start with VEHICLES_KEY
+  mutate((key) => Array.isArray(key) && key[0] === VEHICLES_KEY, undefined, { revalidate: true })
+}
+
 // Hook for creating a vehicle
 export function useCreateVehicle() {
-  const { mutate } = useSWR(["vehicles", 1, 10])
-
-  return useSWRMutation(
-    "createVehicle",
-    async (_, { arg }: { arg: CreateVehicleDto }) => {
-      return vehiclesService.createVehicle(arg)
-    },
-    {
-      onSuccess: () => {
-        mutate()
-      },
-    },
-  )
+  return useSWRMutation("createVehicle", async (_, { arg }: { arg: CreateVehicleDto }) => {
+    const result = await vehiclesService.createVehicle(arg)
+    revalidateVehicles()
+    return result
+  })
 }
 
 // Hook for updating a vehicle
 export function useUpdateVehicle() {
-  const { mutate } = useSWR(["vehicles", 1, 10])
-
-  return useSWRMutation(
-    "updateVehicle",
-    async (_, { arg }: { arg: { id: string; data: UpdateVehicleDto } }) => {
-      return vehiclesService.updateVehicle(arg.id, arg.data)
-    },
-    {
-      onSuccess: () => {
-        mutate()
-      },
-    },
-  )
+  return useSWRMutation("updateVehicle", async (_, { arg }: { arg: { id: string; data: UpdateVehicleDto } }) => {
+    const result = await vehiclesService.updateVehicle(arg.id, arg.data)
+    revalidateVehicles()
+    return result
+  })
 }
 
 // Hook for deleting a vehicle
 export function useDeleteVehicle() {
-  const { mutate } = useSWR(["vehicles", 1, 10])
-
-  return useSWRMutation(
-    "deleteVehicle",
-    async (_, { arg }: { arg: string }) => {
-      return vehiclesService.deleteVehicle(arg)
-    },
-    {
-      onSuccess: () => {
-        mutate()
-      },
-    },
-  )
+  return useSWRMutation("deleteVehicle", async (_, { arg }: { arg: string }) => {
+    const result = await vehiclesService.deleteVehicle(arg)
+    revalidateVehicles()
+    return result
+  })
 }

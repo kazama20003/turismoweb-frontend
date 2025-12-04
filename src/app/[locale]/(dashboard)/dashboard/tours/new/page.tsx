@@ -1,0 +1,416 @@
+"use client"
+
+import type React from "react"
+import Image from "next/image"
+import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
+import { Separator } from "@/components/ui/separator"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { ArrowLeft, Save, Upload, Loader2, X } from "lucide-react"
+import Link from "next/link"
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { useCreateTour, SUPPORTED_LANGUAGES } from "@/hooks/use-tours"
+import { useVehicles } from "@/hooks/use-vehicles"
+import { useUploadImage } from "@/hooks/use-uploads"
+import { toast } from "sonner"
+import type { CreateTourDto, Difficulty } from "@/types/tour"
+
+export default function NewTourPage() {
+  const router = useRouter()
+  const createMutation = useCreateTour()
+  const { data: vehiclesData } = useVehicles(1, 100)
+  const uploadMutation = useUploadImage()
+
+  const [formData, setFormData] = useState<Partial<CreateTourDto>>({
+    title: "",
+    description: "",
+    locationName: "",
+    durationDays: 1,
+    currentPrice: 0,
+    slug: "",
+    images: [],
+    vehicleIds: [],
+    isActive: true,
+    hasTransport: false,
+    hasGuide: false,
+    benefits: [],
+    preparations: [],
+    includes: [],
+    excludes: [],
+    categories: [],
+    languages: [],
+  })
+
+  const [uploadingImage, setUploadingImage] = useState(false)
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingImage(true)
+    try {
+      const result = await uploadMutation.trigger(file)
+      if (result) {
+        setFormData((prev) => ({
+          ...prev,
+          images: [...(prev.images || []), { url: result.url, secure_url: result.url, public_id: result.publicId }],
+        }))
+        toast.success("Imagen subida correctamente")
+      }
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  const handleRemoveImage = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      images: prev.images?.filter((_, i) => i !== index),
+    }))
+  }
+
+  const handleArrayInput = (field: keyof CreateTourDto, value: string) => {
+    const items = value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean)
+    setFormData((prev) => ({ ...prev, [field]: items }))
+  }
+
+  const handleVehicleToggle = (vehicleId: string, checked: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      vehicleIds: checked
+        ? [...(prev.vehicleIds || []), vehicleId]
+        : (prev.vehicleIds || []).filter((id) => id !== vehicleId),
+    }))
+  }
+
+  const handleLanguageToggle = (langCode: string, checked: boolean) => {
+    setFormData((prev) => ({
+      ...prev,
+      languages: checked ? [...(prev.languages || []), langCode] : (prev.languages || []).filter((l) => l !== langCode),
+    }))
+  }
+
+  const handleTitleChange = (value: string) => {
+    const slug = value
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+    setFormData({ ...formData, title: value, slug })
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!formData.title || !formData.description || !formData.locationName) {
+      toast.error("Por favor completa los campos obligatorios")
+      return
+    }
+
+    try {
+      await createMutation.trigger(formData as CreateTourDto)
+      toast.success("Tour creado correctamente")
+      router.push("/dashboard/tours")
+    } catch (error) {
+      toast.error("Error al crear el tour")
+    }
+  }
+
+  // Filter only active vehicles
+  const activeVehicles = vehiclesData?.data?.filter((vehicle) => vehicle.isActive) || []
+
+  return (
+    <SidebarInset>
+      <div className="m-4 rounded-lg overflow-hidden">
+        <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 rounded-t-lg">
+          <div className="flex items-center gap-2 px-4 w-full">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" size="icon" asChild>
+                  <Link href="/dashboard/tours">
+                    <ArrowLeft className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <div>
+                  <h1 className="text-xl font-semibold">Crear Nuevo Tour</h1>
+                  <p className="text-sm text-muted-foreground">Completa la información del tour</p>
+                </div>
+              </div>
+              <Button onClick={handleSubmit} disabled={createMutation.isMutating}>
+                {createMutation.isMutating ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="mr-2 h-4 w-4" />
+                )}
+                Guardar Tour
+              </Button>
+            </div>
+          </div>
+        </header>
+
+        <main className="flex flex-1 flex-col gap-6 p-6 bg-background/50 backdrop-blur rounded-b-lg">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Basic Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Información Básica</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Título *</Label>
+                    <Input
+                      id="title"
+                      value={formData.title}
+                      onChange={(e) => handleTitleChange(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="slug">Slug (Auto-generado)</Label>
+                    <Input id="slug" value={formData.slug} disabled className="bg-muted" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Descripción *</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={4}
+                    required
+                  />
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="locationName">Ubicación *</Label>
+                    <Input
+                      id="locationName"
+                      value={formData.locationName}
+                      onChange={(e) => setFormData({ ...formData, locationName: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="durationDays">Días de duración</Label>
+                    <Input
+                      id="durationDays"
+                      type="number"
+                      value={formData.durationDays}
+                      onChange={(e) => setFormData({ ...formData, durationDays: Number.parseInt(e.target.value) })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="currentPrice">Precio *</Label>
+                    <Input
+                      id="currentPrice"
+                      type="number"
+                      value={formData.currentPrice}
+                      onChange={(e) => setFormData({ ...formData, currentPrice: Number.parseFloat(e.target.value) })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="difficulty">Dificultad</Label>
+                    <Select
+                      value={formData.difficulty}
+                      onValueChange={(value: Difficulty) => setFormData({ ...formData, difficulty: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar dificultad" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="easy">Fácil</SelectItem>
+                        <SelectItem value="medium">Media</SelectItem>
+                        <SelectItem value="hard">Difícil</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="capacity">Capacidad</Label>
+                    <Input
+                      id="capacity"
+                      type="number"
+                      value={formData.capacity || ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, capacity: Number.parseInt(e.target.value) || undefined })
+                      }
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Images */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Imágenes</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImage}
+                    className="hidden"
+                    id="image-upload"
+                  />
+                  <Label htmlFor="image-upload" className="cursor-pointer">
+                    <div className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-muted">
+                      {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      {uploadingImage ? "Subiendo..." : "Subir Imagen"}
+                    </div>
+                  </Label>
+                </div>
+
+                {formData.images && formData.images.length > 0 && (
+                  <div className="grid gap-4 md:grid-cols-4">
+                    {formData.images.map((img, index) => (
+                      <div key={`${img.public_id}-${index}`} className="relative group">
+                        <Image
+                          src={img.url || "/placeholder.svg"}
+                          alt={`Tour image ${index + 1}`}
+                          width={128}
+                          height={128}
+                          className="w-full h-32 object-cover rounded-md"
+                        />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="destructive"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRemoveImage(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Supported Languages */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Idiomas Soportados</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid gap-2 md:grid-cols-3">
+                  {SUPPORTED_LANGUAGES.map((lang) => (
+                    <div key={lang.code} className="flex items-center gap-2 p-3 border rounded-md">
+                      <Checkbox
+                        id={`lang-${lang.code}`}
+                        checked={formData.languages?.includes(lang.code)}
+                        onCheckedChange={(checked) => handleLanguageToggle(lang.code, checked as boolean)}
+                      />
+                      <Label htmlFor={`lang-${lang.code}`} className="flex-1 cursor-pointer">
+                        {lang.name} ({lang.code.toUpperCase()})
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Vehicles - Only Active */}
+            {activeVehicles.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Vehículos Disponibles</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Checkbox
+                      id="hasTransport"
+                      checked={formData.hasTransport}
+                      onCheckedChange={(checked) => setFormData({ ...formData, hasTransport: checked as boolean })}
+                    />
+                    <Label htmlFor="hasTransport">Este tour incluye transporte</Label>
+                  </div>
+                  {formData.hasTransport && (
+                    <div className="grid gap-2">
+                      {activeVehicles.map((vehicle) => (
+                        <div key={vehicle._id} className="flex items-center gap-2 p-3 border rounded-md">
+                          <Checkbox
+                            id={`vehicle-${vehicle._id}`}
+                            checked={formData.vehicleIds?.includes(vehicle._id)}
+                            onCheckedChange={(checked) => handleVehicleToggle(vehicle._id, checked as boolean)}
+                          />
+                          <Label htmlFor={`vehicle-${vehicle._id}`} className="flex-1 cursor-pointer">
+                            {vehicle.brand} {vehicle.model} ({vehicle.capacity} personas)
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Additional Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Información Adicional</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="includes">Incluye (separado por comas)</Label>
+                  <Textarea
+                    id="includes"
+                    placeholder="Ej: Guía profesional, Almuerzo, Transporte"
+                    onChange={(e) => handleArrayInput("includes", e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="excludes">No Incluye (separado por comas)</Label>
+                  <Textarea
+                    id="excludes"
+                    placeholder="Ej: Bebidas alcohólicas, Propinas"
+                    onChange={(e) => handleArrayInput("excludes", e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="hasGuide"
+                      checked={formData.hasGuide}
+                      onCheckedChange={(checked) => setFormData({ ...formData, hasGuide: checked as boolean })}
+                    />
+                    <Label htmlFor="hasGuide">Incluye guía</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="isActive"
+                      checked={formData.isActive}
+                      onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked as boolean })}
+                    />
+                    <Label htmlFor="isActive">Tour activo</Label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </form>
+        </main>
+      </div>
+    </SidebarInset>
+  )
+}
