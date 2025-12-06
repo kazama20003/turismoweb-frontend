@@ -1,7 +1,17 @@
+"use client"
+
 import { Instagram, Facebook, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import type { Locale } from "@/lib/i18n/config"
+import { getFooterDictionary } from "@/lib/i18n/dictionaries/footer"
 
-export function Footer() {
+interface FooterProps {
+  locale: Locale
+}
+
+export function Footer({ locale }: FooterProps) {
+  const dict = getFooterDictionary(locale)
+
   return (
     <footer className="bg-[#fff] text-[#1a1a1a]">
       <div className="w-full h-px bg-black/25" />
@@ -33,11 +43,11 @@ export function Footer() {
           <div className="flex flex-col md:flex-row gap-12 lg:gap-24">
             {/* Subscribe */}
             <div className="flex flex-col gap-4">
-              <span className="text-sm tracking-wide">Subscribe to our list</span>
+              <span className="text-sm tracking-wide">{dict.subscribe}</span>
               <div className="flex items-center gap-2 border-b border-black/25 pb-2">
                 <input
                   type="email"
-                  placeholder="Email"
+                  placeholder={dict.email}
                   className="bg-transparent text-sm placeholder:text-[#1a1a1a]/50 focus:outline-none w-48"
                 />
                 <button className="p-1 rounded-full border border-black/25 hover:bg-[#1a1a1a]/10 transition-colors">
@@ -50,27 +60,27 @@ export function Footer() {
             <div className="flex gap-16 md:gap-24">
               <nav className="flex flex-col gap-3">
                 <Link href="#" className="text-sm hover:opacity-70 transition-opacity">
-                  Restaurant
+                  {dict.restaurant}
                 </Link>
                 <Link href="#" className="text-sm hover:opacity-70 transition-opacity">
-                  Careers
+                  {dict.careers}
                 </Link>
                 <Link href="#" className="text-sm hover:opacity-70 transition-opacity">
-                  Trade & Media
+                  {dict.trade}
                 </Link>
               </nav>
               <nav className="flex flex-col gap-3">
                 <Link href="#" className="text-sm hover:opacity-70 transition-opacity">
-                  Our Story
+                  {dict.story}
                 </Link>
                 <Link href="#" className="text-sm hover:opacity-70 transition-opacity">
-                  Sustainability
+                  {dict.sustainability}
                 </Link>
                 <Link href="#" className="text-sm hover:opacity-70 transition-opacity">
-                  News
+                  {dict.news}
                 </Link>
                 <Link href="#" className="text-sm hover:opacity-70 transition-opacity">
-                  Contact
+                  {dict.contact}
                 </Link>
               </nav>
             </div>
@@ -81,15 +91,15 @@ export function Footer() {
         <div className="flex flex-col lg:flex-row items-start lg:items-end justify-between gap-8 mb-12">
           {/* Address */}
           <div className="text-xs leading-relaxed italic text-[#1a1a1a]/80">
-            <p>Olivers Rd McLaren Vale</p>
-            <p>South Australia 5171</p>
+            <p>{dict.address}</p>
+            <p>{dict.country}</p>
             <p>
-              Phone: <span className="not-italic">+61 8 8323 8200</span>
+              {dict.phone} <span className="not-italic">+61 8 8323 8200</span>
             </p>
           </div>
 
           {/* MAXWELL-MADE */}
-          <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-[#1a1a1a]">MAXWELL-MADE</h2>
+          <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight text-[#1a1a1a]">{dict.brand}</h2>
 
           {/* Social icons */}
           <div className="flex items-center gap-3">
@@ -105,18 +115,17 @@ export function Footer() {
         {/* Bottom section - Copyright & Legal */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pt-6 border-t border-black/25">
           <p className="text-[10px] leading-relaxed text-[#1a1a1a]/70 max-w-3xl">
-            © Maxwell Wines 2025 &nbsp;&nbsp; SA Liquor Licensing Act 1997, Section 113. Liquor Licence Number: 57005946
-            Producer&apos;s Licence 57600699 Liquor Must Not Be Supplied To Persons Under 18.
+            {dict.copyright} &nbsp;&nbsp; {dict.license}
           </p>
           <div className="flex items-center gap-6 text-[10px] text-[#1a1a1a]/70">
             <Link href="#" className="hover:text-[#1a1a1a] transition-colors">
-              Privacy Policy
+              {dict.privacy}
             </Link>
             <Link href="#" className="hover:text-[#1a1a1a] transition-colors">
-              Terms
+              {dict.terms}
             </Link>
             <Link href="#" className="hover:text-[#1a1a1a] transition-colors">
-              Shipping Policy
+              {dict.shipping}
             </Link>
           </div>
         </div>

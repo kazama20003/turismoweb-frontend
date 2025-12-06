@@ -13,9 +13,10 @@ export const locales = [
 export type Locale = (typeof locales)[number]
 export const defaultLocale: Locale = "es"
 
-export function isValidLocale(locale: string): locale is Locale {
-  return locales.includes(locale as Locale)
+export function isValidLocale(locale: unknown): locale is Locale {
+  return typeof locale === "string" && locales.includes(locale as Locale)
 }
+
 
 export const localeNames: Record<Locale, string> = {
   es: "Español",
