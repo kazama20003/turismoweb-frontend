@@ -9,6 +9,7 @@ import { isValidLocale, defaultLocale, type Locale } from "@/lib/i18n/config"
 import { getTransportsDictionary } from "@/lib/i18n/dictionaries/transports"
 import type { Transport } from "@/types/transport"
 import Image from "next/image"
+import { AddToCartButton } from "@/components/cart/add-to-cart-button"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
@@ -66,7 +67,7 @@ function TransportCard({
 
   return (
     <div ref={cardRef} className="group opacity-0">
-      <div className="relative aspect-[3/4] overflow-hidden bg-muted mb-4">
+      <div className="relative aspect-3/4 overflow-hidden bg-muted mb-4">
         <Image
           src={imageUrl || "/placeholder.svg"}
           alt={transport.title}
@@ -116,9 +117,20 @@ function TransportCard({
         )}
       </div>
 
-      <button className="w-full py-2.5 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:bg-primary/90 transition-colors">
-        {t.bookNow}
-      </button>
+      <AddToCartButton
+        productId={transport._id}
+        productType="transport"
+        productTitle={transport.title}
+        productImage={imageUrl}
+        productDescription={transport.description}
+        unitPrice={transport.currentPrice}
+        className="w-full"
+        triggerChildren={
+          <button className="w-full py-2.5 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:bg-primary/90 transition-colors">
+            {t.bookNow}
+          </button>
+        }
+      />
     </div>
   )
 }
@@ -203,7 +215,7 @@ export default function TransportsPage({ params }: { params: Promise<{ locale: s
     return () => ctx.revert()
   }, [])
 
-  const filteredTransports = transports.filter((_transport) => {
+  const filteredTransports = transports.filter(() => {
     return activeCategory === "all" || true
   })
 

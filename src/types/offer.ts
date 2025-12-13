@@ -1,4 +1,4 @@
-export type OfferType = "percentage" | "fixed_amount"
+export type OfferType = "percentage" | "fixed"
 export type OfferProductType = "tour" | "transport"
 
 export interface ApplicableItem {

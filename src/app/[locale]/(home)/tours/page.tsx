@@ -12,6 +12,7 @@ import type { Tour } from "@/types/tour"
 import { Skeleton } from "@/components/ui/skeleton"
 import { isValidLocale, defaultLocale, type Locale } from "@/lib/i18n/config"
 import { getToursDictionary, type ToursDictionary } from "@/lib/i18n/dictionaries/tours"
+import { AddToCartButton } from "@/components/cart/add-to-cart-button"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
@@ -181,10 +182,20 @@ function TourCard({ tour, index, dict, locale }: { tour: Tour; index: number; di
             </div>
 
             <div className="flex flex-wrap gap-4 pt-2">
-              <button className="group/btn inline-flex items-center gap-3 px-6 py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase transition-all hover:scale-[1.02] active:scale-[0.98]">
-                {dict.card.book}
-                <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-              </button>
+              <AddToCartButton
+                productId={tour._id}
+                productType="tour"
+                productTitle={tour.title}
+                productImage={displayImage}
+                productDescription={tour.description}
+                unitPrice={tour.currentPrice}
+                triggerChildren={
+                  <button className="group/btn inline-flex items-center gap-3 px-6 py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase transition-all hover:scale-[1.02] active:scale-[0.98]">
+                    {dict.card.book}
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                  </button>
+                }
+              />
 
               <Link
                 href={`/${locale}/tours/${tour.slug}`}

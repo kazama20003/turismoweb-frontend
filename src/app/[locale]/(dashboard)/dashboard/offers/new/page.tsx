@@ -38,6 +38,7 @@ export default function NewOfferPage() {
     minTotal: 0,
     maxUses: 1000,
     isActive: true,
+    startDate: "",
     endDate: "",
     appliesToAll: false,
     applicableItems: [],
@@ -72,10 +73,19 @@ export default function NewOfferPage() {
     }
 
     try {
-      await createMutation.trigger(formData as CreateOfferDto)
+      const payload: CreateOfferDto = {
+        ...formData,
+        startDate: formData.startDate ? new Date(formData.startDate).toISOString() : undefined,
+        endDate: formData.endDate ? new Date(formData.endDate).toISOString() : undefined,
+      } as CreateOfferDto
+
+      console.log("[v0] Payload to send:", payload)
+
+      await createMutation.trigger(payload)
       toast.success("Oferta creada correctamente")
       router.push("/dashboard/offers")
-    } catch {
+    } catch (error) {
+      console.log("[v0] Error creating offer:", error)
       toast.error("Error al crear la oferta")
     }
   }
@@ -189,7 +199,7 @@ export default function NewOfferPage() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="percentage">Porcentaje (%)</SelectItem>
-                        <SelectItem value="fixed_amount">Monto Fijo ($)</SelectItem>
+                        <SelectItem value="fixed">Monto Fijo ($)</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -225,6 +235,16 @@ export default function NewOfferPage() {
 
                 <div className="grid gap-4 md:grid-cols-3">
                   <div className="space-y-2">
+                    <Label htmlFor="startDate">Fecha de Inicio</Label>
+                    <Input
+                      id="startDate"
+                      type="date"
+                      value={formData.startDate || ""}
+                      onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
                     <Label htmlFor="endDate">Fecha de Expiración</Label>
                     <Input
                       id="endDate"
@@ -244,18 +264,18 @@ export default function NewOfferPage() {
                       onChange={(e) => setFormData({ ...formData, maxUses: Number.parseInt(e.target.value) })}
                     />
                   </div>
+                </div>
 
-                  <div className="flex items-end">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="isActive"
-                        checked={formData.isActive || false}
-                        onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked as boolean })}
-                      />
-                      <Label htmlFor="isActive" className="mb-0">
-                        Oferta activa
-                      </Label>
-                    </div>
+                <div className="flex items-end">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="isActive"
+                      checked={formData.isActive || false}
+                      onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked as boolean })}
+                    />
+                    <Label htmlFor="isActive" className="mb-0">
+                      Oferta activa
+                    </Label>
                   </div>
                 </div>
               </CardContent>

@@ -5,6 +5,7 @@ import { useParams } from "next/navigation"
 import { Footer } from "@/components/home/footer"
 import Header from "@/components/home/header"
 import { isValidLocale, type Locale, defaultLocale } from "@/lib/i18n/config"
+import { CartDrawerProvider } from "@/contexts/cart-context"
 
 export default function HomeLayout({
   children,
@@ -22,9 +23,11 @@ export default function HomeLayout({
 
   return (
     <>
-      <Header />
+      <CartDrawerProvider>
+        <Header />
       {children}
       <Footer locale={locale} />
+      </CartDrawerProvider>
     </>
   )
 }

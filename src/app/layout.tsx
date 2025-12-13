@@ -8,6 +8,7 @@ import { QueryProvider } from "@/components/providers/query-provider"
 import { I18nProvider } from "@/lib/i18n/context"
 import { getDictionary } from "@/lib/i18n/dictionaries"
 import { type Locale, isValidLocale, defaultLocale } from "@/lib/i18n/config"
+import { CartDrawer } from "@/components/cart/cart-drawer"
 
 const poppins = Poppins({
   subsets: ["latin"],
