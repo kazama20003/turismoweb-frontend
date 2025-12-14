@@ -24,12 +24,12 @@ export interface ToursDictionary {
   card: {
     featured: string
     perPerson: string
-    book: string
-    viewDetails: string
     day: string
     days: string
     hour: string
     hours: string
+    book: string
+    viewDetails: string
   }
   empty: {
     noResults: string
@@ -47,20 +47,20 @@ const toursDictionaries: Record<Locale, ToursDictionary> = {
   es: {
     hero: {
       location: "Perú, Sudamérica",
-      title: "Experiencias",
-      subtitle: "Momentos únicos que celebran la riqueza cultural y natural",
+      title: "Descubre Experiencias Únicas",
+      subtitle: "Tours diseñados para crear recuerdos inolvidables",
     },
     intro: {
-      badge: "Descubre",
-      title: "Añade a Tu",
-      titleItalic: "Experiencia",
+      badge: "Nuestros Tours",
+      title: "Aventuras",
+      titleItalic: "Extraordinarias",
       description:
-        "Desde caminatas íntimas hasta inmersiones culturales, cada experiencia está diseñada para revelar la pasión y precisión detrás de cada destino.",
+        "Explora los destinos más impresionantes de Perú con nuestros tours cuidadosamente diseñados para brindarte experiencias auténticas.",
     },
     search: {
-      placeholder: "Buscar experiencias...",
+      placeholder: "Buscar tours...",
       filters: {
-        all: "Todas las Experiencias",
+        all: "Todos",
         adventure: "Aventura",
         cultural: "Cultural",
         nature: "Naturaleza",
@@ -69,42 +69,41 @@ const toursDictionaries: Record<Locale, ToursDictionary> = {
     card: {
       featured: "Destacado",
       perPerson: "por persona",
+      day: "día",
+      days: "días",
+      hour: "hora",
+      hours: "horas",
       book: "Reservar",
       viewDetails: "Ver Detalles",
-      day: "Día",
-      days: "Días",
-      hour: "Hora",
-      hours: "Horas",
     },
     empty: {
-      noResults: "No se encontraron experiencias con ese criterio.",
-      error: "Error al cargar las experiencias.",
+      noResults: "No se encontraron tours",
+      error: "Error al cargar los tours",
       retry: "Reintentar",
     },
     cta: {
-      title: "Crea Tu Propia Experiencia",
-      description:
-        "¿Buscas algo personalizado? Nuestro equipo puede diseñar una experiencia privada adaptada a tus preferencias y tamaño de grupo.",
-      button: "Consultar Ahora",
+      title: "¿Listo para tu próxima aventura?",
+      description: "Contáctanos hoy y comienza a planificar el viaje de tus sueños.",
+      button: "Contáctanos",
     },
   },
   en: {
     hero: {
       location: "Peru, South America",
-      title: "Experiences",
-      subtitle: "Unique moments that celebrate cultural and natural richness",
+      title: "Discover Unique Experiences",
+      subtitle: "Tours designed to create unforgettable memories",
     },
     intro: {
-      badge: "Discover",
-      title: "Add to Your",
-      titleItalic: "Experience",
+      badge: "Our Tours",
+      title: "Extraordinary",
+      titleItalic: "Adventures",
       description:
-        "From intimate hikes to cultural immersions, each experience is designed to reveal the passion and precision behind each destination.",
+        "Explore Peru's most impressive destinations with our carefully designed tours to provide you with authentic experiences.",
     },
     search: {
-      placeholder: "Search experiences...",
+      placeholder: "Search tours...",
       filters: {
-        all: "All Experiences",
+        all: "All",
         adventure: "Adventure",
         cultural: "Cultural",
         nature: "Nature",
@@ -113,130 +112,124 @@ const toursDictionaries: Record<Locale, ToursDictionary> = {
     card: {
       featured: "Featured",
       perPerson: "per person",
+      day: "day",
+      days: "days",
+      hour: "hour",
+      hours: "hours",
       book: "Book Now",
       viewDetails: "View Details",
-      day: "Day",
-      days: "Days",
-      hour: "Hour",
-      hours: "Hours",
     },
     empty: {
-      noResults: "No experiences found with that criteria.",
-      error: "Error loading experiences.",
+      noResults: "No tours found",
+      error: "Error loading tours",
       retry: "Retry",
     },
     cta: {
-      title: "Create Your Own Experience",
-      description:
-        "Looking for something personalized? Our team can design a private experience tailored to your preferences and group size.",
-      button: "Inquire Now",
+      title: "Ready for your next adventure?",
+      description: "Contact us today and start planning your dream trip.",
+      button: "Contact Us",
     },
   },
   fr: {
     hero: {
       location: "Pérou, Amérique du Sud",
-      title: "Expériences",
-      subtitle: "Des moments uniques qui célèbrent la richesse culturelle et naturelle",
+      title: "Découvrez des Expériences Uniques",
+      subtitle: "Des tours conçus pour créer des souvenirs inoubliables",
     },
     intro: {
-      badge: "Découvrez",
-      title: "Ajoutez à Votre",
-      titleItalic: "Expérience",
-      description:
-        "Des randonnées intimes aux immersions culturelles, chaque expérience est conçue pour révéler la passion et la précision derrière chaque destination.",
+      badge: "Nos Tours",
+      title: "Aventures",
+      titleItalic: "Extraordinaires",
+      description: "Explorez les destinations les plus impressionnantes du Pérou avec nos tours soigneusement conçus.",
     },
     search: {
-      placeholder: "Rechercher des expériences...",
+      placeholder: "Rechercher des tours...",
       filters: {
-        all: "Toutes les Expériences",
+        all: "Tous",
         adventure: "Aventure",
         cultural: "Culturel",
         nature: "Nature",
       },
     },
     card: {
-      featured: "En vedette",
+      featured: "En Vedette",
       perPerson: "par personne",
+      day: "jour",
+      days: "jours",
+      hour: "heure",
+      hours: "heures",
       book: "Réserver",
-      viewDetails: "Voir les Détails",
-      day: "Jour",
-      days: "Jours",
-      hour: "Heure",
-      hours: "Heures",
+      viewDetails: "Voir Détails",
     },
     empty: {
-      noResults: "Aucune expérience trouvée avec ce critère.",
-      error: "Erreur lors du chargement des expériences.",
+      noResults: "Aucun tour trouvé",
+      error: "Erreur lors du chargement",
       retry: "Réessayer",
     },
     cta: {
-      title: "Créez Votre Propre Expérience",
-      description:
-        "Vous cherchez quelque chose de personnalisé? Notre équipe peut concevoir une expérience privée adaptée à vos préférences et à la taille de votre groupe.",
-      button: "Demander Maintenant",
+      title: "Prêt pour votre prochaine aventure?",
+      description: "Contactez-nous aujourd'hui et commencez à planifier votre voyage de rêve.",
+      button: "Contactez-nous",
     },
   },
   it: {
     hero: {
       location: "Perù, Sud America",
-      title: "Esperienze",
-      subtitle: "Momenti unici che celebrano la ricchezza culturale e naturale",
+      title: "Scopri Esperienze Uniche",
+      subtitle: "Tour progettati per creare ricordi indimenticabili",
     },
     intro: {
-      badge: "Scopri",
-      title: "Aggiungi alla Tua",
-      titleItalic: "Esperienza",
-      description:
-        "Dalle escursioni intime alle immersioni culturali, ogni esperienza è progettata per rivelare la passione e la precisione dietro ogni destinazione.",
+      badge: "I Nostri Tour",
+      title: "Avventure",
+      titleItalic: "Straordinarie",
+      description: "Esplora le destinazioni più impressionanti del Perù con i nostri tour accuratamente progettati.",
     },
     search: {
-      placeholder: "Cerca esperienze...",
+      placeholder: "Cerca tour...",
       filters: {
-        all: "Tutte le Esperienze",
+        all: "Tutti",
         adventure: "Avventura",
         cultural: "Culturale",
         nature: "Natura",
       },
     },
     card: {
-      featured: "In evidenza",
+      featured: "In Evidenza",
       perPerson: "a persona",
+      day: "giorno",
+      days: "giorni",
+      hour: "ora",
+      hours: "ore",
       book: "Prenota",
       viewDetails: "Vedi Dettagli",
-      day: "Giorno",
-      days: "Giorni",
-      hour: "Ora",
-      hours: "Ore",
     },
     empty: {
-      noResults: "Nessuna esperienza trovata con quel criterio.",
-      error: "Errore nel caricamento delle esperienze.",
+      noResults: "Nessun tour trovato",
+      error: "Errore nel caricamento",
       retry: "Riprova",
     },
     cta: {
-      title: "Crea la Tua Esperienza",
-      description:
-        "Cerchi qualcosa di personalizzato? Il nostro team può progettare un'esperienza privata su misura per le tue preferenze e le dimensioni del tuo gruppo.",
-      button: "Richiedi Ora",
+      title: "Pronto per la tua prossima avventura?",
+      description: "Contattaci oggi e inizia a pianificare il viaggio dei tuoi sogni.",
+      button: "Contattaci",
     },
   },
   de: {
     hero: {
       location: "Peru, Südamerika",
-      title: "Erlebnisse",
-      subtitle: "Einzigartige Momente, die kulturellen und natürlichen Reichtum feiern",
+      title: "Entdecken Sie Einzigartige Erlebnisse",
+      subtitle: "Touren, die unvergessliche Erinnerungen schaffen",
     },
     intro: {
-      badge: "Entdecken",
-      title: "Füge hinzu zu Deinem",
-      titleItalic: "Erlebnis",
-      description:
-        "Von intimen Wanderungen bis hin zu kulturellen Eintauchungen - jedes Erlebnis ist darauf ausgelegt, die Leidenschaft und Präzision hinter jedem Ziel zu enthüllen.",
+      badge: "Unsere Touren",
+      title: "Außergewöhnliche",
+      titleItalic: "Abenteuer",
+      description: "Erkunden Sie die beeindruckendsten Reiseziele Perus mit unseren sorgfältig gestalteten Touren.",
     },
     search: {
-      placeholder: "Erlebnisse suchen...",
+      placeholder: "Touren suchen...",
       filters: {
-        all: "Alle Erlebnisse",
+        all: "Alle",
         adventure: "Abenteuer",
         cultural: "Kulturell",
         nature: "Natur",
@@ -245,42 +238,40 @@ const toursDictionaries: Record<Locale, ToursDictionary> = {
     card: {
       featured: "Empfohlen",
       perPerson: "pro Person",
-      book: "Buchen",
-      viewDetails: "Details ansehen",
       day: "Tag",
       days: "Tage",
       hour: "Stunde",
       hours: "Stunden",
+      book: "Buchen",
+      viewDetails: "Details Ansehen",
     },
     empty: {
-      noResults: "Keine Erlebnisse mit diesem Kriterium gefunden.",
-      error: "Fehler beim Laden der Erlebnisse.",
-      retry: "Erneut versuchen",
+      noResults: "Keine Touren gefunden",
+      error: "Fehler beim Laden",
+      retry: "Erneut Versuchen",
     },
     cta: {
-      title: "Erstelle Dein Eigenes Erlebnis",
-      description:
-        "Suchst du etwas Personalisiertes? Unser Team kann ein privates Erlebnis entwerfen, das auf deine Vorlieben und Gruppengröße zugeschnitten ist.",
-      button: "Jetzt anfragen",
+      title: "Bereit für Ihr nächstes Abenteuer?",
+      description: "Kontaktieren Sie uns heute und beginnen Sie mit der Planung Ihrer Traumreise.",
+      button: "Kontaktieren Sie Uns",
     },
   },
   pt: {
     hero: {
       location: "Peru, América do Sul",
-      title: "Experiências",
-      subtitle: "Momentos únicos que celebram a riqueza cultural e natural",
+      title: "Descubra Experiências Únicas",
+      subtitle: "Tours projetados para criar memórias inesquecíveis",
     },
     intro: {
-      badge: "Descubra",
-      title: "Adicione à Sua",
-      titleItalic: "Experiência",
-      description:
-        "De caminhadas íntimas a imersões culturais, cada experiência é projetada para revelar a paixão e precisão por trás de cada destino.",
+      badge: "Nossos Tours",
+      title: "Aventuras",
+      titleItalic: "Extraordinárias",
+      description: "Explore os destinos mais impressionantes do Peru com nossos tours cuidadosamente projetados.",
     },
     search: {
-      placeholder: "Buscar experiências...",
+      placeholder: "Buscar tours...",
       filters: {
-        all: "Todas as Experiências",
+        all: "Todos",
         adventure: "Aventura",
         cultural: "Cultural",
         nature: "Natureza",
@@ -289,41 +280,40 @@ const toursDictionaries: Record<Locale, ToursDictionary> = {
     card: {
       featured: "Destaque",
       perPerson: "por pessoa",
+      day: "dia",
+      days: "dias",
+      hour: "hora",
+      hours: "horas",
       book: "Reservar",
       viewDetails: "Ver Detalhes",
-      day: "Dia",
-      days: "Dias",
-      hour: "Hora",
-      hours: "Horas",
     },
     empty: {
-      noResults: "Nenhuma experiência encontrada com esse critério.",
-      error: "Erro ao carregar experiências.",
-      retry: "Tentar novamente",
+      noResults: "Nenhum tour encontrado",
+      error: "Erro ao carregar",
+      retry: "Tentar Novamente",
     },
     cta: {
-      title: "Crie Sua Própria Experiência",
-      description:
-        "Procurando algo personalizado? Nossa equipe pode projetar uma experiência privada adaptada às suas preferências e tamanho do grupo.",
-      button: "Consultar Agora",
+      title: "Pronto para sua próxima aventura?",
+      description: "Entre em contato hoje e comece a planejar a viagem dos seus sonhos.",
+      button: "Entre em Contato",
     },
   },
   zh: {
     hero: {
       location: "秘鲁，南美洲",
-      title: "体验",
-      subtitle: "庆祝文化和自然丰富性的独特时刻",
+      title: "探索独特体验",
+      subtitle: "精心设计的旅游，创造难忘的回忆",
     },
     intro: {
-      badge: "探索",
-      title: "添加到您的",
-      titleItalic: "体验",
-      description: "从亲密的徒步旅行到文化沉浸，每一次体验都旨在揭示每个目的地背后的热情和精确。",
+      badge: "我们的旅游",
+      title: "非凡",
+      titleItalic: "冒险",
+      description: "通过我们精心设计的旅游探索秘鲁最令人印象深刻的目的地。",
     },
     search: {
-      placeholder: "搜索体验...",
+      placeholder: "搜索旅游...",
       filters: {
-        all: "所有体验",
+        all: "全部",
         adventure: "冒险",
         cultural: "文化",
         nature: "自然",
@@ -332,41 +322,40 @@ const toursDictionaries: Record<Locale, ToursDictionary> = {
     card: {
       featured: "精选",
       perPerson: "每人",
-      book: "预订",
-      viewDetails: "查看详情",
       day: "天",
       days: "天",
       hour: "小时",
       hours: "小时",
+      book: "预订",
+      viewDetails: "查看详情",
     },
     empty: {
-      noResults: "未找到符合条件的体验。",
-      error: "加载体验时出错。",
+      noResults: "未找到旅游",
+      error: "加载错误",
       retry: "重试",
     },
     cta: {
-      title: "创建您自己的体验",
-      description: "寻找个性化的东西？我们的团队可以根据您的喜好和团队规模设计私人体验。",
-      button: "立即咨询",
+      title: "准备好下一次冒险了吗？",
+      description: "今天就联系我们，开始规划您的梦想之旅。",
+      button: "联系我们",
     },
   },
   ja: {
     hero: {
-      location: "ペルー、南���",
-      title: "体験",
-      subtitle: "文化と自然の豊かさを祝うユニークな瞬間",
+      location: "ペルー、南米",
+      title: "ユニークな体験を発見",
+      subtitle: "忘れられない思い出を作るツアー",
     },
     intro: {
-      badge: "発見",
-      title: "あなたの体験に",
-      titleItalic: "追加",
-      description:
-        "親密なハイキングから文化的な没入まで、各体験は各目的地の情熱と精度を明らかにするように設計されています。",
+      badge: "私たちのツアー",
+      title: "特別な",
+      titleItalic: "冒険",
+      description: "丁寧に設計されたツアーでペルーの最も印象的な目的地を探索してください。",
     },
     search: {
-      placeholder: "体験を検索...",
+      placeholder: "ツアーを検索...",
       filters: {
-        all: "すべての体験",
+        all: "すべて",
         adventure: "アドベンチャー",
         cultural: "文化",
         nature: "自然",
@@ -375,71 +364,68 @@ const toursDictionaries: Record<Locale, ToursDictionary> = {
     card: {
       featured: "おすすめ",
       perPerson: "一人あたり",
-      book: "予約",
-      viewDetails: "詳細を見る",
       day: "日",
-      days: "日",
+      days: "日間",
       hour: "時間",
       hours: "時間",
+      book: "予約",
+      viewDetails: "詳細を見る",
     },
     empty: {
-      noResults: "その条件に一致する体験が見つかりませんでした。",
-      error: "体験の読み込み中にエラーが発生しました。",
+      noResults: "ツアーが見つかりません",
+      error: "読み込みエラー",
       retry: "再試行",
     },
     cta: {
-      title: "独自の体験を作成",
-      description:
-        "パーソナライズされたものをお探しですか？私たちのチームは、あなたの好みやグループサイズに合わせたプライベート体験をデザインできます。",
-      button: "今すぐお問い合わせ",
+      title: "次の冒険の準備はできていますか？",
+      description: "今日お問い合わせいただき、夢の旅行の計画を始めましょう。",
+      button: "お問い合わせ",
     },
   },
   ru: {
     hero: {
       location: "Перу, Южная Америка",
-      title: "Впечатления",
-      subtitle: "Уникальные моменты, которые прославляют культурное и природное богатство",
+      title: "Откройте Уникальный Опыт",
+      subtitle: "Туры, созданные для незабываемых воспоминаний",
     },
     intro: {
-      badge: "Откройте",
-      title: "Добавьте к Вашему",
-      titleItalic: "Впечатлению",
-      description:
-        "От интимных походов до культурных погружений — каждое впечатление создано, чтобы раскрыть страсть и точность каждого направления.",
+      badge: "Наши Туры",
+      title: "Необыкновенные",
+      titleItalic: "Приключения",
+      description: "Исследуйте самые впечатляющие направления Перу с нашими тщательно разработанными турами.",
     },
     search: {
-      placeholder: "Поиск впечатлений...",
+      placeholder: "Поиск туров...",
       filters: {
-        all: "Все Впечатления",
+        all: "Все",
         adventure: "Приключения",
-        cultural: "Культурный",
+        cultural: "Культурные",
         nature: "Природа",
       },
     },
     card: {
       featured: "Рекомендуем",
       perPerson: "с человека",
+      day: "день",
+      days: "дней",
+      hour: "час",
+      hours: "часов",
       book: "Забронировать",
       viewDetails: "Подробнее",
-      day: "День",
-      days: "Дней",
-      hour: "Час",
-      hours: "Часов",
     },
     empty: {
-      noResults: "Впечатления по этому критерию не найдены.",
-      error: "Ошибка загрузки впечатлений.",
+      noResults: "Туры не найдены",
+      error: "Ошибка загрузки",
       retry: "Повторить",
     },
     cta: {
-      title: "Создайте Своё Впечатление",
-      description:
-        "Ищете что-то персонализированное? Наша команда может разработать частное впечатление, адаптированное к вашим предпочтениям и размеру группы.",
-      button: "Запросить сейчас",
+      title: "Готовы к следующему приключению?",
+      description: "Свяжитесь с нами сегодня и начните планировать путешествие своей мечты.",
+      button: "Связаться с Нами",
     },
   },
 }
 
 export function getToursDictionary(locale: Locale): ToursDictionary {
-  return toursDictionaries[locale]
+  return toursDictionaries[locale] || toursDictionaries.es
 }

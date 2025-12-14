@@ -297,7 +297,7 @@ export default function TransportsPage({ params }: { params: Promise<{ locale: s
                   <TransportCard key={transport._id} transport={transport} dictionary={dictionary} />
                 ))
               ) : (
-                <div className="col-span-full py-24 text-center">
+                  <div className="col-span-full py-24 text-center">
                   <Bus className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">{dictionary.section.noResults}</p>
                 </div>

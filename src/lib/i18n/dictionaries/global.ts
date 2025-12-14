@@ -3,7 +3,7 @@ import type { Locale } from "../config"
 export interface GlobalDictionary {
   nav: {
     tours: string
-    shop: string
+    transports: string
     visit: string
     club: string
     events: string
@@ -30,7 +30,7 @@ const globalDictionaries: Record<Locale, GlobalDictionary> = {
   es: {
     nav: {
       tours: "TOURS",
-      shop: "TIENDA",
+      transports: "TRANSPORTES",
       visit: "VISITAR",
       club: "CLUB",
       events: "EVENTOS",
@@ -55,7 +55,7 @@ const globalDictionaries: Record<Locale, GlobalDictionary> = {
   en: {
     nav: {
       tours: "TOURS",
-      shop: "SHOP",
+      transports: "TRANSPORTS",
       visit: "VISIT",
       club: "CLUB",
       events: "EVENTS",
@@ -80,7 +80,7 @@ const globalDictionaries: Record<Locale, GlobalDictionary> = {
   fr: {
     nav: {
       tours: "CIRCUITS",
-      shop: "BOUTIQUE",
+      transports: "TRANSPORTS",
       visit: "VISITER",
       club: "CLUB",
       events: "ÉVÉNEMENTS",
@@ -105,7 +105,7 @@ const globalDictionaries: Record<Locale, GlobalDictionary> = {
   it: {
     nav: {
       tours: "TOUR",
-      shop: "NEGOZIO",
+      transports: "TRASPORTI",
       visit: "VISITARE",
       club: "CLUB",
       events: "EVENTI",
@@ -130,7 +130,7 @@ const globalDictionaries: Record<Locale, GlobalDictionary> = {
   de: {
     nav: {
       tours: "TOUREN",
-      shop: "SHOP",
+      transports: "TRANSPORTE",
       visit: "BESUCHEN",
       club: "CLUB",
       events: "VERANSTALTUNGEN",
@@ -155,7 +155,7 @@ const globalDictionaries: Record<Locale, GlobalDictionary> = {
   pt: {
     nav: {
       tours: "PASSEIOS",
-      shop: "LOJA",
+      transports: "TRANSPORTES",
       visit: "VISITAR",
       club: "CLUBE",
       events: "EVENTOS",
@@ -180,7 +180,7 @@ const globalDictionaries: Record<Locale, GlobalDictionary> = {
   zh: {
     nav: {
       tours: "旅游",
-      shop: "商店",
+      transports: "交通",
       visit: "访问",
       club: "俱乐部",
       events: "活动",
@@ -205,7 +205,7 @@ const globalDictionaries: Record<Locale, GlobalDictionary> = {
   ja: {
     nav: {
       tours: "ツアー",
-      shop: "ショップ",
+      transports: "交通機関",
       visit: "訪問",
       club: "クラブ",
       events: "イベント",
@@ -230,7 +230,7 @@ const globalDictionaries: Record<Locale, GlobalDictionary> = {
   ru: {
     nav: {
       tours: "ТУРЫ",
-      shop: "МАГАЗИН",
+      transports: "ТРАНСПОРТ",
       visit: "ПОСЕТИТЬ",
       club: "КЛУБ",
       events: "СОБЫТИЯ",

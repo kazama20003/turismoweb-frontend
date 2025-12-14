@@ -297,14 +297,14 @@ export default function AboutPage() {
         <div ref={imagesRef} className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="about-image aspect-[4/3] overflow-hidden">
             <img
-              src="/peruvian-winemaker-family-portrait-vineyard-andes-.jpg"
+              src="https://res.cloudinary.com/djldb5hqg/image/upload/v1765667021/pexels-ton-souza-4613401_ktsuzv.jpg"
               alt="Our winemaking family"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
             />
           </div>
           <div className="about-image aspect-[4/3] overflow-hidden">
             <img
-              src="/peruvian-honeybees-beehive-honey-production-andes.jpg"
+              src="https://res.cloudinary.com/djldb5hqg/image/upload/v1765667021/pexels-junior-machado-1821155-3452236_lbxulg.jpg"
               alt="Our honey production"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
             />
@@ -318,7 +318,7 @@ export default function AboutPage() {
           {/* Image */}
           <div className="aspect-[4/5] overflow-hidden">
             <img
-              src="/gourmet-peruvian-food-dish-elegant-wooden-bowl-res.jpg"
+              src="https://res.cloudinary.com/djldb5hqg/image/upload/v1765667021/pexels-gilmerdiaz-7144192_s4jl6g.jpg"
               alt="Culinary excellence"
               className="w-full h-full object-cover"
             />
