@@ -489,6 +489,12 @@ export default function CheckoutPage() {
                   <span className="text-base font-serif text-foreground">Total</span>
                   <div className="text-right">
                     <p className="text-xl font-serif text-foreground">${grandTotal.toFixed(2)}</p>
+                    <p className="text-xs text-muted-foreground mt-1 flex items-center justify-end gap-1">
+                      S/ {(grandTotal * USD_TO_PEN).toFixed(2)}
+                      <span className="inline-flex items-center" title="Precio de referencia en soles">
+                        <Info className="w-3 h-3" />
+                      </span>
+                    </p>
                   </div>
                 </div>
               </div>
