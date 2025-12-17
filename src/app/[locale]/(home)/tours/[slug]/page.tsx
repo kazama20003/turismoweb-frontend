@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useMemo } from "react"
-import { useParams, useRouter } from "next/navigation"
+import { useParams } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { gsap } from "gsap"
@@ -12,29 +12,27 @@ import {
   MapPin,
   Star,
   Calendar,
-  Plus,
-  Minus,
-  ShoppingCart,
-  Check,
-  X,
   Play,
   ChevronLeft,
   ChevronDown,
   Shield,
   Utensils,
   Hotel,
-  ArrowRight,
   Users,
   Globe,
   Mountain,
   Car,
   UserCheck,
   Info,
+  X,
 } from "lucide-react"
 import { useTourBySlug } from "@/hooks/use-tours"
 import { Skeleton } from "@/components/ui/skeleton"
 import { isValidLocale, defaultLocale, type Locale } from "@/lib/i18n/config"
 import { getTourDetailDictionary } from "@/lib/i18n/dictionaries/tour-detail"
+import { AddToCartButton } from "@/components/cart/add-to-cart-button"
+import { Badge } from "@/components/ui/badge"
+import type { Vehicle } from "@/types/vehicle"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
@@ -42,7 +40,6 @@ if (typeof window !== "undefined") {
 
 export default function TourDetailPage() {
   const params = useParams()
-  const router = useRouter()
   const localeParam = params.locale as string
   const slug = params.slug as string
   const locale: Locale = isValidLocale(localeParam) ? localeParam : defaultLocale
@@ -51,12 +48,8 @@ export default function TourDetailPage() {
   const { data: tour, isLoading, error } = useTourBySlug(slug, locale)
 
   const [activeSection, setActiveSection] = useState("overview")
-  const [selectedDate, setSelectedDate] = useState("")
-  const [adults, setAdults] = useState(2)
-  const [children, setChildren] = useState(0)
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [showVideo, setShowVideo] = useState(false)
-  const [cartAdded, setCartAdded] = useState(false)
   const [expandedDay, setExpandedDay] = useState<number | null>(0)
 
   const heroRef = useRef<HTMLDivElement>(null)
@@ -143,15 +136,6 @@ export default function TourDetailPage() {
       : `${tour.durationHours || 1} ${(tour.durationHours || 1) > 1 ? dict.hero.hours : dict.hero.hour}`
     : ""
 
-  const handleAddToCart = () => {
-    setCartAdded(true)
-    setTimeout(() => setCartAdded(false), 3000)
-  }
-
-  const handleBookNow = () => {
-    router.push(`/${locale}/checkout?tour=${slug}&adults=${adults}&children=${children}&date=${selectedDate}`)
-  }
-
   const nextImage = () => {
     if (tour?.images) {
       setCurrentImageIndex((prev) => (prev + 1) % tour.images!.length)
@@ -162,11 +146,6 @@ export default function TourDetailPage() {
     if (tour?.images) {
       setCurrentImageIndex((prev) => (prev - 1 + tour.images!.length) % tour.images!.length)
     }
-  }
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" })
   }
 
   const getDifficultyColor = (difficulty: string) => {
@@ -180,6 +159,11 @@ export default function TourDetailPage() {
       default:
         return "bg-secondary text-foreground"
     }
+  }
+
+  const getVehicles = (): Vehicle[] => {
+    if (!tour?.vehicleIds) return []
+    return tour.vehicleIds.filter((v): v is Vehicle => typeof v !== "string")
   }
 
   if (isLoading) {
@@ -222,6 +206,8 @@ export default function TourDetailPage() {
 
   const currentImage =
     tour.images?.[currentImageIndex]?.url || `/placeholder.svg?height=800&width=1200&query=${tour.title}`
+
+  const vehicles = getVehicles()
 
   return (
     <main className="min-h-screen bg-background overflow-x-hidden">
@@ -408,6 +394,18 @@ export default function TourDetailPage() {
                       </span>
                       <span className="font-medium">{duration}</span>
                     </div>
+                    {tour.startTime && (
+                      <div className="p-4 bg-background text-center">
+                        <Calendar className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground tracking-wider uppercase block mb-1">
+                          {dict.overview.startTime}
+                        </span>
+                        <span className="font-medium">{tour.startTime}</span>
+                        {tour.endTime && (
+                          <span className="text-xs text-muted-foreground block mt-1">- {tour.endTime}</span>
+                        )}
+                      </div>
+                    )}
                     {tour.difficulty && (
                       <div className="p-4 bg-background text-center">
                         <Mountain className="w-5 h-5 mx-auto mb-2 text-muted-foreground" />
@@ -468,14 +466,53 @@ export default function TourDetailPage() {
                     )}
                   </div>
 
+                  {vehicles.length > 0 && (
+                    <div>
+                      <h3 className="text-xl font-serif mb-4">Vehículos del Tour</h3>
+                      <div className="grid grid-cols-1 gap-4">
+                        {vehicles.map((vehicle) => (
+                          <div key={vehicle._id} className="flex gap-4 p-4 bg-background border rounded-lg">
+                            {vehicle.images?.[0] && (
+                              <div className="relative w-24 h-24 rounded-lg overflow-hidden shrink-0">
+                                <Image
+                                  src={vehicle.images[0].url || "/placeholder.svg"}
+                                  alt={vehicle.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-lg">{vehicle.name}</h4>
+                              <p className="text-sm text-muted-foreground">
+                                {vehicle.brand} {vehicle.model}
+                              </p>
+                              <div className="flex items-center gap-3 mt-2">
+                                <Badge variant="secondary" className="text-xs">
+                                  <Users className="w-3 h-3 mr-1" />
+                                  {vehicle.capacity} pasajeros
+                                </Badge>
+                                {vehicle.isActive && (
+                                  <Badge variant="outline" className="text-xs text-green-600 border-green-600">
+                                    Disponible
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Highlights / Benefits */}
                   {tour.benefits && tour.benefits.length > 0 && (
                     <div>
                       <h3 className="text-xl font-serif mb-4">{dict.overview.highlights}</h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 gap-3">
                         {tour.benefits.map((benefit, i) => (
                           <div key={i} className="flex items-start gap-3 p-4 bg-background">
-                            <Check className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                            <Shield className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
                             <span className="text-foreground">{benefit}</span>
                           </div>
                         ))}
@@ -483,376 +520,288 @@ export default function TourDetailPage() {
                     </div>
                   )}
 
-                  {tour.availableDates && tour.availableDates.length > 0 && (
-                    <div>
-                      <h3 className="text-xl font-serif mb-4">{dict.booking.availableDates}</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {tour.availableDates.map((date, i) => (
-                          <button
-                            key={i}
-                            onClick={() => setSelectedDate(date.split("T")[0])}
-                            className={`px-4 py-2 border transition-colors ${
-                              selectedDate === date.split("T")[0]
-                                ? "bg-foreground text-background border-foreground"
-                                : "bg-background border-border hover:border-foreground"
-                            }`}
-                          >
-                            {formatDate(date)}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {(tour.minPeoplePerBooking || tour.maxPeoplePerBooking || tour.cutoffHoursBeforeStart) && (
-                    <div className="p-6 bg-background border-l-4 border-foreground">
-                      <h4 className="font-medium mb-3 flex items-center gap-2">
-                        <Info className="w-4 h-4" />
-                        {dict.booking.bookingInfo}
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                        {tour.minPeoplePerBooking && (
-                          <div>
-                            <span className="block font-medium text-foreground">{dict.booking.minPeople}</span>
-                            {tour.minPeoplePerBooking} {dict.overview.people}
-                          </div>
-                        )}
-                        {tour.maxPeoplePerBooking && (
-                          <div>
-                            <span className="block font-medium text-foreground">{dict.booking.maxPeople}</span>
-                            {tour.maxPeoplePerBooking} {dict.overview.people}
-                          </div>
-                        )}
-                        {tour.cutoffHoursBeforeStart && (
-                          <div>
-                            <span className="block font-medium text-foreground">{dict.booking.cutoff}</span>
-                            {tour.cutoffHoursBeforeStart}h {dict.booking.before}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Meeting Point */}
                   {tour.meetingPoint && (
-                    <div className="p-6 bg-background">
-                      <h4 className="text-sm font-medium tracking-wider uppercase mb-2">
+                    <div className="p-6 bg-background border-l-4 border-primary">
+                      <h4 className="font-medium mb-2 flex items-center gap-2">
+                        <MapPin className="w-4 h-4" />
                         {dict.overview.meetingPoint}
                       </h4>
                       <p className="text-muted-foreground">{tour.meetingPoint}</p>
-                      {tour.startTime && (
-                        <p className="text-sm text-muted-foreground mt-2">
-                          <span className="font-medium">{dict.overview.startTime}:</span> {tour.startTime}
-                        </p>
-                      )}
                     </div>
                   )}
                 </div>
               )}
 
-              {/* Itinerary */}
-              {activeSection === "itinerary" && tour.itinerary && tour.itinerary.length > 0 && (
+              {activeSection === "itinerary" && (
                 <div className="space-y-4">
-                  {tour.itinerary.map((item, index) => (
-                    <div key={item._id || index} className="border border-border bg-background">
-                      <button
-                        onClick={() => setExpandedDay(expandedDay === index ? null : index)}
-                        className="w-full flex items-center justify-between p-6 text-left hover:bg-secondary/50 transition-colors"
-                      >
-                        <div className="flex items-center gap-4">
-                          <span className="w-10 h-10 bg-foreground text-background flex items-center justify-center text-sm font-medium">
-                            {item.order}
-                          </span>
-                          <div>
-                            <span className="text-xs text-muted-foreground tracking-wider uppercase block">
-                              {dict.itinerary.dayLabel} {item.order}
-                            </span>
-                            <span className="text-lg font-serif">{item.title}</span>
-                          </div>
-                        </div>
-                        <ChevronDown
-                          className={`w-5 h-5 text-muted-foreground transition-transform ${
-                            expandedDay === index ? "rotate-180" : ""
-                          }`}
-                        />
-                      </button>
-
-                      {expandedDay === index && (
-                        <div className="px-6 pb-6 space-y-4">
-                          <p className="text-muted-foreground pl-14">{item.description}</p>
-
-                          {item.activities && item.activities.length > 0 && (
-                            <div className="pl-14">
-                              <h5 className="text-sm font-medium mb-2">{dict.itinerary.activities}</h5>
-                              <div className="flex flex-wrap gap-2">
-                                {item.activities.map((activity, i) => (
-                                  <span key={i} className="px-3 py-1 bg-secondary text-sm">
-                                    {activity}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {item.meals && (item.meals.breakfast || item.meals.lunch || item.meals.dinner) && (
-                            <div className="pl-14 flex items-center gap-4">
-                              <Utensils className="w-4 h-4 text-muted-foreground" />
-                              <div className="flex gap-3 text-sm">
-                                {item.meals.breakfast && (
-                                  <span className="text-muted-foreground">{dict.itinerary.meals.breakfast}</span>
-                                )}
-                                {item.meals.lunch && (
-                                  <span className="text-muted-foreground">{dict.itinerary.meals.lunch}</span>
-                                )}
-                                {item.meals.dinner && (
-                                  <span className="text-muted-foreground">{dict.itinerary.meals.dinner}</span>
+                  {tour.itinerary && tour.itinerary.length > 0 ? (
+                    tour.itinerary
+                      .sort((a, b) => a.order - b.order)
+                      .map((day, idx) => (
+                        <div key={day._id || idx} className="bg-background overflow-hidden">
+                          <button
+                            onClick={() => setExpandedDay(expandedDay === idx ? null : idx)}
+                            className="w-full flex items-center justify-between p-6 hover:bg-muted/50 transition-colors"
+                          >
+                            <div className="flex items-center gap-4">
+                              <span className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-semibold">
+                                {day.order}
+                              </span>
+                              <div className="text-left">
+                                <h3 className="font-semibold text-lg">{day.title}</h3>
+                                {day.durationHours && (
+                                  <p className="text-sm text-muted-foreground">
+                                    {day.durationHours} {day.durationHours > 1 ? dict.hero.hours : dict.hero.hour}
+                                  </p>
                                 )}
                               </div>
                             </div>
-                          )}
+                            <ChevronDown
+                              className={`w-5 h-5 text-muted-foreground transition-transform ${
+                                expandedDay === idx ? "rotate-180" : ""
+                              }`}
+                            />
+                          </button>
 
-                          {item.hotelNight && (
-                            <div className="pl-14 flex items-center gap-4">
-                              <Hotel className="w-4 h-4 text-muted-foreground" />
-                              <span className="text-sm text-muted-foreground">{dict.itinerary.hotelNight}</span>
+                          {expandedDay === idx && (
+                            <div className="p-6 pt-0 space-y-4 border-t">
+                              <p className="text-muted-foreground leading-relaxed">{day.description}</p>
+
+                              {day.activities && day.activities.length > 0 && (
+                                <div>
+                                  <h4 className="font-medium mb-2 flex items-center gap-2">
+                                    <Info className="w-4 h-4" />
+                                    {dict.itinerary.activities}
+                                  </h4>
+                                  <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                                    {day.activities.map((activity, i) => (
+                                      <li key={i}>{activity}</li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+
+                              <div className="flex flex-wrap gap-3 pt-2">
+                                {day.meals?.breakfast && (
+                                  <Badge variant="outline" className="gap-1">
+                                    <Utensils className="w-3 h-3" />
+                                    {dict.itinerary.meals.breakfast}
+                                  </Badge>
+                                )}
+                                {day.meals?.lunch && (
+                                  <Badge variant="outline" className="gap-1">
+                                    <Utensils className="w-3 h-3" />
+                                    {dict.itinerary.meals.lunch}
+                                  </Badge>
+                                )}
+                                {day.meals?.dinner && (
+                                  <Badge variant="outline" className="gap-1">
+                                    <Utensils className="w-3 h-3" />
+                                    {dict.itinerary.meals.dinner}
+                                  </Badge>
+                                )}
+                                {day.hotelNight && (
+                                  <Badge variant="outline" className="gap-1">
+                                    <Hotel className="w-3 h-3" />
+                                    {dict.itinerary.hotelNight}
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
                           )}
                         </div>
-                      )}
-                    </div>
-                  ))}
+                      ))
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">{dict.sections.noInfo}</p>
+                  )}
                 </div>
               )}
 
-              {/* Included/Excluded */}
+              {/* Included / Excluded */}
               {activeSection === "included" && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  {tour.includes && tour.includes.length > 0 && (
-                    <div className="bg-background p-6">
-                      <h3 className="text-xl font-serif mb-4 flex items-center gap-2">
-                        <Check className="w-5 h-5 text-green-500" />
-                        {dict.sections.included}
-                      </h3>
-                      <ul className="space-y-3">
-                        {tour.includes.map((item, i) => (
-                          <li key={i} className="flex items-start gap-3">
-                            <Check className="w-4 h-4 text-green-500 shrink-0 mt-1" />
-                            <span className="text-muted-foreground">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {tour.excludes && tour.excludes.length > 0 && (
-                    <div className="bg-background p-6">
-                      <h3 className="text-xl font-serif mb-4 flex items-center gap-2">
-                        <X className="w-5 h-5 text-red-500" />
-                        {dict.sections.excluded}
-                      </h3>
-                      <ul className="space-y-3">
-                        {tour.excludes.map((item, i) => (
-                          <li key={i} className="flex items-start gap-3">
-                            <X className="w-4 h-4 text-red-500 shrink-0 mt-1" />
-                            <span className="text-muted-foreground">{item}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-
-                  {tour.preparations && tour.preparations.length > 0 && (
-                    <div className="md:col-span-2 bg-background p-6">
-                      <h3 className="text-xl font-serif mb-4">{dict.sections.preparation}</h3>
-                      <div className="flex flex-wrap gap-2">
-                        {tour.preparations.map((item, i) => (
-                          <span key={i} className="px-4 py-2 bg-secondary text-sm">
-                            {item}
+                  <div>
+                    <h3 className="text-xl font-serif mb-4 flex items-center gap-2">
+                      <Shield className="w-5 h-5 text-green-600" />
+                      {dict.sections.included}
+                    </h3>
+                    <ul className="space-y-3">
+                      {tour.includes.map((item, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center shrink-0 mt-0.5">
+                            <span className="text-green-600 text-xs">✓</span>
                           </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                  {(!tour.includes || tour.includes.length === 0) && (!tour.excludes || tour.excludes.length === 0) && (
-                    <div className="md:col-span-2 bg-background p-6 text-center">
-                      <p className="text-muted-foreground">{dict.sections.noInfo}</p>
-                    </div>
-                  )}
+                  <div>
+                    <h3 className="text-xl font-serif mb-4 flex items-center gap-2">
+                      <X className="w-5 h-5 text-red-600" />
+                      {dict.sections.excluded}
+                    </h3>
+                    <ul className="space-y-3">
+                      {tour.excludes.map((item, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
+                            <X className="w-3 h-3 text-red-600" />
+                          </span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               )}
 
-              {/* Policies */}
               {activeSection === "policies" && (
                 <div className="space-y-6">
-                  {tour.cancellationPolicy && (
-                    <div className="p-6 bg-background">
-                      <h4 className="font-medium mb-2">{dict.policies.cancellation}</h4>
-                      <p className="text-muted-foreground">{tour.cancellationPolicy}</p>
-                    </div>
-                  )}
-                  {tour.refundPolicy && (
-                    <div className="p-6 bg-background">
-                      <h4 className="font-medium mb-2">{dict.policies.refund}</h4>
-                      <p className="text-muted-foreground">{tour.refundPolicy}</p>
-                    </div>
-                  )}
                   {tour.changePolicy && (
-                    <div className="p-6 bg-background">
-                      <h4 className="font-medium mb-2">{dict.policies.changes}</h4>
+                    <div className="p-6 bg-background border-l-4 border-primary">
+                      <h4 className="font-semibold text-lg mb-2">Política de Cambios</h4>
                       <p className="text-muted-foreground">{tour.changePolicy}</p>
                     </div>
                   )}
-
-                  {!tour.cancellationPolicy && !tour.refundPolicy && !tour.changePolicy && (
-                    <div className="p-6 bg-background text-center">
-                      <p className="text-muted-foreground">{dict.policies.contactUs}</p>
+                  {tour.refundPolicy && (
+                    <div className="p-6 bg-background border-l-4 border-orange-500">
+                      <h4 className="font-semibold text-lg mb-2">Política de Reembolso</h4>
+                      <p className="text-muted-foreground">{tour.refundPolicy}</p>
+                    </div>
+                  )}
+                  {tour.cancellationPolicy && (
+                    <div className="p-6 bg-background border-l-4 border-red-500">
+                      <h4 className="font-semibold text-lg mb-2">Política de Cancelación</h4>
+                      <p className="text-muted-foreground">{tour.cancellationPolicy}</p>
+                    </div>
+                  )}
+                  {tour.preparations && tour.preparations.length > 0 && (
+                    <div>
+                      <h4 className="font-semibold text-lg mb-3">Preparación</h4>
+                      <ul className="space-y-2">
+                        {tour.preparations.map((prep, i) => (
+                          <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                            <Shield className="w-4 h-4 text-muted-foreground shrink-0 mt-1" />
+                            {prep}
+                          </li>
+                        ))}
+                      </ul>
                     </div>
                   )}
                 </div>
               )}
             </div>
 
-            {/* Booking Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-20 bg-background p-6 space-y-6">
+            {/* Right Sidebar - Booking */}
+            <div className="lg:sticky lg:top-20 h-fit">
+              <div className="bg-background p-6 space-y-6 shadow-lg border">
                 <div>
-                  <span className="text-xs text-muted-foreground tracking-wider uppercase">
-                    {dict.booking.priceFrom}
-                  </span>
-                  <div className="flex items-baseline gap-2 mt-1">
-                    <span className="text-4xl font-serif text-foreground">${tour.currentPrice}</span>
-                    <span className="text-muted-foreground">{dict.booking.perPerson}</span>
+                  <div className="flex items-baseline gap-2">
+                    {tour.oldPrice && (
+                      <span className="text-lg text-muted-foreground line-through">${tour.oldPrice.toFixed(2)}</span>
+                    )}
+                    <span className="text-3xl font-bold">${tour.currentPrice.toFixed(2)}</span>
+                    <span className="text-muted-foreground">/ persona</span>
                   </div>
-                  {tour.oldPrice && tour.oldPrice > tour.currentPrice && (
-                    <p className="text-sm text-muted-foreground mt-1">
-                      <span className="line-through">${tour.oldPrice}</span>
-                      <span className="ml-2 text-green-600">
-                        -{Math.round(((tour.oldPrice - tour.currentPrice) / tour.oldPrice) * 100)}%
-                      </span>
+                  {tour.oldPrice && (
+                    <p className="text-sm text-green-600 font-medium mt-1">
+                      Ahorra ${(tour.oldPrice - tour.currentPrice).toFixed(2)}
                     </p>
                   )}
                 </div>
 
-                <div className="space-y-4">
-                  {/* Date Selection */}
-                  <div>
-                    <label className="text-xs font-medium tracking-wider uppercase block mb-2">
-                      {dict.booking.selectDate}
-                    </label>
-                    <div className="relative">
-                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <input
-                        type="date"
-                        value={selectedDate}
-                        onChange={(e) => setSelectedDate(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-secondary border border-border text-sm focus:outline-none focus:border-foreground"
-                      />
+                <div className="space-y-3">
+                  {tour.availabilityType === "always_available" ? (
+                    <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                      <p className="text-sm font-semibold text-green-700 flex items-center gap-2">
+                        <Calendar className="w-4 h-4" />
+                        Disponible todos los días
+                      </p>
+                      <p className="text-xs text-green-600 mt-1">Puedes reservar cualquier día del año</p>
                     </div>
-                  </div>
-
-                  {/* Travelers */}
-                  <div>
-                    <label className="text-xs font-medium tracking-wider uppercase block mb-2">
-                      {dict.booking.travelers}
-                    </label>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 bg-secondary border border-border">
-                        <span className="text-sm">{dict.booking.adults}</span>
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => setAdults(Math.max(1, adults - 1))}
-                            className="w-8 h-8 flex items-center justify-center border border-border hover:bg-background"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </button>
-                          <span className="w-8 text-center font-medium">{adults}</span>
-                          <button
-                            onClick={() => setAdults(Math.min(tour.maxPeoplePerBooking || 10, adults + 1))}
-                            className="w-8 h-8 flex items-center justify-center border border-border hover:bg-background"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
+                  ) : tour.availabilityType === "fixed_dates" ? (
+                    <>
+                      <h4 className="font-semibold text-base flex items-center gap-2">
+                        <Calendar className="w-5 h-5 text-primary" />
+                        Fechas Disponibles
+                      </h4>
+                      {tour.availableDates && tour.availableDates.length > 0 ? (
+                        <div className="max-h-48 overflow-y-auto space-y-2 pr-2">
+                          {tour.availableDates.map((date, i) => (
+                            <div
+                              key={i}
+                              className="text-sm font-medium p-3 bg-muted hover:bg-muted/70 rounded-lg border border-border transition-colors"
+                            >
+                              {new Date(date).toLocaleDateString(locale, {
+                                weekday: "short",
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              })}
+                            </div>
+                          ))}
                         </div>
-                      </div>
-                      <div className="flex items-center justify-between p-3 bg-secondary border border-border">
-                        <span className="text-sm">{dict.booking.children}</span>
-                        <div className="flex items-center gap-3">
-                          <button
-                            onClick={() => setChildren(Math.max(0, children - 1))}
-                            className="w-8 h-8 flex items-center justify-center border border-border hover:bg-background"
-                          >
-                            <Minus className="w-4 h-4" />
-                          </button>
-                          <span className="w-8 text-center font-medium">{children}</span>
-                          <button
-                            onClick={() => setChildren(children + 1)}
-                            className="w-8 h-8 flex items-center justify-center border border-border hover:bg-background"
-                          >
-                            <Plus className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Total */}
-                  <div className="pt-4 border-t border-border">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="font-medium">Total</span>
-                      <span className="text-2xl font-serif">${tour.currentPrice * (adults + children)}</span>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="space-y-3">
-                    <button
-                      onClick={handleBookNow}
-                      disabled={!tour.isBookable}
-                      className="w-full py-4 bg-foreground text-background text-xs font-medium tracking-widest uppercase hover:bg-foreground/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {dict.booking.bookNow}
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={handleAddToCart}
-                      className={`w-full py-4 border text-xs font-medium tracking-widest uppercase transition-all flex items-center justify-center gap-2 ${
-                        cartAdded
-                          ? "bg-green-600 text-white border-green-600"
-                          : "border-foreground/20 text-foreground hover:bg-foreground hover:text-background"
-                      }`}
-                    >
-                      {cartAdded ? (
-                        <>
-                          <Check className="w-4 h-4" />
-                          {dict.cart.added}
-                        </>
                       ) : (
-                        <>
-                          <ShoppingCart className="w-4 h-4" />
-                          {dict.booking.addToCart}
-                        </>
+                        <p className="text-sm text-muted-foreground p-3 bg-muted/50 rounded">
+                          No hay fechas disponibles actualmente
+                        </p>
                       )}
-                    </button>
+                    </>
+                  ) : null}
+                </div>
+
+                <AddToCartButton
+                  productId={tour._id}
+                  productType="tour"
+                  productTitle={tour.title}
+                  productImage={tour.images[0]?.url}
+                  unitPrice={tour.currentPrice}
+                  variant="default"
+                  className="w-full"
+                  availabilityType={tour.availabilityType}
+                  availableDates={tour.availableDates}
+                  triggerChildren={
+                    <div className="w-full px-6 py-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-all font-bold text-center rounded-lg border-2 border-primary shadow-md hover:shadow-lg cursor-pointer">
+                      <span className="text-base tracking-wide">Reservar Ahora</span>
+                    </div>
+                  }
+                />
+
+                <div className="space-y-3 pt-4 border-t border-border">
+                  <div className="flex items-start gap-3 text-sm">
+                    <Shield className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-foreground">
+                        {tour.instantConfirmation ? "Confirmación Instantánea" : "Confirmación en 24h"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {tour.instantConfirmation
+                          ? "Recibirás tu confirmación inmediatamente"
+                          : "Te confirmaremos en las próximas 24 horas"}
+                      </p>
+                    </div>
                   </div>
 
-                  {/* Trust Badges */}
-                  <div className="pt-4 space-y-2">
-                    {tour.instantConfirmation && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Check className="w-4 h-4 text-green-500" />
-                        {dict.booking.instantConfirmation}
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Shield className="w-4 h-4 text-green-500" />
-                      {dict.booking.freeCancellation}
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Star className="w-4 h-4 text-green-500" />
-                      {dict.booking.bestPrice}
+                  <div className="flex items-start gap-3 text-sm">
+                    <Shield className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-foreground">Pagos Seguros y Encriptados</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Tu información está protegida con la mejor tecnología
+                      </p>
                     </div>
                   </div>
+
+                  {tour.changePolicy && (
+                    <div className="flex items-start gap-3 text-sm">
+                      <Info className="w-5 h-5 text-orange-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-semibold text-foreground">Modificación de Fechas</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{tour.changePolicy}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -861,14 +810,16 @@ export default function TourDetailPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 md:py-24 px-4 bg-foreground">
-        <div ref={ctaRef} className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-serif mb-6 text-background">{dict.cta.title}</h2>
-          <p className="text-background/70 mb-8 max-w-xl mx-auto">{dict.cta.description}</p>
-          <button className="inline-flex items-center gap-3 px-10 py-5 bg-background text-foreground text-xs font-medium tracking-widest uppercase hover:bg-background/90 transition-colors">
+      <section ref={ctaRef} className="py-16 bg-foreground text-background">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <h2 className="text-3xl md:text-4xl font-serif mb-4">{dict.cta.title}</h2>
+          <p className="text-background/80 mb-8 text-lg">{dict.cta.description}</p>
+          <Link
+            href={`/${locale}/contact`}
+            className="inline-block px-8 py-4 bg-background text-foreground text-xs font-medium tracking-widest uppercase hover:bg-background/90 transition-colors"
+          >
             {dict.cta.button}
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
       </section>
     </main>

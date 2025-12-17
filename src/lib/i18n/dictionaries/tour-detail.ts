@@ -27,7 +27,8 @@ export interface TourDetailDictionary {
     addToCart: string
     bookNow: string
     instantConfirmation: string
-    freeCancellation: string
+    securePayment: string
+    changePolicy: string
     bestPrice: string
     availableDates: string
     bookingInfo: string
@@ -35,6 +36,8 @@ export interface TourDetailDictionary {
     maxPeople: string
     cutoff: string
     before: string
+    alwaysAvailable: string
+    noAvailableDates: string
   }
   sections: {
     overview: string
@@ -118,7 +121,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       addToCart: "Agregar al Carrito",
       bookNow: "Reservar Ahora",
       instantConfirmation: "Confirmación instantánea",
-      freeCancellation: "Cancelación gratuita",
+      securePayment: "Pagos seguros encriptados",
+      changePolicy: "Modificación de fechas disponible",
       bestPrice: "Mejor precio garantizado",
       availableDates: "Fechas Disponibles",
       bookingInfo: "Información de Reserva",
@@ -126,6 +130,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       maxPeople: "Máximo de personas",
       cutoff: "Límite de reserva",
       before: "antes del inicio",
+      alwaysAvailable: "Disponible todos los días",
+      noAvailableDates: "No hay fechas disponibles actualmente",
     },
     sections: {
       overview: "Descripción",
@@ -207,7 +213,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       addToCart: "Add to Cart",
       bookNow: "Book Now",
       instantConfirmation: "Instant confirmation",
-      freeCancellation: "Free cancellation",
+      securePayment: "Secure encrypted payments",
+      changePolicy: "Date modification available",
       bestPrice: "Best price guaranteed",
       availableDates: "Available Dates",
       bookingInfo: "Booking Information",
@@ -215,6 +222,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       maxPeople: "Maximum people",
       cutoff: "Booking cutoff",
       before: "before start",
+      alwaysAvailable: "Available every day",
+      noAvailableDates: "No dates currently available",
     },
     sections: {
       overview: "Overview",
@@ -270,10 +279,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     },
   },
   fr: {
-    breadcrumb: {
-      home: "Accueil",
-      tours: "Tours",
-    },
+    breadcrumb: { home: "Accueil", tours: "Tours" },
     hero: {
       duration: "Durée",
       day: "Jour",
@@ -296,7 +302,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       addToCart: "Ajouter au Panier",
       bookNow: "Réserver Maintenant",
       instantConfirmation: "Confirmation instantanée",
-      freeCancellation: "Annulation gratuite",
+      securePayment: "Paiements sécurisés cryptés",
+      changePolicy: "Modification de dates disponible",
       bestPrice: "Meilleur prix garanti",
       availableDates: "Dates Disponibles",
       bookingInfo: "Informations de Réservation",
@@ -304,6 +311,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       maxPeople: "Maximum de personnes",
       cutoff: "Limite de réservation",
       before: "avant le départ",
+      alwaysAvailable: "Disponible tous les jours",
+      noAvailableDates: "Aucune date disponible actuellement",
     },
     sections: {
       overview: "Aperçu",
@@ -317,11 +326,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     overview: {
       highlights: "Points forts",
       difficulty: "Difficulté",
-      difficultyLevels: {
-        easy: "Facile",
-        medium: "Modéré",
-        hard: "Difficile",
-      },
+      difficultyLevels: { easy: "Facile", medium: "Modéré", hard: "Difficile" },
       minAge: "Âge minimum",
       years: "ans",
       capacity: "Capacité",
@@ -334,11 +339,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     itinerary: {
       dayLabel: "Jour",
       activities: "Activités",
-      meals: {
-        breakfast: "Petit-déjeuner",
-        lunch: "Déjeuner",
-        dinner: "Dîner",
-      },
+      meals: { breakfast: "Petit-déjeuner", lunch: "Déjeuner", dinner: "Dîner" },
       hotelNight: "Nuit à l'hôtel",
     },
     policies: {
@@ -352,17 +353,10 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       description: "Notre équipe est disponible 24/7 pour vous aider à planifier votre aventure parfaite.",
       button: "Contacter Maintenant",
     },
-    cart: {
-      added: "Ajouté au panier",
-      viewCart: "Voir le Panier",
-      continueShopping: "Continuer les Achats",
-    },
+    cart: { added: "Ajouté au panier", viewCart: "Voir le Panier", continueShopping: "Continuer les Achats" },
   },
   it: {
-    breadcrumb: {
-      home: "Home",
-      tours: "Tour",
-    },
+    breadcrumb: { home: "Home", tours: "Tour" },
     hero: {
       duration: "Durata",
       day: "Giorno",
@@ -385,7 +379,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       addToCart: "Aggiungi al Carrello",
       bookNow: "Prenota Ora",
       instantConfirmation: "Conferma istantanea",
-      freeCancellation: "Cancellazione gratuita",
+      securePayment: "Pagamenti sicuri crittografati",
+      changePolicy: "Modifica delle date disponibile",
       bestPrice: "Miglior prezzo garantito",
       availableDates: "Date Disponibili",
       bookingInfo: "Informazioni Prenotazione",
@@ -393,6 +388,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       maxPeople: "Massimo persone",
       cutoff: "Limite prenotazione",
       before: "prima dell'inizio",
+      alwaysAvailable: "Disponibile tutti i giorni",
+      noAvailableDates: "Nessuna data disponibile attualmente",
     },
     sections: {
       overview: "Panoramica",
@@ -406,11 +403,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     overview: {
       highlights: "Punti salienti",
       difficulty: "Difficoltà",
-      difficultyLevels: {
-        easy: "Facile",
-        medium: "Moderato",
-        hard: "Impegnativo",
-      },
+      difficultyLevels: { easy: "Facile", medium: "Moderato", hard: "Impegnativo" },
       minAge: "Età minima",
       years: "anni",
       capacity: "Capacità",
@@ -423,11 +416,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     itinerary: {
       dayLabel: "Giorno",
       activities: "Attività",
-      meals: {
-        breakfast: "Colazione",
-        lunch: "Pranzo",
-        dinner: "Cena",
-      },
+      meals: { breakfast: "Colazione", lunch: "Pranzo", dinner: "Cena" },
       hotelNight: "Notte in hotel",
     },
     policies: {
@@ -441,17 +430,10 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       description: "Il nostro team è disponibile 24/7 per aiutarti a pianificare la tua avventura perfetta.",
       button: "Contatta Ora",
     },
-    cart: {
-      added: "Aggiunto al carrello",
-      viewCart: "Vedi Carrello",
-      continueShopping: "Continua lo Shopping",
-    },
+    cart: { added: "Aggiunto al carrello", viewCart: "Vedi Carrello", continueShopping: "Continua lo Shopping" },
   },
   de: {
-    breadcrumb: {
-      home: "Startseite",
-      tours: "Touren",
-    },
+    breadcrumb: { home: "Startseite", tours: "Touren" },
     hero: {
       duration: "Dauer",
       day: "Tag",
@@ -474,7 +456,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       addToCart: "In den Warenkorb",
       bookNow: "Jetzt Buchen",
       instantConfirmation: "Sofortige Bestätigung",
-      freeCancellation: "Kostenlose Stornierung",
+      securePayment: "Sichere verschlüsselte Zahlungen",
+      changePolicy: "Änderung der Daten verfügbar",
       bestPrice: "Bestpreisgarantie",
       availableDates: "Verfügbare Termine",
       bookingInfo: "Buchungsinformationen",
@@ -482,6 +465,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       maxPeople: "Maximalpersonen",
       cutoff: "Buchungsfrist",
       before: "vor Beginn",
+      alwaysAvailable: "Jeden Tag verfügbar",
+      noAvailableDates: "Derzeit keine Termine verfügbar",
     },
     sections: {
       overview: "Überblick",
@@ -495,11 +480,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     overview: {
       highlights: "Höhepunkte",
       difficulty: "Schwierigkeit",
-      difficultyLevels: {
-        easy: "Leicht",
-        medium: "Mittel",
-        hard: "Anspruchsvoll",
-      },
+      difficultyLevels: { easy: "Leicht", medium: "Mittel", hard: "Anspruchsvoll" },
       minAge: "Mindestalter",
       years: "Jahre",
       capacity: "Kapazität",
@@ -512,11 +493,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     itinerary: {
       dayLabel: "Tag",
       activities: "Aktivitäten",
-      meals: {
-        breakfast: "Frühstück",
-        lunch: "Mittagessen",
-        dinner: "Abendessen",
-      },
+      meals: { breakfast: "Frühstück", lunch: "Mittagessen", dinner: "Abendessen" },
       hotelNight: "Hotelnacht",
     },
     policies: {
@@ -531,17 +508,10 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
         "Unser Team ist rund um die Uhr verfügbar, um Ihnen bei der Planung Ihres perfekten Abenteuers zu helfen.",
       button: "Jetzt Kontaktieren",
     },
-    cart: {
-      added: "Zum Warenkorb hinzugefügt",
-      viewCart: "Warenkorb Anzeigen",
-      continueShopping: "Weiter Einkaufen",
-    },
+    cart: { added: "Zum Warenkorb hinzugefügt", viewCart: "Warenkorb Anzeigen", continueShopping: "Weiter Einkaufen" },
   },
   pt: {
-    breadcrumb: {
-      home: "Início",
-      tours: "Passeios",
-    },
+    breadcrumb: { home: "Início", tours: "Passeios" },
     hero: {
       duration: "Duração",
       day: "Dia",
@@ -564,7 +534,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       addToCart: "Adicionar ao Carrinho",
       bookNow: "Reservar Agora",
       instantConfirmation: "Confirmação instantânea",
-      freeCancellation: "Cancelamento gratuito",
+      securePayment: "Pagamentos seguros encriptados",
+      changePolicy: "Modificação de datas disponível",
       bestPrice: "Melhor preço garantido",
       availableDates: "Datas Disponíveis",
       bookingInfo: "Informações de Reserva",
@@ -572,6 +543,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       maxPeople: "Máximo de pessoas",
       cutoff: "Limite de reserva",
       before: "antes do início",
+      alwaysAvailable: "Disponível todos os dias",
+      noAvailableDates: "Nenhuma data disponível atualmente",
     },
     sections: {
       overview: "Visão Geral",
@@ -585,11 +558,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     overview: {
       highlights: "Destaques",
       difficulty: "Dificuldade",
-      difficultyLevels: {
-        easy: "Fácil",
-        medium: "Moderado",
-        hard: "Desafiador",
-      },
+      difficultyLevels: { easy: "Fácil", medium: "Moderado", hard: "Desafiador" },
       minAge: "Idade mínima",
       years: "anos",
       capacity: "Capacidade",
@@ -602,11 +571,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     itinerary: {
       dayLabel: "Dia",
       activities: "Atividades",
-      meals: {
-        breakfast: "Café da manhã",
-        lunch: "Almoço",
-        dinner: "Jantar",
-      },
+      meals: { breakfast: "Café da manhã", lunch: "Almoço", dinner: "Jantar" },
       hotelNight: "Noite no hotel",
     },
     policies: {
@@ -620,17 +585,10 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       description: "Nossa equipe está disponível 24/7 para ajudá-lo a planejar sua aventura perfeita.",
       button: "Contatar Agora",
     },
-    cart: {
-      added: "Adicionado ao carrinho",
-      viewCart: "Ver Carrinho",
-      continueShopping: "Continuar Comprando",
-    },
+    cart: { added: "Adicionado ao carrinho", viewCart: "Ver Carrinho", continueShopping: "Continuar Comprando" },
   },
   zh: {
-    breadcrumb: {
-      home: "首页",
-      tours: "旅游",
-    },
+    breadcrumb: { home: "首页", tours: "旅游" },
     hero: {
       duration: "时长",
       day: "天",
@@ -653,7 +611,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       addToCart: "加入购物车",
       bookNow: "立即预订",
       instantConfirmation: "即时确认",
-      freeCancellation: "免费取消",
+      securePayment: "安全加密支付",
+      changePolicy: "日期修改可用",
       bestPrice: "最优价格保证",
       availableDates: "可选日期",
       bookingInfo: "预订信息",
@@ -661,6 +620,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       maxPeople: "最多人数",
       cutoff: "预订截止",
       before: "开始前",
+      alwaysAvailable: "每天可用",
+      noAvailableDates: "目前没有可用日期",
     },
     sections: {
       overview: "概述",
@@ -674,11 +635,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     overview: {
       highlights: "亮点",
       difficulty: "难度",
-      difficultyLevels: {
-        easy: "简单",
-        medium: "中等",
-        hard: "困难",
-      },
+      difficultyLevels: { easy: "简单", medium: "中等", hard: "困难" },
       minAge: "最低年龄",
       years: "岁",
       capacity: "容量",
@@ -691,11 +648,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     itinerary: {
       dayLabel: "第",
       activities: "活动",
-      meals: {
-        breakfast: "早餐",
-        lunch: "午餐",
-        dinner: "晚餐",
-      },
+      meals: { breakfast: "早餐", lunch: "午餐", dinner: "晚餐" },
       hotelNight: "酒店住宿",
     },
     policies: {
@@ -704,22 +657,11 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       changes: "更改政策",
       contactUs: "联系我们了解更多政策信息",
     },
-    cta: {
-      title: "有问题吗？",
-      description: "我们的团队全天候为您提供帮助，帮您规划完美的冒险。",
-      button: "立即联系",
-    },
-    cart: {
-      added: "已加入购物车",
-      viewCart: "查看购物车",
-      continueShopping: "继续购物",
-    },
+    cta: { title: "有问题吗？", description: "我们的团队全天候为您提供帮助，帮您规划完美的冒险。", button: "立即联系" },
+    cart: { added: "已加入购物车", viewCart: "查看购物车", continueShopping: "继续购物" },
   },
   ja: {
-    breadcrumb: {
-      home: "ホーム",
-      tours: "ツアー",
-    },
+    breadcrumb: { home: "ホーム", tours: "ツアー" },
     hero: {
       duration: "所要時間",
       day: "日",
@@ -742,7 +684,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       addToCart: "カートに追加",
       bookNow: "今すぐ予約",
       instantConfirmation: "即時確認",
-      freeCancellation: "無料キャンセル",
+      securePayment: "安全な暗号化支払い",
+      changePolicy: "日付の変更が可能です",
       bestPrice: "最低価格保証",
       availableDates: "利用可能な日程",
       bookingInfo: "予約情報",
@@ -750,6 +693,8 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       maxPeople: "最大人数",
       cutoff: "予約締切",
       before: "開始前",
+      alwaysAvailable: "毎日利用可能",
+      noAvailableDates: "現在利用可能な日程はありません",
     },
     sections: {
       overview: "概要",
@@ -763,11 +708,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     overview: {
       highlights: "ハイライト",
       difficulty: "難易度",
-      difficultyLevels: {
-        easy: "簡単",
-        medium: "中程度",
-        hard: "ハード",
-      },
+      difficultyLevels: { easy: "簡単", medium: "中程度", hard: "ハード" },
       minAge: "最低年齢",
       years: "歳",
       capacity: "定員",
@@ -780,35 +721,24 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     itinerary: {
       dayLabel: "日目",
       activities: "アクティビティ",
-      meals: {
-        breakfast: "朝食",
-        lunch: "昼食",
-        dinner: "夕食",
-      },
+      meals: { breakfast: "朝食", lunch: "昼食", dinner: "夕食" },
       hotelNight: "ホテル泊",
     },
     policies: {
       cancellation: "キャンセルポリシー",
       refund: "返金ポリシー",
       changes: "変更ポリシー",
-      contactUs: "ポリシーについてはお問い合わせください",
+      contactUs: "ポリシーの詳細については、お問い合わせください",
     },
     cta: {
-      title: "ご質問がありますか？",
-      description: "私たちのチームは24時間年中無休で、完璧な冒険の計画をお手伝いします。",
-      button: "今すぐお問い合わせ",
+      title: "ご質問はありますか？",
+      description: "私たちのチームは、完璧な冒険を計画するために24時間365日対応しています。",
+      button: "お問い合わせ",
     },
-    cart: {
-      added: "カートに追加しました",
-      viewCart: "カートを見る",
-      continueShopping: "買い物を続ける",
-    },
+    cart: { added: "カートに追加されました", viewCart: "カートを見る", continueShopping: "ショッピングを続ける" },
   },
   ru: {
-    breadcrumb: {
-      home: "Главная",
-      tours: "Туры",
-    },
+    breadcrumb: { home: "Главная", tours: "Туры" },
     hero: {
       duration: "Продолжительность",
       day: "День",
@@ -817,28 +747,31 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       hours: "Часов",
       rating: "Рейтинг",
       reviews: "отзывов",
-      location: "Место",
+      location: "Местоположение",
     },
     booking: {
-      title: "Забронируйте Впечатление",
+      title: "Забронируйте Свой Опыт",
       priceFrom: "От",
-      perPerson: "с человека",
-      originalPrice: "Первоначальная цена",
+      perPerson: "на человека",
+      originalPrice: "Исходная цена",
       selectDate: "Выбрать дату",
       travelers: "Путешественники",
       adults: "Взрослые",
       children: "Дети",
-      addToCart: "В Корзину",
-      bookNow: "Забронировать",
+      addToCart: "Добавить в Корзину",
+      bookNow: "Забронировать Сейчас",
       instantConfirmation: "Мгновенное подтверждение",
-      freeCancellation: "Бесплатная отмена",
-      bestPrice: "Гарантия лучшей цены",
-      availableDates: "Доступные даты",
-      bookingInfo: "Информация о бронировании",
-      minPeople: "Минимум человек",
-      maxPeople: "Максимум человек",
+      securePayment: "Безопасные зашифрованные платежи",
+      changePolicy: "Доступна модификация дат",
+      bestPrice: "Лучшая цена гарантирована",
+      availableDates: "Доступные Даты",
+      bookingInfo: "Информация о Бронировании",
+      minPeople: "Минимум людей",
+      maxPeople: "Максимум людей",
       cutoff: "Срок бронирования",
       before: "до начала",
+      alwaysAvailable: "Доступно каждый день",
+      noAvailableDates: "В настоящее время нет дост��пных дат",
     },
     sections: {
       overview: "Обзор",
@@ -850,13 +783,9 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       noInfo: "Информация недоступна",
     },
     overview: {
-      highlights: "Особенности",
+      highlights: "Основные моменты",
       difficulty: "Сложность",
-      difficultyLevels: {
-        easy: "Легко",
-        medium: "Средне",
-        hard: "Сложно",
-      },
+      difficultyLevels: { easy: "Легко", medium: "Умеренно", hard: "Сложно" },
       minAge: "Минимальный возраст",
       years: "лет",
       capacity: "Вместимость",
@@ -868,33 +797,25 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
     },
     itinerary: {
       dayLabel: "День",
-      activities: "Активности",
-      meals: {
-        breakfast: "Завтрак",
-        lunch: "Обед",
-        dinner: "Ужин",
-      },
+      activities: "Мероприятия",
+      meals: { breakfast: "Завтрак", lunch: "Обед", dinner: "Ужин" },
       hotelNight: "Ночь в отеле",
     },
     policies: {
       cancellation: "Политика отмены",
       refund: "Политика возврата",
       changes: "Политика изменений",
-      contactUs: "Свяжитесь с нами для получения информации о политиках",
+      contactUs: "Свяжитесь с нами для получения дополнительной информации о политиках",
     },
     cta: {
       title: "Есть Вопросы?",
       description: "Наша команда доступна 24/7, чтобы помочь вам спланировать идеальное приключение.",
       button: "Связаться Сейчас",
     },
-    cart: {
-      added: "Добавлено в корзину",
-      viewCart: "Посмотреть Корзину",
-      continueShopping: "Продолжить Покупки",
-    },
+    cart: { added: "Добавлено в корзину", viewCart: "Просмотреть Корзину", continueShopping: "Продолжить Покупки" },
   },
 }
 
 export function getTourDetailDictionary(locale: Locale): TourDetailDictionary {
-  return tourDetailDictionaries[locale]
+  return tourDetailDictionaries[locale] || tourDetailDictionaries.es
 }

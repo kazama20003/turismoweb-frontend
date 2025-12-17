@@ -3,6 +3,10 @@
 import { useRef, useState, useEffect } from "react"
 import { getHeroSectionDictionary } from "@/lib/i18n/dictionaries/hero-section"
 import type { Locale } from "@/lib/i18n/config"
+import { gsap } from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+gsap.registerPlugin(ScrollTrigger)
 
 interface HeroSectionProps {
   locale: Locale
@@ -12,6 +16,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
   const translations = getHeroSectionDictionary(locale)
 
   const audioRef = useRef<HTMLAudioElement>(null)
+  const buttonsRef = useRef<HTMLDivElement>(null)
   const [audioActive, setAudioActive] = useState(false)
 
   useEffect(() => {
@@ -23,19 +28,16 @@ export function HeroSection({ locale }: HeroSectionProps) {
         .play()
         .then(() => {
           setAudioActive(true)
-          console.log("Audio habilitado correctamente.")
         })
-        .catch((err) => {
-          console.log("Error al intentar reproducir:", err)
+        .catch(() => {
+          // Silenciar error de autoplay
         })
 
-      // eliminar listeners después de activarlo
       window.removeEventListener("click", unlockAudio)
       window.removeEventListener("touchstart", unlockAudio)
       window.removeEventListener("keydown", unlockAudio)
     }
 
-    // primera interacción desbloquea audio
     window.addEventListener("click", unlockAudio)
     window.addEventListener("touchstart", unlockAudio)
     window.addEventListener("keydown", unlockAudio)
@@ -44,6 +46,32 @@ export function HeroSection({ locale }: HeroSectionProps) {
       window.removeEventListener("click", unlockAudio)
       window.removeEventListener("touchstart", unlockAudio)
       window.removeEventListener("keydown", unlockAudio)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (buttonsRef.current) {
+      // Ocultar los botones inicialmente
+      gsap.set(buttonsRef.current, { y: 100, opacity: 0 })
+
+      // Animación que se activa con scroll
+      ScrollTrigger.create({
+        trigger: buttonsRef.current,
+        start: "top 90%", // Cuando el elemento está a 90% de la pantalla
+        onEnter: () => {
+          gsap.to(buttonsRef.current, {
+            y: 0,
+            opacity: 1,
+            duration: 0.8,
+            ease: "power3.out",
+          })
+        },
+        once: true, // Solo animar una vez
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
     }
   }, [])
 
@@ -58,8 +86,8 @@ export function HeroSection({ locale }: HeroSectionProps) {
         await audio.play()
       }
       setAudioActive(!audioActive)
-    } catch (err) {
-      console.log("Error toggling audio:", err)
+    } catch {
+      // Silenciar error
     }
   }
 
@@ -121,8 +149,8 @@ export function HeroSection({ locale }: HeroSectionProps) {
             )}
           </button>
 
-          {/* BUTTONS */}
-          <div className="flex gap-6 items-center">
+          {/* BUTTONS - Ocultos inicialmente, aparecen con scroll */}
+          <div ref={buttonsRef} className="flex gap-6 items-center">
             <button
               onClick={(e) => e.stopPropagation()}
               className="px-8 py-3 bg-black text-white font-semibold rounded-full hover:bg-black/80 transition-all"
@@ -131,7 +159,7 @@ export function HeroSection({ locale }: HeroSectionProps) {
             </button>
             <button
               onClick={(e) => e.stopPropagation()}
-              className="px-8 py-3 bg-transparent text-white font-semibold rounded-full hover:bg-white/10 transition-all"
+              className="px-8 py-3 bg-transparent text-white font-semibold rounded-full hover:bg-white/10 transition-all border border-white"
             >
               {translations.shopNow}
             </button>

@@ -95,7 +95,7 @@ export function FeaturedSection({ locale }: FeaturedSectionProps) {
 
         <div ref={imagesContainerRef} className="relative h-96 md:h-[500px] lg:h-[600px] bg-gray-200 overflow-hidden">
           <Image
-            src="https://res.cloudinary.com/ddbzpbrje/image/upload/v1760740330/samples/food/pot-mussels.jpg"
+            src="https://res.cloudinary.com/ddbzpbrje/image/upload/v1765780203/surtido-plano-con-deliciosa-comida-brasilena_l7n5xl.jpg"
             alt="Maxwell Restaurant"
             fill
             className="object-cover"

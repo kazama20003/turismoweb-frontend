@@ -1,7 +1,9 @@
+import type { Vehicle } from "./vehicle"
+
 export const DifficultyValues = ["easy", "medium", "hard"] as const
 export type Difficulty = (typeof DifficultyValues)[number]
 
-export const AvailabilityTypeValues = ["unlimited", "fixed_dates", "date_range"] as const
+export const AvailabilityTypeValues = ["always_available", "fixed_dates", "date_range"] as const
 export type AvailabilityType = (typeof AvailabilityTypeValues)[number]
 
 export interface TourImage {
@@ -98,7 +100,7 @@ export interface Tour {
 
   // Transport
   hasTransport: boolean
-  vehicleIds?: string[]
+  vehicleIds?: (string | Vehicle)[]
 
   // Guide
   hasGuide: boolean

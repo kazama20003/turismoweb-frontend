@@ -3,6 +3,8 @@ import {FeaturedSection} from "@/components/home/featured-section"
 import  {ProductsSection}  from "@/components/home/products-section"
 import { CustomCursor } from "@/components/home/custom-cursor"
 import type { Locale } from "@/lib/i18n/config"
+import { PaymentMethodsSection } from "@/components/home/payment-methods-section"
+import { TestimonialsSection } from "@/components/home/testimonials-section"
 
 export default async function HomePage({
   params,
@@ -24,6 +26,8 @@ export default async function HomePage({
       </div>
 
       <FeaturedSection locale={locale} />
+      <PaymentMethodsSection locale={locale} />
+      <TestimonialsSection locale={locale} />
     </main>
   )
 }

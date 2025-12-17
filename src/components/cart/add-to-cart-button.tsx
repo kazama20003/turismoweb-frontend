@@ -34,6 +34,8 @@ interface AddToCartButtonProps {
   variant?: "default" | "outline"
   triggerChildren?: React.ReactNode
   className?: string
+  availabilityType?: "always_available" | "fixed_dates" | "date_range"
+  availableDates?: string[]
 }
 
 export function AddToCartButton({
@@ -45,6 +47,8 @@ export function AddToCartButton({
   variant = "default",
   triggerChildren,
   className,
+  availabilityType,
+  availableDates = [],
 }: AddToCartButtonProps) {
   const [open, setOpen] = useState(false)
   const [travelDate, setTravelDate] = useState("")
@@ -59,7 +63,7 @@ export function AddToCartButton({
 
   const calculateTotal = () => {
     if (productType === "tour") {
-      return unitPrice * (adults + childrenCount * 0.5)
+      return unitPrice * (adults + childrenCount)
     }
     return unitPrice
   }
@@ -153,19 +157,49 @@ export function AddToCartButton({
               </div>
             </div>
 
-            {/* Fecha */}
             <div className="space-y-2">
               <Label htmlFor="travel-date" className="text-sm font-medium flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-muted-foreground" />
                 Fecha de viaje
               </Label>
-              <Input
-                id="travel-date"
-                type="date"
-                min={minDate}
-                value={travelDate}
-                onChange={(e) => setTravelDate(e.target.value)}
-              />
+              {availabilityType === "fixed_dates" && availableDates.length > 0 ? (
+                <select
+                  id="travel-date"
+                  value={travelDate}
+                  onChange={(e) => setTravelDate(e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                >
+                  <option value="">Selecciona una fecha</option>
+                  {availableDates
+                    .filter((date) => new Date(date) >= new Date(minDate))
+                    .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+                    .map((date) => {
+                      const dateObj = new Date(date)
+                      const formattedDate = dateObj.toLocaleDateString("es", {
+                        weekday: "short",
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      })
+                      return (
+                        <option key={date} value={dateObj.toISOString().split("T")[0]}>
+                          {formattedDate}
+                        </option>
+                      )
+                    })}
+                </select>
+              ) : (
+                <Input
+                  id="travel-date"
+                  type="date"
+                  min={minDate}
+                  value={travelDate}
+                  onChange={(e) => setTravelDate(e.target.value)}
+                />
+              )}
+              {availabilityType === "fixed_dates" && availableDates.length === 0 && (
+                <p className="text-xs text-destructive">No hay fechas disponibles actualmente</p>
+              )}
             </div>
 
             {/* Pasajeros con scroll propio */}
@@ -207,11 +241,10 @@ export function AddToCartButton({
                     </div>
                   </div>
 
-                  {/* Niños */}
                   <div className="flex items-center justify-between p-3">
                     <div>
                       <p className="text-sm font-medium">Niños</p>
-                      <p className="text-xs text-muted-foreground">50% desc.</p>
+                      <p className="text-xs text-muted-foreground">${unitPrice.toFixed(2)} c/u</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <Button
@@ -290,7 +323,6 @@ export function AddToCartButton({
         </div>
 
         <SheetFooter className="border-t p-4 mt-auto bg-background">
-          {/* Resumen de precios */}
           {productType === "tour" && (adults > 0 || childrenCount > 0) && (
             <div className="w-full space-y-1 text-sm pb-2">
               {adults > 0 && (
@@ -306,7 +338,7 @@ export function AddToCartButton({
                   <span>
                     {childrenCount} niño{childrenCount > 1 ? "s" : ""}
                   </span>
-                  <span>${(childrenCount * unitPrice * 0.5).toFixed(2)}</span>
+                  <span>${(childrenCount * unitPrice).toFixed(2)}</span>
                 </div>
               )}
               <Separator className="my-2" />
