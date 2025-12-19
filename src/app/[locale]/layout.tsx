@@ -5,6 +5,17 @@ import { Toaster } from "sonner"
 import { QueryProvider } from "@/components/providers/query-provider"
 import { I18nProvider } from "@/lib/i18n/context"
 import { loadLocaleData } from "@/lib/i18n/get-locale-data"
+import "../globals.css"
+
+import { Poppins } from "next/font/google"
+
+// Fuente Poppins
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
+})
 
 // -------------------------------------------------------
 // LAYOUT PRINCIPAL (NO ASYNC, RECIBE params COMO PROMISE)
@@ -14,7 +25,6 @@ export default function LocaleLayout({
   params,
 }: {
   children: React.ReactNode
-  // 👇 Clave: Next está tipando params como Promise<{ locale: string }>
   params: Promise<{ locale: string }>
 }) {
   return (
@@ -34,23 +44,19 @@ async function LocaleLayoutContentWrapper({
   children: React.ReactNode
   params: Promise<{ locale: string }>
 }) {
-  // Next nos da params como Promise, aquí sí podemos hacer await
   const { locale: rawLocale } = await params
 
-  // Normalizamos/validamos el locale y obtenemos el diccionario
+  // Carga de diccionario + validación de locale
   const { locale, dictionary } = await loadLocaleData(rawLocale)
 
   return (
     <html lang={locale}>
-      <body>
+      <body className={`${poppins.variable} font-sans`}>
         <QueryProvider>
-          <I18nProvider
-            key={locale}
-            locale={locale} // <- tipo Locale, validado dentro de loadLocaleData
-            dictionary={dictionary}
-          >
+          <I18nProvider key={locale} locale={locale} dictionary={dictionary}>
             <Suspense fallback={null}>{children}</Suspense>
           </I18nProvider>
+
           <Toaster />
         </QueryProvider>
       </body>
