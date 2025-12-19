@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { Plus, Minus, ShoppingBag } from "lucide-react"
+import Image from "next/image";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
@@ -109,11 +110,14 @@ function ProductCard({ product }: { product: (typeof products)[0] }) {
   return (
     <div ref={cardRef} className="group opacity-0">
       <div className="relative aspect-[3/4] overflow-hidden bg-muted mb-4">
-        <img
-          src={product.image || "/placeholder.svg"}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+              <Image
+        src={product.image || "/placeholder.svg"}
+        alt={product.name}
+        fill
+        className="object-cover transition-transform duration-700 group-hover:scale-105"
+        sizes="(max-width: 768px) 100vw, 33vw"
+      />
+
         {product.featured && (
           <span className="absolute top-4 left-4 px-3 py-1 bg-accent text-accent-foreground text-xs tracking-widest uppercase">
             Featured
@@ -153,7 +157,7 @@ function ProductCard({ product }: { product: (typeof products)[0] }) {
 }
 
 export default function ShopPage() {
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, ] = useState("")
   const [activeCategory, setActiveCategory] = useState("all")
   const heroRef = useRef<HTMLDivElement>(null)
   const heroContentRef = useRef<HTMLDivElement>(null)

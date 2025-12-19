@@ -1,15 +1,17 @@
 "use client"
 
-import type React from "react"
+import type { ReactNode } from "react"
 import { useParams } from "next/navigation"
-import { Footer } from "@/components/home/footer"
 import Header from "@/components/home/header"
-import { isValidLocale, type Locale, defaultLocale } from "@/lib/i18n/config"
+import { Footer } from "@/components/home/footer"
+import { isValidLocale, defaultLocale, type Locale } from "@/lib/i18n/config"
 import { CartDrawerProvider } from "@/contexts/cart-context"
 
-export default function HomeLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+interface HomeLayoutProps {
+  children: ReactNode
+}
+
+export default function HomeLayout({ children }: HomeLayoutProps) {
   const params = useParams()
 
   const rawLocale =
@@ -19,15 +21,15 @@ export default function HomeLayout({
       ? params.locale[0]
       : undefined
 
-  const locale: Locale = isValidLocale(rawLocale) ? rawLocale : defaultLocale
+  const locale: Locale = isValidLocale(rawLocale)
+    ? rawLocale
+    : defaultLocale
 
   return (
-    <>
-      <CartDrawerProvider>
-        <Header />
+    <CartDrawerProvider>
+      <Header />
       {children}
       <Footer locale={locale} />
-      </CartDrawerProvider>
-    </>
+    </CartDrawerProvider>
   )
 }
