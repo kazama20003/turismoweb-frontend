@@ -35,6 +35,13 @@ export const transportsService = {
     return response.data
   },
 
+  async getTransportBySlug(slug: string, lang = "es"): Promise<Transport> {
+  const response = await api.get<Transport>(`/transports/slug/${slug}`, {
+    params: { lang },
+  });
+  return response.data;
+}
+,
   async createTransport(data: CreateTransportDto) {
     const response = await api.post<Transport>("/transports", data)
     return response.data

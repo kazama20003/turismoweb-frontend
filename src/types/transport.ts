@@ -1,4 +1,3 @@
-
 // Idiomas soportados en el sistema
 export const SUPPORTED_LANGS = [
   "es", // Español
@@ -13,6 +12,8 @@ export const SUPPORTED_LANGS = [
 ] as const
 
 export type Lang = (typeof SUPPORTED_LANGS)[number]
+
+export type WeekDay = "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday"
 
 export interface Coordinates {
   name: string
@@ -65,10 +66,12 @@ export interface Transport {
   durationMinutes?: number
   departureTime?: string
   arrivalTime?: string
+  availableDays?: WeekDay[]
   images?: TransportImage[]
   isActive?: boolean
   createdAt?: string
   updatedAt?: string
+  slug?: string
 }
 
 export interface CreateTransportDto {
@@ -88,6 +91,7 @@ export interface CreateTransportDto {
   durationMinutes?: number
   departureTime?: string
   arrivalTime?: string
+  availableDays?: WeekDay[]
   images?: TransportImage[]
 }
 

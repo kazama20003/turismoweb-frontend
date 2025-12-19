@@ -3,16 +3,28 @@
 import { useState, useRef, useEffect, use } from "react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { MapPin, Clock, Users, Bus } from "lucide-react"
+import { MapPin, Clock, Users, Bus, Calendar, ArrowRight } from "lucide-react"
 import { useTransports } from "@/hooks/use-transports"
 import { isValidLocale, defaultLocale, type Locale } from "@/lib/i18n/config"
 import { getTransportsDictionary } from "@/lib/i18n/dictionaries/transports"
-import type { Transport } from "@/types/transport"
+import type { Transport, WeekDay } from "@/types/transport"
 import Image from "next/image"
 import { AddToCartButton } from "@/components/cart/add-to-cart-button"
+import { Badge } from "@/components/ui/badge"
+import Link from "next/link"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
+}
+
+const WEEKDAY_LABELS: Record<WeekDay, string> = {
+  monday: "Lun",
+  tuesday: "Mar",
+  wednesday: "Mié",
+  thursday: "Jue",
+  friday: "Vie",
+  saturday: "Sáb",
+  sunday: "Dom",
 }
 
 const categories = [
@@ -23,10 +35,44 @@ const categories = [
   { id: "touristic", labelKey: "touristic" },
 ]
 
+function generateAvailableDates(availableDays: WeekDay[] | undefined, daysAhead = 90): string[] {
+  if (!availableDays || availableDays.length === 0) return []
+
+  const weekdayMap: Record<WeekDay, number> = {
+    sunday: 0,
+    monday: 1,
+    tuesday: 2,
+    wednesday: 3,
+    thursday: 4,
+    friday: 5,
+    saturday: 6,
+  }
+
+  const allowedDays = availableDays.map((day) => weekdayMap[day])
+  const dates: string[] = []
+  const today = new Date()
+
+  for (let i = 0; i < daysAhead; i++) {
+    const date = new Date(today)
+    date.setDate(today.getDate() + i)
+
+    if (allowedDays.includes(date.getDay())) {
+      dates.push(date.toISOString().split("T")[0])
+    }
+  }
+
+  return dates
+}
+
 function TransportCard({
   transport,
   dictionary,
-}: { transport: Transport; dictionary: ReturnType<typeof getTransportsDictionary> }) {
+  locale,
+}: {
+  transport: Transport
+  dictionary: ReturnType<typeof getTransportsDictionary>
+  locale: Locale
+}) {
   const cardRef = useRef<HTMLDivElement>(null)
   const t = dictionary.card
 
@@ -65,6 +111,24 @@ function TransportCard({
     return parts.join(" ") || "-"
   }
 
+  const formatDepartureTime = () => {
+    if (!transport.departureTime) return null
+    // If time is in HH:MM format, return as is
+    if (transport.departureTime.match(/^\d{2}:\d{2}$/)) {
+      return transport.departureTime
+    }
+    // If time includes date, extract time portion
+    try {
+      const date = new Date(transport.departureTime)
+      return date.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" })
+    } catch {
+      return transport.departureTime
+    }
+  }
+
+  const availableDates = generateAvailableDates(transport.availableDays)
+  const hasAvailableDates = availableDates.length > 0
+
   return (
     <div ref={cardRef} className="group opacity-0">
       <div className="relative aspect-3/4 overflow-hidden bg-muted mb-4">
@@ -91,6 +155,16 @@ function TransportCard({
             {transport.origin.name} → {transport.destination.name}
           </span>
         </div>
+
+        {/* Added departure time display */}
+        {formatDepartureTime() && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Clock className="w-4 h-4" />
+            <span className="font-medium">{formatDepartureTime()}</span>
+            {transport.arrivalTime && <span className="text-xs">(llegada: {transport.arrivalTime})</span>}
+          </div>
+        )}
+
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1 text-muted-foreground">
             <Clock className="w-4 h-4" />
@@ -105,6 +179,19 @@ function TransportCard({
             </div>
           )}
         </div>
+
+        {transport.availableDays && transport.availableDays.length > 0 && (
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-muted-foreground" />
+            <div className="flex flex-wrap gap-1">
+              {transport.availableDays.map((day) => (
+                <Badge key={day} variant="outline" className="text-xs">
+                  {WEEKDAY_LABELS[day]}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-2 text-sm mb-4">
@@ -117,20 +204,31 @@ function TransportCard({
         )}
       </div>
 
-      <AddToCartButton
-        productId={transport._id}
-        productType="transport"
-        productTitle={transport.title}
-        productImage={imageUrl}
-        productDescription={transport.description}
-        unitPrice={transport.currentPrice}
-        className="w-full"
-        triggerChildren={
-          <button className="w-full py-2.5 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:bg-primary/90 transition-colors">
-            {t.bookNow}
+      <div className="flex flex-col gap-2">
+        <Link href={`/${locale}/transports/${transport.slug}`}>
+          <button className="w-full py-2.5 bg-secondary text-foreground border border-border text-xs font-medium tracking-widest uppercase hover:bg-accent transition-colors flex items-center justify-center gap-2">
+            {t.viewDetails}
+            <ArrowRight className="w-3 h-3" />
           </button>
-        }
-      />
+        </Link>
+
+        <AddToCartButton
+          productId={transport._id}
+          productType="transport"
+          productTitle={transport.title}
+          productImage={imageUrl}
+          productDescription={transport.description}
+          unitPrice={transport.currentPrice}
+          availabilityType={hasAvailableDates ? "fixed_dates" : "always_available"}
+          availableDates={availableDates}
+          className="w-full"
+          triggerChildren={
+            <button className="w-full py-2.5 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:bg-primary/90 transition-colors">
+              {t.bookNow}
+            </button>
+          }
+        />
+      </div>
     </div>
   )
 }
@@ -294,10 +392,10 @@ export default function TransportsPage({ params }: { params: Promise<{ locale: s
                 </div>
               ) : filteredTransports.length > 0 ? (
                 filteredTransports.map((transport) => (
-                  <TransportCard key={transport._id} transport={transport} dictionary={dictionary} />
+                  <TransportCard key={transport._id} transport={transport} dictionary={dictionary} locale={locale} />
                 ))
               ) : (
-                  <div className="col-span-full py-24 text-center">
+                <div className="col-span-full py-24 text-center">
                   <Bus className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <p className="text-muted-foreground">{dictionary.section.noResults}</p>
                 </div>

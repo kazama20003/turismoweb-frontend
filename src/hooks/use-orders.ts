@@ -1,66 +1,105 @@
-import useSWR, { mutate } from "swr"
-import useSWRMutation from "swr/mutation"
+"use client"
+
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { ordersService } from "@/services/orders-service"
 import type { CreateOrderDto, UpdateOrderDto } from "@/types/order"
 
 const ORDERS_KEY = "orders-list"
 
-const fetchOrders = async ([, page, limit]: [string, number, number]) => {
-  return ordersService.getOrders(page, limit)
-}
-
+// Hook para obtener órdenes paginadas
 export function useOrders(page = 1, limit = 10) {
-  return useSWR([ORDERS_KEY, page, limit], fetchOrders, {
-    revalidateOnFocus: false,
+  return useQuery({
+    queryKey: [ORDERS_KEY, page, limit],
+    queryFn: () => ordersService.getOrders(page, limit),
   })
 }
 
+// Hook para obtener una orden por ID
 export function useOrder(id: string | null) {
-  return useSWR(
-    id ? ["order", id] : null,
-    async ([, orderId]: [string, string]) => ordersService.getOrderById(orderId),
-    { revalidateOnFocus: false },
-  )
+  return useQuery({
+    queryKey: ["order", id],
+    queryFn: () => ordersService.getOrderById(id!),
+    enabled: !!id,
+  })
 }
 
+// Hook para obtener una orden por código
 export function useOrderByCode(code: string | null) {
-  return useSWR(
-    code ? ["order-code", code] : null,
-    async ([, orderCode]: [string, string]) => ordersService.getOrderByCode(orderCode),
-    { revalidateOnFocus: false },
-  )
-}
-
-export function revalidateOrders() {
-  mutate((key) => Array.isArray(key) && key[0] === ORDERS_KEY, undefined, { revalidate: true })
-}
-
-export function useCreateOrder() {
-  return useSWRMutation("createOrder", async (_, { arg }: { arg: CreateOrderDto }) => {
-    const result = await ordersService.createOrder(arg)
-    revalidateOrders()
-    return result
+  return useQuery({
+    queryKey: ["order-code", code],
+    queryFn: () => ordersService.getOrderByCode(code!),
+    enabled: !!code,
   })
 }
 
-export function useUpdateOrder() {
-  return useSWRMutation("updateOrder", async (_, { arg }: { arg: { id: string; data: UpdateOrderDto } }) => {
-    const result = await ordersService.updateOrder(arg.id, arg.data)
-    revalidateOrders()
-    return result
-  })
-}
-
-export function useDeleteOrder() {
-  return useSWRMutation("deleteOrder", async (_, { arg }: { arg: string }) => {
-    const result = await ordersService.deleteOrder(arg)
-    revalidateOrders()
-    return result
-  })
-}
-
+// Hook para obtener las órdenes del usuario autenticado
 export function useMyOrders() {
-  return useSWR("my-orders", () => ordersService.getMyOrders(), {
-    revalidateOnFocus: false,
+  return useQuery({
+    queryKey: ["my-orders"],
+    queryFn: () => ordersService.getMyOrders(),
   })
+}
+
+// CREATE ORDER
+export function useCreateOrder() {
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async (data: CreateOrderDto) => {
+      return ordersService.createOrder(data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [ORDERS_KEY] })
+      queryClient.invalidateQueries({ queryKey: ["my-orders"] })
+    },
+  })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
+}
+
+// UPDATE ORDER
+export function useUpdateOrder() {
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateOrderDto }) => {
+      return ordersService.updateOrder(id, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [ORDERS_KEY] })
+      queryClient.invalidateQueries({ queryKey: ["order"] })
+      queryClient.invalidateQueries({ queryKey: ["my-orders"] })
+    },
+  })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
+}
+
+// DELETE ORDER
+export function useDeleteOrder() {
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async (id: string) => {
+      return ordersService.deleteOrder(id)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [ORDERS_KEY] })
+      queryClient.invalidateQueries({ queryKey: ["my-orders"] })
+    },
+  })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }

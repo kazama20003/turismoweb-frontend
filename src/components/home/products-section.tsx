@@ -6,6 +6,8 @@ import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { getProductsSectionDictionary } from "@/lib/i18n/dictionaries/products-section"
 import type { Locale } from "@/lib/i18n/config"
+import { usePopularTours } from "@/hooks/use-tours"
+import {AddToCartButton} from "@/components/cart/add-to-cart-button"
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -15,47 +17,13 @@ interface ProductsSectionProps {
 
 export function ProductsSection({ locale }: ProductsSectionProps) {
   const dict = getProductsSectionDictionary(locale)
+  const { data: tours, isLoading } = usePopularTours(locale)
 
   const titleRef = useRef<HTMLHeadingElement>(null)
   const subtitleRef = useRef<HTMLParagraphElement>(null)
   const descriptionRef = useRef<HTMLDivElement>(null)
   const dividerRef = useRef<HTMLDivElement>(null)
   const imagesContainerRef = useRef<HTMLDivElement>(null)
-
-  const products = [
-    {
-      id: 1,
-      title: dict.products[0].title,
-      description: dict.products[0].description,
-      price: dict.products[0].price,
-      image: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1760740330/samples/food/pot-mussels.jpg",
-      type: "image" as const,
-    },
-    {
-      id: 2,
-      title: dict.products[1].title,
-      description: dict.products[1].description,
-      price: dict.products[1].price,
-      video: "https://res.cloudinary.com/ddbzpbrje/video/upload/v1763011237/11929213_1920_1080_60fps_lq178j.mp4",
-      type: "video" as const,
-    },
-    {
-      id: 3,
-      title: dict.products[2].title,
-      description: dict.products[2].description,
-      price: dict.products[2].price,
-      image: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1760740330/samples/food/pot-mussels.jpg",
-      type: "image" as const,
-    },
-    {
-      id: 4,
-      title: dict.products[3].title,
-      description: dict.products[3].description,
-      price: dict.products[3].price,
-      video: "https://res.cloudinary.com/ddbzpbrje/video/upload/v1763011237/11929213_1920_1080_60fps_lq178j.mp4",
-      type: "video" as const,
-    },
-  ]
 
   useEffect(() => {
     const elements = [
@@ -94,6 +62,8 @@ export function ProductsSection({ locale }: ProductsSectionProps) {
     }
   }, [])
 
+  const displayTours = tours?.slice(0, 4) || []
+
   return (
     <section className="w-full bg-white border-l-8 border-r-8 border-white">
       <div ref={dividerRef} className="border-t-8 border-white" />
@@ -128,51 +98,81 @@ export function ProductsSection({ locale }: ProductsSectionProps) {
         ref={imagesContainerRef}
         className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-t-8 border-white"
       >
-        {products.map((product, index) => (
-          <div key={product.id}>
-            <div className="relative h-64 sm:h-80 md:h-96 lg:h-screen overflow-hidden group">
-              {product.type === "image" && (
-                <Image
-                  src={product.image || "/placeholder.svg"}
-                  alt={product.title}
-                  fill
-                  className="w-full h-full object-cover"
-                />
-              )}
-              {product.type === "video" && (
-                <video src={product.video} autoPlay muted loop className="w-full h-full object-cover" />
-              )}
-
-              <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-8">
-                <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2">
-                  {product.title}
-                </h3>
-                <p className="text-xs sm:text-sm md:text-base text-white/90 leading-relaxed mb-3 line-clamp-2">
-                  {product.description}
-                </p>
-                <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-3">{product.price}</p>
-                <button
-                  className="text-white font-semibold text-xs sm:text-sm underline hover:opacity-70 transition-opacity w-fit"
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    const reservarElement = document.getElementById("reservar")
-                    if (reservarElement) {
-                      reservarElement.scrollIntoView({ behavior: "smooth" })
-                    }
-                  }}
-                >
-                  {dict.reserve}
-                </button>
+        {isLoading ? (
+          // Loading state
+          Array.from({ length: 4 }).map((_, index) => (
+            <div key={index}>
+              <div className="relative h-64 sm:h-80 md:h-96 lg:h-screen overflow-hidden bg-gray-200 animate-pulse">
+                <div className="absolute inset-0 bg-black/40" />
+                {index < 3 && (
+                  <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-8 border-r-8 border-white" />
+                )}
               </div>
-
-              {index < products.length - 1 && (
-                <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-8 border-r-8 border-white" />
-              )}
+              <div className="md:hidden border-b-4 border-white" />
             </div>
+          ))
+        ) : displayTours.length > 0 ? (
+          displayTours.map((tour, index) => {
+            // Even index (0, 2) shows image, odd index (1, 3) shows video
+            const useVideo = index % 2 === 1 && tour.videoUrl
+            const mainImage = tour.images?.[0]?.url || "/placeholder.svg"
 
-            <div className="md:hidden border-b-4 border-white" />
+            return (
+              <div key={tour._id}>
+                <div className="relative h-64 sm:h-80 md:h-96 lg:h-screen overflow-hidden group">
+                  {useVideo ? (
+                    <video src={tour.videoUrl} autoPlay muted loop className="w-full h-full object-cover" />
+                  ) : (
+                    <Image
+                      src={mainImage || "/placeholder.svg"}
+                      alt={tour.title}
+                      fill
+                      className="w-full h-full object-cover"
+                    />
+                  )}
+
+                  <div className="absolute inset-0 bg-black/40 flex flex-col justify-end p-8">
+                    <h3 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-2">
+                      {tour.title}
+                    </h3>
+                    <p className="text-xs sm:text-sm md:text-base text-white/90 leading-relaxed mb-3 line-clamp-2">
+                      {tour.description}
+                    </p>
+                    <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-3">
+                      ${tour.currentPrice.toFixed(2)}
+                    </p>
+                    <AddToCartButton
+                      productId={tour._id}
+                      productType="tour"
+                      productTitle={tour.title}
+                      productImage={tour.images?.[0]?.url}
+                      productDescription={tour.description}
+                      unitPrice={tour.currentPrice}
+                      availabilityType={tour.availabilityType}
+                      availableDates={tour.availableDates}
+                      triggerChildren={
+                        <button className="text-white font-semibold text-xs sm:text-sm underline hover:opacity-70 transition-opacity w-fit">
+                          {dict.reserve}
+                        </button>
+                      }
+                    />
+                  </div>
+
+                  {index < displayTours.length - 1 && (
+                    <div className="hidden lg:block absolute right-0 top-0 bottom-0 w-8 border-r-8 border-white" />
+                  )}
+                </div>
+
+                <div className="md:hidden border-b-4 border-white" />
+              </div>
+            )
+          })
+        ) : (
+          // No tours available
+          <div className="col-span-full p-12 text-center text-gray-500">
+            <p>No tours available at the moment</p>
           </div>
-        ))}
+        )}
       </div>
     </section>
   )

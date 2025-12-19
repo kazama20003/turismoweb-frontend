@@ -1,59 +1,103 @@
-import useSWR, { mutate } from "swr"
-import useSWRMutation from "swr/mutation"
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { vehiclesService } from "@/services/vehicles-service"
 import type { CreateVehicleDto, UpdateVehicleDto } from "@/types/vehicle"
 
 const VEHICLES_KEY = "vehicles-list"
 
-// Fetcher for SWR
-const fetchVehicles = async ([, page, limit]: [string, number, number]) => {
-  return vehiclesService.getVehicles(page, limit)
-}
-
 // Hook for fetching vehicles with pagination
 export function useVehicles(page = 1, limit = 10) {
-  return useSWR([VEHICLES_KEY, page, limit], fetchVehicles, {
-    revalidateOnFocus: false,
+  const query = useQuery({
+    queryKey: [VEHICLES_KEY, page, limit],
+    queryFn: () => vehiclesService.getVehicles(page, limit),
+    refetchOnWindowFocus: false,
   })
+
+  return {
+    data: query.data,
+    error: query.error,
+    isLoading: query.isLoading,
+    isValidating: query.isFetching,
+    mutate: query.refetch,
+  }
 }
 
 // Hook for fetching a single vehicle
 export function useVehicle(id: string | null) {
-  return useSWR(
-    id ? ["vehicle", id] : null,
-    async ([, vehicleId]: [string, string]) => vehiclesService.getVehicleById(vehicleId),
-    { revalidateOnFocus: false },
-  )
-}
+  const query = useQuery({
+    queryKey: ["vehicle", id],
+    queryFn: () => vehiclesService.getVehicleById(id!),
+    enabled: !!id,
+    refetchOnWindowFocus: false,
+  })
 
-export function revalidateVehicles() {
-  // Revalidate all keys that start with VEHICLES_KEY
-  mutate((key) => Array.isArray(key) && key[0] === VEHICLES_KEY, undefined, { revalidate: true })
+  return {
+    data: query.data,
+    error: query.error,
+    isLoading: query.isLoading,
+    isValidating: query.isFetching,
+    mutate: query.refetch,
+  }
 }
 
 // Hook for creating a vehicle
 export function useCreateVehicle() {
-  return useSWRMutation("createVehicle", async (_, { arg }: { arg: CreateVehicleDto }) => {
-    const result = await vehiclesService.createVehicle(arg)
-    revalidateVehicles()
-    return result
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: (data: CreateVehicleDto) => vehiclesService.createVehicle(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        predicate: (query) => Array.isArray(query.queryKey) && query.queryKey[0] === VEHICLES_KEY,
+      })
+    },
   })
+
+  return {
+    trigger: mutation.mutate,
+    data: mutation.data,
+    error: mutation.error,
+    isMutating: mutation.isPending,
+  }
 }
 
 // Hook for updating a vehicle
 export function useUpdateVehicle() {
-  return useSWRMutation("updateVehicle", async (_, { arg }: { arg: { id: string; data: UpdateVehicleDto } }) => {
-    const result = await vehiclesService.updateVehicle(arg.id, arg.data)
-    revalidateVehicles()
-    return result
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: UpdateVehicleDto }) => vehiclesService.updateVehicle(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        predicate: (query) => Array.isArray(query.queryKey) && query.queryKey[0] === VEHICLES_KEY,
+      })
+    },
   })
+
+  return {
+    trigger: mutation.mutate,
+    data: mutation.data,
+    error: mutation.error,
+    isMutating: mutation.isPending,
+  }
 }
 
 // Hook for deleting a vehicle
 export function useDeleteVehicle() {
-  return useSWRMutation("deleteVehicle", async (_, { arg }: { arg: string }) => {
-    const result = await vehiclesService.deleteVehicle(arg)
-    revalidateVehicles()
-    return result
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: (id: string) => vehiclesService.deleteVehicle(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        predicate: (query) => Array.isArray(query.queryKey) && query.queryKey[0] === VEHICLES_KEY,
+      })
+    },
   })
+
+  return {
+    trigger: mutation.mutate,
+    data: mutation.data,
+    error: mutation.error,
+    isMutating: mutation.isPending,
+  }
 }

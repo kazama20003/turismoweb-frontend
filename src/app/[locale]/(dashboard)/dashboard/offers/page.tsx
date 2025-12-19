@@ -67,7 +67,7 @@ export default function OffersPage() {
       const offers = offersData.data
       const activeCount = offers.filter((o: Offer) => o.isActive !== false).length
       const percentageCount = offers.filter((o: Offer) => o.type === "percentage").length
-      const fixedCount = offers.filter((o: Offer) => o.type === "fixed_amount").length
+      const fixedCount = offers.filter((o: Offer) => o.type === "fixed").length
 
       setStats({
         total: offers.length,

@@ -1,5 +1,6 @@
-import useSWR, { mutate } from "swr"
-import useSWRMutation from "swr/mutation"
+"use client"
+
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toursService } from "@/services/tours-service"
 import type { CreateTourDto, UpdateTourDto, UpdateTourTranslationDto } from "@/types/tour"
 
@@ -25,95 +26,143 @@ export function isValidLanguageCode(code: string): code is SupportedLanguageCode
   return SUPPORTED_LANGUAGES.some((lang) => lang.code === code)
 }
 
-// Fetcher para tours paginados
-const fetchTours = async ([, page, limit, lang]: [string, number, number, string?]) =>
-  toursService.getTours(page, limit, lang)
-
-// ➤ Hook: Obtener tours paginados
+// Hook para obtener tours paginados
 export function useTours(page = 1, limit = 10, lang?: string) {
-  return useSWR([TOURS_KEY, page, limit, lang], fetchTours, {
-    revalidateOnFocus: false,
+  return useQuery({
+    queryKey: [TOURS_KEY, page, limit, lang],
+    queryFn: () => toursService.getTours(page, limit, lang),
   })
 }
 
-// ➤ Hook: Obtener 1 tour por slug
+// Hook para obtener un tour por slug
 export function useTourBySlug(slug: string | null, lang?: string) {
-  return useSWR(
-    slug ? ["tour-slug", slug, lang] : null,
-    async ([, tourSlug, language]: [string, string, string?]) => toursService.getTourBySlug(tourSlug, language),
-    { revalidateOnFocus: false },
-  )
+  return useQuery({
+    queryKey: ["tour-slug", slug, lang],
+    queryFn: () => toursService.getTourBySlug(slug!, lang),
+    enabled: !!slug,
+  })
 }
 
-// ➤ Hook: Obtener 1 tour
+// Hook para obtener un tour por ID
 export function useTour(id: string | null, lang?: string) {
-  return useSWR(
-    id ? ["tour", id, lang] : null,
-    async ([, tourId]: [string, string]) => toursService.getTourById(tourId, lang),
-    { revalidateOnFocus: false },
-  )
+  return useQuery({
+    queryKey: ["tour", id, lang],
+    queryFn: () => toursService.getTourById(id!, lang),
+    enabled: !!id,
+  })
 }
 
-// ➤ Hook: Obtener tours populares (DEVUELVE 4)
+// Hook para obtener tours populares
 export function usePopularTours(lang?: string) {
-  return useSWR([POPULAR_TOURS_KEY, lang], async () => toursService.getPopularTours(lang), { revalidateOnFocus: false })
+  return useQuery({
+    queryKey: [POPULAR_TOURS_KEY, lang],
+    queryFn: () => toursService.getPopularTours(lang),
+  })
 }
 
-// ➤ Revalidación global
-export function revalidateTours() {
-  mutate((key) => Array.isArray(key) && key[0] === TOURS_KEY, undefined, { revalidate: true })
-  mutate((key) => Array.isArray(key) && key[0] === POPULAR_TOURS_KEY, undefined, { revalidate: true })
-}
-
-// ➤ Crear tour
 export function useCreateTour() {
-  return useSWRMutation("createTour", async (_, { arg }: { arg: CreateTourDto }) => {
-    const result = await toursService.createTour(arg)
-    revalidateTours()
-    return result
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async (data: CreateTourDto) => {
+      return toursService.createTour(data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [TOURS_KEY] })
+      queryClient.invalidateQueries({ queryKey: [POPULAR_TOURS_KEY] })
+    },
   })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }
 
-// ➤ Actualizar tour
 export function useUpdateTour() {
-  return useSWRMutation("updateTour", async (_, { arg }: { arg: { id: string; data: UpdateTourDto } }) => {
-    const result = await toursService.updateTour(arg.id, arg.data)
-    revalidateTours()
-    return result
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateTourDto }) => {
+      return toursService.updateTour(id, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [TOURS_KEY] })
+      queryClient.invalidateQueries({ queryKey: ["tour"] })
+      queryClient.invalidateQueries({ queryKey: [POPULAR_TOURS_KEY] })
+    },
   })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }
 
-// ➤ Eliminar tour
 export function useDeleteTour() {
-  return useSWRMutation("deleteTour", async (_, { arg }: { arg: string }) => {
-    const result = await toursService.deleteTour(arg)
-    revalidateTours()
-    return result
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async (id: string) => {
+      return toursService.deleteTour(id)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [TOURS_KEY] })
+      queryClient.invalidateQueries({ queryKey: [POPULAR_TOURS_KEY] })
+    },
   })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }
 
-// ➤ Auto traducir tour
 export function useAutoTranslateTour() {
-  return useSWRMutation(
-    "autoTranslateTour",
-    async (_, { arg }: { arg: { id: string; languages: SupportedLanguageCode[] } }) => {
-      const validLanguages = arg.languages.filter(isValidLanguageCode)
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async ({ id, languages }: { id: string; languages: SupportedLanguageCode[] }) => {
+      const validLanguages = languages.filter(isValidLanguageCode)
       if (!validLanguages.length) throw new Error("No valid languages provided")
-      const result = await toursService.autoTranslateTour(arg.id, validLanguages)
-      revalidateTours()
-      return result
+      return toursService.autoTranslateTour(id, validLanguages)
     },
-  )
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [TOURS_KEY] })
+      queryClient.invalidateQueries({ queryKey: ["tour"] })
+    },
+  })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }
 
-// ➤ Actualizar traducción
 export function useUpdateTourTranslation() {
-  return useSWRMutation(
-    "updateTourTranslation",
-    async (_, { arg }: { arg: { id: string; lang: SupportedLanguageCode; data: UpdateTourTranslationDto } }) => {
-      const result = await toursService.updateTourTranslation(arg.id, arg.lang, arg.data)
-      revalidateTours()
-      return result
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async ({
+      id,
+      lang,
+      data,
+    }: { id: string; lang: SupportedLanguageCode; data: UpdateTourTranslationDto }) => {
+      return toursService.updateTourTranslation(id, lang, data)
     },
-  )
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [TOURS_KEY] })
+      queryClient.invalidateQueries({ queryKey: ["tour"] })
+    },
+  })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }

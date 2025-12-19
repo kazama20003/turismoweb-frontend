@@ -8,8 +8,6 @@ import { QueryProvider } from "@/components/providers/query-provider"
 import { I18nProvider } from "@/lib/i18n/context"
 import { getDictionary } from "@/lib/i18n/dictionaries"
 import { type Locale, isValidLocale, defaultLocale } from "@/lib/i18n/config"
-import { CartDrawer } from "@/components/cart/cart-drawer"
-
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
@@ -37,9 +35,7 @@ export default async function RootLayout({
     : defaultLocale
 
   // 👇 ESTA ERA LA PIEZA QUE FALTABA
-  const dictionary = await getDictionary(locale)
-
-  console.log("[v0] Layout rendering with locale:", locale, "dictionary nav.shop:", dictionary.nav.shop)
+  const dictionary = getDictionary(locale)
 
   return (
     <html lang={locale}>

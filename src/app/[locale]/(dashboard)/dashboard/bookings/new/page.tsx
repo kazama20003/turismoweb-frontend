@@ -32,23 +32,10 @@ import { useOfferByCode } from "@/hooks/use-offers"
 import { fetchUserByEmail, useCreateUser } from "@/hooks/use-users"
 import { toast } from "sonner"
 import { OrderStatus, PaymentStatus } from "@/types/order"
-import type { CreateOrderDto } from "@/types/order"
+import type { CreateOrderDto, OrderItem } from "@/types/order"
 import type { Tour } from "@/types/tour"
 import type { Transport } from "@/types/transport"
 import type { User } from "@/types/user"
-
-interface OrderItem {
-  productId: string
-  productType: "tour" | "transport"
-  travelDate?: string
-  adults?: number
-  children?: number
-  infants?: number
-  unitPrice: number
-  totalPrice: number
-  appliedOfferId?: string
-  notes?: string
-}
 
 export default function NewBookingPage() {
   const router = useRouter()
@@ -59,7 +46,7 @@ export default function NewBookingPage() {
 
   const [items, setItems] = useState<OrderItem[]>([])
   const [couponCode, setCouponCode] = useState("")
-  const [selectedTab, setSelectedTab] = useState<"tour" | "transport">("tour")
+  const [selectedTab, setSelectedTab] = useState<"Tour" | "Transport">("Tour")
   const [searchQuery, setSearchQuery] = useState("")
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [itemToDelete, setItemToDelete] = useState<number | null>(null)
@@ -75,7 +62,7 @@ export default function NewBookingPage() {
   })
 
   const [newItem, setNewItem] = useState<Partial<OrderItem>>({
-    productType: "tour",
+    productType: "Tour",
     adults: 1,
     children: 0,
     infants: 0,
@@ -158,7 +145,7 @@ export default function NewBookingPage() {
         totalPrice,
         appliedOfferId: newItem.appliedOfferId,
         notes: newItem.notes,
-      },
+      } as OrderItem,
     ])
 
     setNewItem({
@@ -244,8 +231,8 @@ export default function NewBookingPage() {
     }
   }
 
-  const getProductName = (productId: string, productType: "tour" | "transport") => {
-    if (productType === "tour") {
+  const getProductName = (productId: string, productType: "Tour" | "Transport") => {
+    if (productType === "Tour") {
       return toursList.find((t: Tour) => t._id === productId)?.title
     } else {
       const transport = transportsList.find((t: Transport) => t._id === productId)
@@ -379,13 +366,13 @@ export default function NewBookingPage() {
                   </div>
                 </div>
 
-                <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as "tour" | "transport")}>
+                <Tabs value={selectedTab} onValueChange={(value) => setSelectedTab(value as "Tour" | "Transport")}>
                   <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="tour">Tours</TabsTrigger>
-                    <TabsTrigger value="transport">Transporte</TabsTrigger>
+                    <TabsTrigger value="Tour">Tours</TabsTrigger>
+                    <TabsTrigger value="Transport">Transporte</TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="tour" className="space-y-4">
+                  <TabsContent value="Tour" className="space-y-4">
                     <Select
                       value={newItem.productId || ""}
                       onValueChange={(value) => {
@@ -393,7 +380,7 @@ export default function NewBookingPage() {
                         setNewItem({
                           ...newItem,
                           productId: value,
-                          productType: "tour",
+                          productType: "Tour",
                           unitPrice: tour?.currentPrice || 0,
                         })
                       }}
@@ -417,7 +404,7 @@ export default function NewBookingPage() {
                     </Select>
                   </TabsContent>
 
-                  <TabsContent value="transport" className="space-y-4">
+                  <TabsContent value="Transport" className="space-y-4">
                     <Select
                       value={newItem.productId || ""}
                       onValueChange={(value) => {
@@ -425,7 +412,7 @@ export default function NewBookingPage() {
                         setNewItem({
                           ...newItem,
                           productId: value,
-                          productType: "transport",
+                          productType: "Transport",
                           unitPrice: transport?.currentPrice || 0,
                         })
                       }}
@@ -519,30 +506,57 @@ export default function NewBookingPage() {
                 <CardContent>
                   <div className="space-y-2">
                     {items.map((item, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 border rounded-md">
-                        <div>
-                          <p className="font-medium">{getProductName(item.productId, item.productType)}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {item.adults} adulto(s) {item.children ? `+ ${item.children} niño(s)` : ""}{" "}
-                            {item.infants ? `+ ${item.infants} infante(s)` : ""}
-                          </p>
+                      <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex-1">
+                          <div className="font-medium">{getProductName(item.productId, item.productType)}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {item.adults} adultos, {item.children} niños, {item.infants} infantes
+                          </div>
+                          {item.travelDate && (
+                            <div className="text-sm text-muted-foreground">Fecha: {item.travelDate}</div>
+                          )}
+                          {item.notes && <div className="text-sm text-muted-foreground mt-1">{item.notes}</div>}
                         </div>
-                        <div className="text-right">
-                          <p className="font-semibold">${item.totalPrice.toFixed(2)}</p>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <div className="font-medium">${item.totalPrice.toFixed(2)}</div>
+                            <div className="text-sm text-muted-foreground">
+                              ${item.unitPrice} x {(item.adults || 0) + (item.children || 0) + (item.infants || 0)}
+                            </div>
+                          </div>
                           <Button
                             type="button"
                             variant="ghost"
-                            size="sm"
+                            size="icon"
                             onClick={() => {
                               setItemToDelete(index)
                               setShowDeleteDialog(true)
                             }}
                           >
-                            <Trash2 className="h-4 w-4 text-red-500" />
+                            <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>
                       </div>
                     ))}
+                  </div>
+
+                  <Separator className="my-4" />
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Subtotal:</span>
+                      <span>${subtotal.toFixed(2)}</span>
+                    </div>
+                    {discountTotal > 0 && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span>Descuento:</span>
+                        <span>-${discountTotal.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-lg font-bold">
+                      <span>Total:</span>
+                      <span>${grandTotal.toFixed(2)}</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -553,50 +567,18 @@ export default function NewBookingPage() {
               <CardHeader>
                 <CardTitle>Código de Descuento (Opcional)</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent>
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Ingresa el código de cupón..."
+                    placeholder="Ingresa código de cupón"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value)}
                   />
-                  <Button type="button" variant="outline">
-                    Aplicar
-                  </Button>
-                </div>
-                {couponData && (
-                  <div className="p-3 bg-green-50 border border-green-200 rounded-md">
-                    <p className="text-sm font-medium text-green-900">Cupón válido</p>
-                    <p className="text-sm text-green-800">
-                      {couponData.type === "percentage"
-                        ? `Descuento: ${couponData.value}%`
-                        : `Descuento: $${couponData.value}`}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Order Summary */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Resumen de la Orden</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span>Subtotal:</span>
-                  <span className="font-semibold">${subtotal.toFixed(2)}</span>
-                </div>
-                {discountTotal > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Descuento:</span>
-                    <span>-${discountTotal.toFixed(2)}</span>
-                  </div>
-                )}
-                <Separator />
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Total:</span>
-                  <span>${grandTotal.toFixed(2)}</span>
+                  {couponData && (
+                    <Badge variant="default" className="ml-2">
+                      {couponData.type === "percentage" ? `${couponData.value}%` : `$${couponData.value}`} OFF
+                    </Badge>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -604,21 +586,18 @@ export default function NewBookingPage() {
         </main>
       </div>
 
-      {/* Delete Item Dialog */}
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Eliminar Item</AlertDialogTitle>
+            <AlertDialogTitle>¿Eliminar producto?</AlertDialogTitle>
             <AlertDialogDescription>
-              ¿Estás seguro que deseas eliminar este producto de la orden?
+              Esta acción eliminará el producto de la orden. ¿Deseas continuar?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={() => itemToDelete !== null && handleRemoveItem(itemToDelete)}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
+            <AlertDialogAction onClick={() => itemToDelete !== null && handleRemoveItem(itemToDelete)}>
               Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -1,68 +1,94 @@
-import useSWR, { mutate } from "swr"
-import useSWRMutation from "swr/mutation"
+"use client"
+
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { offersService } from "@/services/offers-service"
 import type { CreateOfferDto, UpdateOfferDto } from "@/types/offer"
 
 const OFFERS_KEY = "offers-list"
 
-// Fetcher for SWR
-const fetchOffers = async ([, page, limit]: [string, number, number]) => {
-  return offersService.getOffers(page, limit)
-}
-
-// Hook for fetching offers with pagination
+// Hook para obtener ofertas paginadas
 export function useOffers(page = 1, limit = 10) {
-  return useSWR([OFFERS_KEY, page, limit], fetchOffers, {
-    revalidateOnFocus: false,
+  return useQuery({
+    queryKey: [OFFERS_KEY, page, limit],
+    queryFn: () => offersService.getOffers(page, limit),
   })
 }
 
-// Hook for fetching a single offer
+// Hook para obtener una oferta por ID
 export function useOffer(id: string | null) {
-  return useSWR(
-    id ? ["offer", id] : null,
-    async ([, offerId]: [string, string]) => offersService.getOfferById(offerId),
-    { revalidateOnFocus: false },
-  )
+  return useQuery({
+    queryKey: ["offer", id],
+    queryFn: () => offersService.getOfferById(id!),
+    enabled: !!id,
+  })
 }
 
-// Hook for fetching offer by code
+// Hook para obtener una oferta por código
 export function useOfferByCode(code: string | null) {
-  return useSWR(
-    code ? ["offer-code", code] : null,
-    async ([, offerCode]: [string, string]) => offersService.getOfferByCode(offerCode),
-    { revalidateOnFocus: false },
-  )
+  return useQuery({
+    queryKey: ["offer-code", code],
+    queryFn: () => offersService.getOfferByCode(code!),
+    enabled: !!code,
+  })
 }
 
-export function revalidateOffers() {
-  // Revalidate all keys that start with OFFERS_KEY
-  mutate((key) => Array.isArray(key) && key[0] === OFFERS_KEY, undefined, { revalidate: true })
-}
-
-// Hook for creating an offer
+// CREATE OFFER
 export function useCreateOffer() {
-  return useSWRMutation("createOffer", async (_, { arg }: { arg: CreateOfferDto }) => {
-    const result = await offersService.createOffer(arg)
-    revalidateOffers()
-    return result
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async (data: CreateOfferDto) => {
+      return offersService.createOffer(data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [OFFERS_KEY] })
+    },
   })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }
 
-// Hook for updating an offer
+// UPDATE OFFER
 export function useUpdateOffer() {
-  return useSWRMutation("updateOffer", async (_, { arg }: { arg: { id: string; data: UpdateOfferDto } }) => {
-    const result = await offersService.updateOffer(arg.id, arg.data)
-    revalidateOffers()
-    return result
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateOfferDto }) => {
+      return offersService.updateOffer(id, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [OFFERS_KEY] })
+      queryClient.invalidateQueries({ queryKey: ["offer"] })
+    },
   })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }
 
-// Hook for deleting an offer
+// DELETE OFFER
 export function useDeleteOffer() {
-  return useSWRMutation("deleteOffer", async (_, { arg }: { arg: string }) => {
-    const result = await offersService.deleteOffer(arg)
-    revalidateOffers()
-    return result
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async (id: string) => {
+      return offersService.deleteOffer(id)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [OFFERS_KEY] })
+    },
   })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }

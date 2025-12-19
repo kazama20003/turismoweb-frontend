@@ -1,107 +1,157 @@
 "use client"
 
-import useSWR, { mutate } from "swr"
-import useSWRMutation from "swr/mutation"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { authService } from "@/services/auth-service"
-import type { User, UpdateUserDto } from "@/types/user"
-import type { LoginDto, RegisterDto } from "@/types/auth"
 import { useRouter } from "next/navigation"
+import type { UpdateUserDto } from "@/types/user"
+
+interface LoginCredentials {
+  email: string
+  password: string
+}
+
+interface RegisterDto {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  authProvider?: "LOCAL" | "GOOGLE" | "FACEBOOK"
+  country?: string
+  phone?: string
+  address?: string
+  documentType?: string
+  documentNumber?: string
+}
 
 const PROFILE_KEY = "auth-profile"
 
-// Fetch del perfil autenticado
-const fetchProfile = async () => {
-  return authService.getProfile()
-}
-
-// Hook para obtener el perfil del usuario autenticado
-export function useProfile() {
-  return useSWR<User>(PROFILE_KEY, fetchProfile, {
-    revalidateOnFocus: false,
-    shouldRetryOnError: false,
-  })
-}
-
-// Revalidar el perfil manualmente
-export function revalidateProfile() {
-  mutate(PROFILE_KEY)
-}
-
-// Hook para actualizar el perfil
-export function useUpdateProfile() {
-  return useSWRMutation(PROFILE_KEY, async (_, { arg }: { arg: { id: string; data: UpdateUserDto } }) => {
-    const result = await authService.updateProfile(arg.id, arg.data)
-    revalidateProfile()
-    return result
-  })
-}
-
+// Hook para login local
 export function useLogin() {
   const router = useRouter()
+  const queryClient = useQueryClient()
 
-  return useSWRMutation(
-    "auth-login",
-    async (_, { arg }: { arg: LoginDto }) => {
-      const result = await authService.loginLocal(arg)
-      // Revalidar el perfil después del login
-      revalidateProfile()
-      return result
+  const mutation = useMutation({
+    mutationFn: async (credentials: LoginCredentials) => {
+      return authService.loginLocal(credentials)
     },
-    {
-      onSuccess: () => {
-        // Redirigir al home después del login exitoso
-        router.push("/")
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [PROFILE_KEY] })
+      router.push("/dashboard")
     },
-  )
+  })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }
 
+// Hook para registro local
 export function useRegister() {
   const router = useRouter()
+  const queryClient = useQueryClient()
 
-  return useSWRMutation(
-    "auth-register",
-    async (_, { arg }: { arg: RegisterDto }) => {
-      // Add authProvider: 'LOCAL' for local registration
+  const mutation = useMutation({
+    mutationFn: async (credentials: RegisterDto) => {
       const registerData = {
-        ...arg,
+        ...credentials,
         authProvider: "LOCAL" as const,
       }
-      const result = await authService.register(registerData)
-      // Revalidar el perfil después del registro
-      revalidateProfile()
-      return result
+      return authService.register(registerData)
     },
-    {
-      onSuccess: () => {
-        // Redirigir al home después del registro exitoso
-        router.push("/")
-      },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [PROFILE_KEY] })
+      router.push("/dashboard")
     },
-  )
+  })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }
 
+// Hook para logout
 export function useLogout() {
   const router = useRouter()
+  const queryClient = useQueryClient()
 
-  return useSWRMutation(
-    "auth-logout",
-    async () => {
-      // Llamar al servicio logout que usa el api client correcto (puerto 4001)
+  const mutation = useMutation({
+    mutationFn: async () => {
       await authService.logout()
-
-      // Limpiar el caché del perfil
-      mutate(PROFILE_KEY, null, false)
-
-      // Limpiar localStorage
-      localStorage.removeItem("token")
-      localStorage.removeItem("user")
     },
-    {
-      onSuccess: () => {
-        // Redirigir al login después del logout exitoso
-        router.push("/login")
-      },
+    onSuccess: () => {
+      queryClient.setQueryData([PROFILE_KEY], null)
+      router.push("/login")
     },
-  )
+  })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
+}
+
+export function useOAuthCallback() {
+  const router = useRouter()
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      // Backend already set the JWT cookie during OAuth flow
+      // Just fetch the profile to validate the session
+      return authService.getProfile()
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [PROFILE_KEY] })
+      router.push("/dashboard")
+    },
+    onError: () => {
+      router.push("/login?error=oauth_failed")
+    },
+  })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
+}
+
+export function useProfile() {
+  const query = useQuery({
+    queryKey: [PROFILE_KEY],
+    queryFn: () => authService.getProfile(),
+    retry: false,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+  })
+
+  return {
+    ...query,
+    isLoading: query.isLoading,
+    isValidating: query.isFetching,
+    mutate: query.refetch,
+  }
+}
+
+export function useUpdateProfile() {
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: async ({ id, data }: { id: string; data: UpdateUserDto }) => {
+      return authService.updateProfile(id, data)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [PROFILE_KEY] })
+    },
+  })
+
+  return {
+    ...mutation,
+    trigger: mutation.mutateAsync,
+    isMutating: mutation.isPending,
+  }
 }
