@@ -3,22 +3,33 @@ import { Suspense } from "react"
 import { Toaster } from "sonner"
 import { QueryProvider } from "@/components/providers/query-provider"
 import { I18nProvider } from "@/lib/i18n/context"
-import { getDictionary } from "@/lib/i18n/dictionaries"
-import { type Locale, isValidLocale, defaultLocale } from "@/lib/i18n/config"
+import { loadLocaleData, type LocaleData } from "@/lib/i18n/get-locale-data"
 
-export default async function LocaleLayout({
+export default function LocaleLayout({
   children,
   params,
 }: {
   children: React.ReactNode
   params: { locale: string }
 }) {
-  const rawLocale = params.locale
-  const locale: Locale = isValidLocale(rawLocale)
-    ? rawLocale
-    : defaultLocale
+  // No usamos "as", dejamos que TypeScript infiera
+  const dataPromise = loadLocaleData(params.locale)
 
-  const dictionary = await getDictionary(locale)
+  return (
+    <LocaleLayoutContent dataPromise={dataPromise}>
+      {children}
+    </LocaleLayoutContent>
+  )
+}
+
+async function LocaleLayoutContent({
+  dataPromise,
+  children,
+}: {
+  dataPromise: Promise<LocaleData>
+  children: React.ReactNode
+}) {
+  const { locale, dictionary } = await dataPromise
 
   return (
     <html lang={locale}>
