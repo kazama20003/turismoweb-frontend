@@ -1,41 +1,54 @@
+// src/app/[locale]/layout.tsx
 import type React from "react"
 import { Suspense } from "react"
 import { Toaster } from "sonner"
 import { QueryProvider } from "@/components/providers/query-provider"
 import { I18nProvider } from "@/lib/i18n/context"
-import { loadLocaleData, type LocaleData } from "@/lib/i18n/get-locale-data"
+import { loadLocaleData } from "@/lib/i18n/get-locale-data"
 
+// -------------------------------------------------------
+// LAYOUT PRINCIPAL (NO ASYNC, RECIBE params COMO PROMISE)
+// -------------------------------------------------------
 export default function LocaleLayout({
   children,
   params,
 }: {
   children: React.ReactNode
-  params: { locale: string }
+  // 👇 Clave: Next está tipando params como Promise<{ locale: string }>
+  params: Promise<{ locale: string }>
 }) {
-  // No usamos "as", dejamos que TypeScript infiera
-  const dataPromise = loadLocaleData(params.locale)
-
   return (
-    <LocaleLayoutContent dataPromise={dataPromise}>
+    <LocaleLayoutContentWrapper params={params}>
       {children}
-    </LocaleLayoutContent>
+    </LocaleLayoutContentWrapper>
   )
 }
 
-async function LocaleLayoutContent({
-  dataPromise,
+// -------------------------------------------------------
+// COMPONENTE SERVER ASYNC (PERMITIDO)
+// -------------------------------------------------------
+async function LocaleLayoutContentWrapper({
   children,
+  params,
 }: {
-  dataPromise: Promise<LocaleData>
   children: React.ReactNode
+  params: Promise<{ locale: string }>
 }) {
-  const { locale, dictionary } = await dataPromise
+  // Next nos da params como Promise, aquí sí podemos hacer await
+  const { locale: rawLocale } = await params
+
+  // Normalizamos/validamos el locale y obtenemos el diccionario
+  const { locale, dictionary } = await loadLocaleData(rawLocale)
 
   return (
     <html lang={locale}>
       <body>
         <QueryProvider>
-          <I18nProvider key={locale} locale={locale} dictionary={dictionary}>
+          <I18nProvider
+            key={locale}
+            locale={locale} // <- tipo Locale, validado dentro de loadLocaleData
+            dictionary={dictionary}
+          >
             <Suspense fallback={null}>{children}</Suspense>
           </I18nProvider>
           <Toaster />
