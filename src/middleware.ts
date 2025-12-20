@@ -26,7 +26,7 @@ function getPathWithoutLocale(pathname: string): string {
   return locale ? pathname.replace(`/${locale}`, "") || "/" : pathname;
 }
 
-export default function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const pathname = url.pathname;
 
@@ -49,18 +49,17 @@ export default function middleware(request: NextRequest) {
   if (locale) {
     const normalized = `/${locale}/`;
 
-    // Si estamos EXACTAMENTE en /es o /es/, normalizamos una sola vez
     if (pathname === `/${locale}` || pathname === `/${locale}/`) {
       if (pathname !== normalized) {
         url.pathname = normalized;
         return NextResponse.redirect(url);
       }
-      return NextResponse.next(); // /es/ ya normalizado → no redirigir más
+      return NextResponse.next();
     }
   }
 
   // --------------------------------------------------------------------
-  // Redirección si NO hay locale en el pathname
+  // Redirección si NO hay locale
   // --------------------------------------------------------------------
   if (!locale) {
     let chosenLocale = defaultLocale;
@@ -86,7 +85,6 @@ export default function middleware(request: NextRequest) {
       const payload = decodeJwtPayload(token);
 
       if (!payload) {
-        // FIX: token inválido → eliminar cookie → NO LOOP
         const response = NextResponse.redirect(`/${locale}/login`);
         response.cookies.delete("token");
         return response;
@@ -94,7 +92,6 @@ export default function middleware(request: NextRequest) {
 
       const roles = payload.roles as UserRole[];
 
-      // CLIENT → /users/profile
       if (
         roles.includes(UserRole.CLIENT) &&
         !roles.some((r) =>
@@ -105,7 +102,6 @@ export default function middleware(request: NextRequest) {
         return NextResponse.redirect(url);
       }
 
-      // ADMIN/EDITOR/SUPPORT → /dashboard
       if (
         roles.some((r) =>
           [UserRole.ADMIN, UserRole.EDITOR, UserRole.SUPPORT].includes(r)
@@ -134,13 +130,11 @@ export default function middleware(request: NextRequest) {
     const payload = decodeJwtPayload(token);
 
     if (!payload) {
-      // FIX: token inválido → eliminar y redirigir → NO LOOP
       const response = NextResponse.redirect(`/${locale}/login`);
       response.cookies.delete("token");
       return response;
     }
 
-    // Token expirado
     if (Date.now() >= payload.exp * 1000) {
       const response = NextResponse.redirect(`/${locale}/login`);
       response.cookies.delete("token");
@@ -149,7 +143,6 @@ export default function middleware(request: NextRequest) {
 
     const roles = payload.roles as UserRole[];
 
-    // CLIENT intentando entrar al dashboard
     if (
       pathNoLocale.startsWith("/dashboard") &&
       roles.includes(UserRole.CLIENT) &&
@@ -161,7 +154,6 @@ export default function middleware(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // ADMIN/EDITOR/SUPPORT intentando entrar /users/profile
     if (
       pathNoLocale.startsWith("/users/profile") &&
       roles.some((r) =>
