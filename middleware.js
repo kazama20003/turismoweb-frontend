@@ -29,7 +29,9 @@ export function middleware(request) {
   const url = request.nextUrl.clone();
   const pathname = url.pathname;
 
-  // Skip static files
+  // -------------------------------
+  // Skip static/system files
+  // -------------------------------
   if (
     pathname.startsWith("/_next") ||
     pathname.startsWith("/api") ||
@@ -42,14 +44,16 @@ export function middleware(request) {
   const locale = getLocaleFromPathname(pathname);
   const pathNoLocale = getPathWithoutLocale(pathname);
 
-  // ---------------------------------------------
-  // FIX DEFINITIVO: evitar loop /es ↔ /es/
-  // ---------------------------------------------
+  // -------------------------------
+  // FIX: Evitar loop entre /es y /es/
+  // -------------------------------
   if (locale && (pathname === `/${locale}` || pathname === `/${locale}/`)) {
-    return NextResponse.next(); // No redirect NUNCA
+    return NextResponse.next(); // NO redirigir para evitar loop
   }
 
-  // Redirect if no locale
+  // -------------------------------
+  // Si no hay locale → agregarlo
+  // -------------------------------
   if (!locale) {
     let chosenLocale = defaultLocale;
     const langHeader = request.headers.get("accept-language");
@@ -63,7 +67,9 @@ export function middleware(request) {
     return NextResponse.redirect(url);
   }
 
-  // Public routes
+  // -------------------------------
+  // PUBLIC ROUTES
+  // -------------------------------
   const token = request.cookies.get("token")?.value;
   const isPublic = publicRoutes.some((r) => pathNoLocale.startsWith(r));
 
@@ -71,7 +77,8 @@ export function middleware(request) {
     if (token) {
       const payload = decodeJwtPayload(token);
 
-      if (!payload) {
+      // Token inválido → eliminar → NO LOOP
+      if (!payload || !payload.roles) {
         const response = NextResponse.redirect(`/${locale}/login`);
         response.cookies.delete("token");
         return response;
@@ -79,6 +86,7 @@ export function middleware(request) {
 
       const roles = payload.roles;
 
+      // CLIENT → /users/profile
       if (
         roles.includes(UserRole.CLIENT) &&
         !roles.some((r) =>
@@ -89,6 +97,7 @@ export function middleware(request) {
         return NextResponse.redirect(url);
       }
 
+      // ADMIN / EDITOR / SUPPORT
       if (
         roles.some((r) =>
           [UserRole.ADMIN, UserRole.EDITOR, UserRole.SUPPORT].includes(r)
@@ -102,7 +111,9 @@ export function middleware(request) {
     return NextResponse.next();
   }
 
-  // Protected routes
+  // -------------------------------
+  // PROTECTED ROUTES
+  // -------------------------------
   const isProtected =
     pathNoLocale.startsWith("/dashboard") ||
     pathNoLocale.startsWith("/users");
@@ -114,12 +125,21 @@ export function middleware(request) {
 
     const payload = decodeJwtPayload(token);
 
-    if (!payload) {
+    // Token corrupto
+    if (!payload || !payload.roles) {
       const response = NextResponse.redirect(`/${locale}/login`);
       response.cookies.delete("token");
       return response;
     }
 
+    // Token sin exp → inválido
+    if (!payload.exp) {
+      const response = NextResponse.redirect(`/${locale}/login`);
+      response.cookies.delete("token");
+      return response;
+    }
+
+    // Token expirado
     if (Date.now() >= payload.exp * 1000) {
       const response = NextResponse.redirect(`/${locale}/login`);
       response.cookies.delete("token");
@@ -128,6 +148,7 @@ export function middleware(request) {
 
     const roles = payload.roles;
 
+    // CLIENT intentando entrar a dashboard
     if (
       pathNoLocale.startsWith("/dashboard") &&
       roles.includes(UserRole.CLIENT) &&
@@ -139,6 +160,7 @@ export function middleware(request) {
       return NextResponse.redirect(url);
     }
 
+    // ADMIN intentando entrar al profile
     if (
       pathNoLocale.startsWith("/users/profile") &&
       roles.some((r) =>
@@ -151,6 +173,9 @@ export function middleware(request) {
     }
   }
 
+  // -------------------------------
+  // Continuar flujo normal
+  // -------------------------------
   return NextResponse.next();
 }
 
