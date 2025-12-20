@@ -42,17 +42,11 @@ export function middleware(request) {
   const locale = getLocaleFromPathname(pathname);
   const pathNoLocale = getPathWithoutLocale(pathname);
 
-  // Avoid /es ↔ /es/ loop
-  if (locale) {
-    const normalized = `/${locale}/`;
-
-    if (pathname === `/${locale}` || pathname === `/${locale}/`) {
-      if (pathname !== normalized) {
-        url.pathname = normalized;
-        return NextResponse.redirect(url);
-      }
-      return NextResponse.next();
-    }
+  // ---------------------------------------------
+  // FIX DEFINITIVO: evitar loop /es ↔ /es/
+  // ---------------------------------------------
+  if (locale && (pathname === `/${locale}` || pathname === `/${locale}/`)) {
+    return NextResponse.next(); // No redirect NUNCA
   }
 
   // Redirect if no locale
@@ -85,7 +79,6 @@ export function middleware(request) {
 
       const roles = payload.roles;
 
-      // Client redirection
       if (
         roles.includes(UserRole.CLIENT) &&
         !roles.some((r) =>
@@ -96,7 +89,6 @@ export function middleware(request) {
         return NextResponse.redirect(url);
       }
 
-      // Admin/Editor/Support
       if (
         roles.some((r) =>
           [UserRole.ADMIN, UserRole.EDITOR, UserRole.SUPPORT].includes(r)
@@ -136,7 +128,6 @@ export function middleware(request) {
 
     const roles = payload.roles;
 
-    // Client -> dashboard restriction
     if (
       pathNoLocale.startsWith("/dashboard") &&
       roles.includes(UserRole.CLIENT) &&
@@ -148,7 +139,6 @@ export function middleware(request) {
       return NextResponse.redirect(url);
     }
 
-    // Admin/Edit/Support -> profile restriction
     if (
       pathNoLocale.startsWith("/users/profile") &&
       roles.some((r) =>
