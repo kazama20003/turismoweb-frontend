@@ -44,7 +44,7 @@ export default function middleware(request: NextRequest) {
   const pathNoLocale = getPathWithoutLocale(pathname);
 
   // --------------------------------------------------------------------
-  // FIX DEFINITIVO: Evitar el loop /es ↔ /es/
+  // FIX DEFINITIVO: Evitar loop /es ↔ /es/
   // --------------------------------------------------------------------
   if (locale && (pathname === `/${locale}` || pathname === `/${locale}/`)) {
     // Normalizamos SIEMPRE a `/${locale}/`
@@ -52,7 +52,7 @@ export default function middleware(request: NextRequest) {
       url.pathname = `/${locale}/`;
       return NextResponse.redirect(url);
     }
-    return NextResponse.next(); // Permite continuar sin redirigir
+    return NextResponse.next();
   }
 
   // --------------------------------------------------------------------
@@ -81,7 +81,14 @@ export default function middleware(request: NextRequest) {
     if (token) {
       const payload = decodeJwtPayload(token);
 
-      if (payload?.roles) {
+      if (!payload) {
+        // FIX LOOP: token inválido → eliminar cookie
+        const response = NextResponse.redirect(`/${locale}/login`);
+        response.cookies.delete("token");
+        return response;
+      }
+
+      if (payload.roles) {
         const roles = payload.roles as UserRole[];
 
         // CLIENT → /users/profile
@@ -118,22 +125,21 @@ export default function middleware(request: NextRequest) {
 
   if (isProtected) {
     if (!token) {
-      url.pathname = `/${locale}/login`;
-      return NextResponse.redirect(url);
+      return NextResponse.redirect(`/${locale}/login`);
     }
 
     const payload = decodeJwtPayload(token);
 
     if (!payload) {
-      url.pathname = `/${locale}/login`;
-      return NextResponse.redirect(url);
+      // FIX LOOP: token inválido → eliminar cookie
+      const response = NextResponse.redirect(`/${locale}/login`);
+      response.cookies.delete("token");
+      return response;
     }
 
     // Token expired
     if (Date.now() >= payload.exp * 1000) {
-      const response = NextResponse.redirect(
-        new URL(`/${locale}/login`, request.url)
-      );
+      const response = NextResponse.redirect(`/${locale}/login`);
       response.cookies.delete("token");
       return response;
     }
