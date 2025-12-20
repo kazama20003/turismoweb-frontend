@@ -18,7 +18,7 @@ import { useVehicles } from "@/hooks/use-vehicles"
 import { useUploadImage } from "@/hooks/use-uploads"
 import type { Coordinates, RouteStep, TransportImage, Lang, WeekDay } from "@/types/transport"
 import { SUPPORTED_LANGS } from "@/types/transport"
-import { ArrowLeft, Upload, X } from "lucide-react"
+import { ArrowLeft, Upload, X, Plus, Trash2, Info, MapPin, Route, Clock, ImageIcon, Languages } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -52,7 +52,7 @@ export default function NewTransportPage() {
   })
   const [origin, setOrigin] = useState<Coordinates>({ name: "", lat: 0, lng: 0 })
   const [destination, setDestination] = useState<Coordinates>({ name: "", lat: 0, lng: 0 })
-  const [route] = useState<RouteStep[]>([])
+  const [route, setRoute] = useState<RouteStep[]>([])
   const [images, setImages] = useState<TransportImage[]>([])
   const [availableDays, setAvailableDays] = useState<WeekDay[]>([])
 
@@ -64,6 +64,71 @@ export default function NewTransportPage() {
 
   const toggleAvailableDay = (day: WeekDay) => {
     setAvailableDays((prev) => (prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]))
+  }
+
+  const addRouteStep = () => {
+    const newStep: RouteStep = {
+      order: route.length + 1,
+      name: "",
+      lat: 0,
+      lng: 0,
+      translations: {},
+    }
+    setRoute([...route, newStep])
+  }
+
+  const updateRouteStep = (index: number, field: keyof RouteStep, value: unknown) => {
+    const updatedRoute = [...route]
+    updatedRoute[index] = { ...updatedRoute[index], [field]: value }
+    setRoute(updatedRoute)
+  }
+
+  const updateRouteStepTranslation = (index: number, lang: Lang, value: string) => {
+    const updatedRoute = [...route]
+    updatedRoute[index] = {
+      ...updatedRoute[index],
+      translations: { ...updatedRoute[index].translations, [lang]: value },
+    }
+    setRoute(updatedRoute)
+  }
+
+  const removeRouteStep = (index: number) => {
+    const updatedRoute = route.filter((_, i) => i !== index)
+    // Reorder remaining steps
+    updatedRoute.forEach((step, i) => {
+      step.order = i + 1
+    })
+    setRoute(updatedRoute)
+  }
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+
+    for (const file of Array.from(files)) {
+      try {
+        const result = await uploadImageMutation.trigger(file)
+        if (result) {
+          setImages((prev) => [...prev, { url: result.url, publicId: result.publicId }])
+        }
+      } catch (error) {
+        console.error("Error uploading image:", error)
+      }
+    }
+  }
+
+  const handleRouteStepImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    try {
+      const result = await uploadImageMutation.trigger(file)
+      if (result) {
+        updateRouteStep(index, "image", { url: result.url, publicId: result.publicId })
+      }
+    } catch (error) {
+      console.error("Error uploading route step image:", error)
+    }
   }
 
   const handleSubmit = async () => {
@@ -100,22 +165,6 @@ export default function NewTransportPage() {
     }
   }
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files
-    if (!files || files.length === 0) return
-
-    for (const file of Array.from(files)) {
-      try {
-        const result = await uploadImageMutation.trigger(file)
-        if (result) {
-          setImages((prev) => [...prev, { url: result.url, publicId: result.publicId }])
-        }
-      } catch (error) {
-        console.error("Error uploading image:", error)
-      }
-    }
-  }
-
   return (
     <SidebarInset>
       <div className="m-4 rounded-lg overflow-hidden">
@@ -145,12 +194,49 @@ export default function NewTransportPage() {
 
         <main className="flex flex-1 flex-col gap-6 p-6 bg-background/50 backdrop-blur rounded-b-lg">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="general">General</TabsTrigger>
-              <TabsTrigger value="location">Ubicación</TabsTrigger>
-              <TabsTrigger value="schedule">Horarios</TabsTrigger>
-              <TabsTrigger value="images">Imágenes</TabsTrigger>
-              <TabsTrigger value="translations">Traducciones</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-6 h-auto">
+              <TabsTrigger
+                value="general"
+                className="flex-col gap-1 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <Info className="h-4 w-4" />
+                <span className="hidden sm:inline text-xs">General</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="location"
+                className="flex-col gap-1 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <MapPin className="h-4 w-4" />
+                <span className="hidden sm:inline text-xs">Ubicación</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="route"
+                className="flex-col gap-1 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <Route className="h-4 w-4" />
+                <span className="hidden sm:inline text-xs">Ruta</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="schedule"
+                className="flex-col gap-1 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <Clock className="h-4 w-4" />
+                <span className="hidden sm:inline text-xs">Horarios</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="images"
+                className="flex-col gap-1 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <ImageIcon className="h-4 w-4" />
+                <span className="hidden sm:inline text-xs">Imágenes</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="translations"
+                className="flex-col gap-1 py-2 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+              >
+                <Languages className="h-4 w-4" />
+                <span className="hidden sm:inline text-xs">Traducciones</span>
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="general" className="space-y-4">
@@ -302,6 +388,129 @@ export default function NewTransportPage() {
               </Card>
             </TabsContent>
 
+            <TabsContent value="route" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pasos de la Ruta</CardTitle>
+                  <CardDescription>Define los puntos de parada en la ruta del transporte</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <p className="text-sm text-muted-foreground">Agrega pasos intermedios en la ruta (opcional)</p>
+                    <Button type="button" onClick={addRouteStep} variant="outline" size="sm">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Agregar Paso
+                    </Button>
+                  </div>
+
+                  {route.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>No hay pasos agregados. Haz clic en Agregar Paso para comenzar.</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {route.map((step, index) => (
+                        <Card key={index} className="relative">
+                          <CardHeader className="pb-3">
+                            <div className="flex items-center justify-between">
+                              <CardTitle className="text-base">Paso {step.order}</CardTitle>
+                              <Button type="button" variant="ghost" size="icon" onClick={() => removeRouteStep(index)}>
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            <div className="space-y-2">
+                              <Label>Nombre del Lugar</Label>
+                              <Input
+                                value={step.name}
+                                onChange={(e) => updateRouteStep(index, "name", e.target.value)}
+                                placeholder="Ej: Mirador del Valle"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <div className="space-y-2">
+                                <Label>Latitud</Label>
+                                <Input
+                                  type="number"
+                                  step="any"
+                                  value={step.lat}
+                                  onChange={(e) => updateRouteStep(index, "lat", Number(e.target.value))}
+                                  placeholder="0.0"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label>Longitud</Label>
+                                <Input
+                                  type="number"
+                                  step="any"
+                                  value={step.lng}
+                                  onChange={(e) => updateRouteStep(index, "lng", Number(e.target.value))}
+                                  placeholder="0.0"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label>Imagen del Paso (Opcional)</Label>
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleRouteStepImageUpload(index, e)}
+                              />
+                              {step.image?.url && (
+                                <div className="relative mt-2">
+                                  <Image
+                                    src={step.image.url || "/placeholder.svg"}
+                                    alt={`Route step ${index + 1}`}
+                                    width={200}
+                                    height={150}
+                                    className="rounded-lg object-cover w-full h-32"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute top-2 right-2"
+                                    onClick={() => updateRouteStep(index, "image", undefined)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+
+                            <Separator />
+
+                            <div className="space-y-2">
+                              <Label className="text-sm font-medium">Traducciones del Nombre</Label>
+                              <div className="grid grid-cols-2 gap-2">
+                                {SUPPORTED_LANGS.filter((lang) => lang !== "es").map((lang) => (
+                                  <div key={lang} className="space-y-1">
+                                    <Label htmlFor={`route-${index}-${lang}`} className="text-xs uppercase">
+                                      {lang}
+                                    </Label>
+                                    <Input
+                                      id={`route-${index}-${lang}`}
+                                      value={step.translations?.[lang] || ""}
+                                      onChange={(e) => updateRouteStepTranslation(index, lang, e.target.value)}
+                                      placeholder={`Nombre en ${lang}`}
+                                      className="text-sm"
+                                    />
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
             <TabsContent value="schedule" className="space-y-4">
               <Card>
                 <CardHeader>
@@ -362,14 +571,14 @@ export default function NewTransportPage() {
                     <p className="text-sm text-muted-foreground mb-4">
                       Selecciona los días en los que el servicio está disponible
                     </p>
-                    <div className="grid grid-cols-7 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-7 gap-2">
                       {WEEKDAYS.map((day) => (
                         <Button
                           key={day.value}
                           type="button"
                           variant={availableDays.includes(day.value) ? "default" : "outline"}
                           onClick={() => toggleAvailableDay(day.value)}
-                          className="w-full justify-center"
+                          className="w-full justify-center text-xs sm:text-sm"
                         >
                           {day.label}
                         </Button>
@@ -416,7 +625,7 @@ export default function NewTransportPage() {
                   </div>
 
                   {images.length > 0 && (
-                    <div className="grid grid-cols-3 gap-4 mt-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
                       {images.map((image, index) => (
                         <div key={index} className="relative group">
                           <Image
