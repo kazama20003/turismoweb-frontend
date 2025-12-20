@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Save, Upload, Loader2, X } from "lucide-react"
+import { ArrowLeft, Save, Upload, Loader2, X, Info, Plus, Trash2 } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
@@ -35,7 +35,7 @@ export default function NewTourPage() {
     currentPrice: 0,
     slug: "",
     images: [],
-    videoUrl: "", // Added videoUrl field
+    videoUrl: "",
     vehicleIds: [],
     isActive: true,
     hasTransport: false,
@@ -46,17 +46,34 @@ export default function NewTourPage() {
     excludes: [],
     categories: [],
     languages: [],
-    availabilityType: "unlimited",
+    availabilityType: "unlimited", // Fixed default value
     availableDates: [],
-    itinerary: [], // Added itinerary field
-    cancellationPolicy: "", // Added policies
+    itinerary: [],
+    cancellationPolicy: "",
     refundPolicy: "",
     changePolicy: "",
-    startTime: "", // Added startTime field
+    startTime: "",
   })
 
   const [uploadingImage, setUploadingImage] = useState(false)
-  const [itineraryInput, setItineraryInput] = useState("")
+  const [includesInput, setIncludesInput] = useState("")
+  const [excludesInput, setExcludesInput] = useState("")
+
+  const [itineraryItems, setItineraryItems] = useState<
+    Array<{
+      order: number
+      title: string
+      description: string
+      durationHours?: number
+      activities?: string
+      meals: {
+        breakfast: boolean
+        lunch: boolean
+        dinner: boolean
+      }
+      hotelNight: boolean
+    }>
+  >([])
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -87,12 +104,11 @@ export default function NewTourPage() {
     }))
   }
 
-  const handleArrayInput = (field: keyof CreateTourDto, value: string) => {
-    const items = value
+  const parseCommaList = (value: string): string[] => {
+    return value
       .split(",")
       .map((item) => item.trim())
       .filter(Boolean)
-    setFormData((prev) => ({ ...prev, [field]: items }))
   }
 
   const handleVehicleToggle = (vehicleId: string, checked: boolean) => {
@@ -101,7 +117,7 @@ export default function NewTourPage() {
         ? [...(prev.vehicleIds || []), vehicleId]
         : (prev.vehicleIds || []).filter((id) => id !== vehicleId)
 
-      console.log("[v0] Vehicle IDs updated:", newVehicleIds) // Added debug log
+      console.log("[v0] Vehicle IDs updated:", newVehicleIds)
 
       return {
         ...prev,
@@ -125,13 +141,36 @@ export default function NewTourPage() {
     setFormData({ ...formData, title: value, slug })
   }
 
-  const parseItinerary = (text: string) => {
-    const lines = text.split("\n").filter((line) => line.trim())
-    return lines.map((line, index) => ({
-      order: index + 1,
-      title: line.substring(0, 100),
-      description: line,
-    }))
+  const addItineraryDay = () => {
+    const newDay = {
+      order: itineraryItems.length + 1,
+      title: "",
+      description: "",
+      durationHours: undefined,
+      activities: "",
+      meals: { breakfast: false, lunch: false, dinner: false },
+      hotelNight: false,
+    }
+    setItineraryItems([...itineraryItems, newDay])
+  }
+
+  const removeItineraryDay = (index: number) => {
+    const updated = itineraryItems.filter((_, i) => i !== index)
+    // Reordenar
+    const reordered = updated.map((item, i) => ({ ...item, order: i + 1 }))
+    setItineraryItems(reordered)
+  }
+
+  const updateItineraryDay = (
+    index: number,
+    field: string,
+    value: string | number | boolean | string[] | undefined,
+  ) => {
+    setItineraryItems((prev) => {
+      const updated = [...prev]
+      updated[index] = { ...updated[index], [field]: value }
+      return updated
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -142,23 +181,38 @@ export default function NewTourPage() {
       return
     }
 
-    if (itineraryInput.trim()) {
-      formData.itinerary = parseItinerary(itineraryInput)
-    }
+    const parsedItinerary = itineraryItems.map((item) => ({
+      order: item.order,
+      title: item.title,
+      description: item.description,
+      durationHours: item.durationHours,
+      activities: item.activities
+        ? item.activities
+            .split(",")
+            .map((a) => a.trim())
+            .filter(Boolean)
+        : undefined,
+      meals: item.meals,
+      hotelNight: item.hotelNight,
+    }))
 
-    const dataToSend = {
+    const dataToSend: CreateTourDto = {
       ...formData,
+      itinerary: parsedItinerary,
+      benefits: formData.benefits ? parseCommaList(formData.benefits.join(", ")) : [],
+      includes: parseCommaList(includesInput),
+      excludes: parseCommaList(excludesInput),
       vehicleIds: formData.hasTransport ? formData.vehicleIds : [],
-    }
+    } as CreateTourDto
 
-    console.log("[v0] Submitting tour data:", dataToSend) // Added debug log
+    console.log("[v0] Submitting tour data:", dataToSend)
 
     try {
-      await createMutation.trigger(dataToSend as CreateTourDto)
+      await createMutation.trigger(dataToSend)
       toast.success("Tour creado correctamente")
       router.push("/dashboard/tours")
     } catch (error) {
-      console.log("[v0] Error creating tour:", error) // Added debug log
+      console.log("[v0] Error creating tour:", error)
       toast.error("Error al crear el tour")
     }
   }
@@ -213,6 +267,7 @@ export default function NewTourPage() {
                       value={formData.title}
                       onChange={(e) => handleTitleChange(e.target.value)}
                       required
+                      placeholder="Ej: Tour Machu Picchu 2 Días"
                     />
                   </div>
                   <div className="space-y-2">
@@ -241,15 +296,18 @@ export default function NewTourPage() {
                       value={formData.locationName}
                       onChange={(e) => setFormData({ ...formData, locationName: e.target.value })}
                       required
+                      placeholder="Ej: Cusco, Perú"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="durationDays">Días de duración</Label>
+                    <Label htmlFor="durationDays">Días de duración *</Label>
                     <Input
                       id="durationDays"
                       type="number"
+                      min="1"
                       value={formData.durationDays}
                       onChange={(e) => setFormData({ ...formData, durationDays: Number.parseInt(e.target.value) })}
+                      placeholder="1"
                     />
                   </div>
                   <div className="space-y-2">
@@ -258,9 +316,11 @@ export default function NewTourPage() {
                       id="currentPrice"
                       type="number"
                       step="0.01"
+                      min="0"
                       value={formData.currentPrice}
                       onChange={(e) => setFormData({ ...formData, currentPrice: Number.parseFloat(e.target.value) })}
                       required
+                      placeholder="99.00"
                     />
                   </div>
                 </div>
@@ -283,14 +343,16 @@ export default function NewTourPage() {
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="capacity">Capacidad</Label>
+                    <Label htmlFor="capacity">Capacidad Máxima</Label>
                     <Input
                       id="capacity"
                       type="number"
+                      min="1"
                       value={formData.capacity || ""}
                       onChange={(e) =>
                         setFormData({ ...formData, capacity: Number.parseInt(e.target.value) || undefined })
                       }
+                      placeholder="Ej: 15"
                     />
                   </div>
                 </div>
@@ -323,6 +385,7 @@ export default function NewTourPage() {
               </CardContent>
             </Card>
 
+            {/* Availability Section */}
             <Card>
               <CardHeader>
                 <CardTitle>Disponibilidad del Tour</CardTitle>
@@ -338,11 +401,21 @@ export default function NewTourPage() {
                       <SelectValue placeholder="Seleccionar tipo de disponibilidad" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="always_available">Siempre Disponible (Cualquier día)</SelectItem>
+                      <SelectItem value="unlimited">Siempre Disponible (Cualquier día)</SelectItem>
                       <SelectItem value="fixed_dates">Fechas Fijas Específicas</SelectItem>
                       <SelectItem value="date_range">Rango de Fechas</SelectItem>
                     </SelectContent>
                   </Select>
+                  <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-900">
+                    <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                    <p className="text-xs text-blue-800 dark:text-blue-300">
+                      <strong>Siempre Disponible:</strong> El tour se puede reservar cualquier día del año.
+                      <br />
+                      <strong>Fechas Fijas:</strong> El tour solo está disponible en fechas específicas que defines.
+                      <br />
+                      <strong>Rango de Fechas:</strong> El tour está disponible entre una fecha de inicio y fin.
+                    </p>
+                  </div>
                 </div>
 
                 {formData.availabilityType === "fixed_dates" && (
@@ -352,16 +425,16 @@ export default function NewTourPage() {
                     </Label>
                     <Textarea
                       id="availableDates"
-                      placeholder="Ej: 2024-12-25, 2024-12-31, 2025-01-15"
+                      placeholder="Ejemplo: 2024-12-25, 2024-12-31, 2025-01-15"
                       onChange={(e) => {
-                        const dates = e.target.value
-                          .split(",")
-                          .map((d) => d.trim())
-                          .filter(Boolean)
+                        const dates = parseCommaList(e.target.value)
                         setFormData({ ...formData, availableDates: dates })
                       }}
                       rows={3}
                     />
+                    <p className="text-sm text-muted-foreground">
+                      Escribe cada fecha en formato YYYY-MM-DD, separadas por comas
+                    </p>
                   </div>
                 )}
 
@@ -390,49 +463,163 @@ export default function NewTourPage() {
               </CardContent>
             </Card>
 
+            {/* Itinerary Section - Improved UI */}
             <Card>
               <CardHeader>
-                <CardTitle>Itinerario (Se traducirá automáticamente)</CardTitle>
+                <CardTitle>Itinerario Detallado (Se traducirá automáticamente)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="itinerary">Describe el itinerario del tour</Label>
-                  <Textarea
-                    id="itinerary"
-                    value={itineraryInput}
-                    onChange={(e) => setItineraryInput(e.target.value)}
-                    rows={8}
-                    placeholder="Escribe cada paso del itinerario en una línea nueva. Ejemplo:&#10;Día 1: Llegada a Lima y city tour&#10;Día 2: Visita a Machu Picchu&#10;Día 3: Retorno a Lima"
-                  />
-                  <p className="text-sm text-muted-foreground">
-                    Cada línea se convertirá en un paso del itinerario. Este contenido se traducirá automáticamente.
+                <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-900 mb-4">
+                  <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-blue-800 dark:text-blue-300">
+                    Agrega cada día del itinerario con todos sus detalles: título, descripción, duración, actividades,
+                    comidas incluidas y si incluye noche de hotel. Todo el contenido se traducirá automáticamente.
                   </p>
                 </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Beneficios del Tour</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="benefits">Beneficios (separados por comas)</Label>
-                  <Textarea
-                    id="benefits"
-                    placeholder="Ej: Guía profesional, Entrada incluida, Transporte privado, Almuerzo incluido"
-                    onChange={(e) => handleArrayInput("benefits", e.target.value)}
-                    rows={4}
-                  />
-                  <p className="text-sm text-muted-foreground">Lista los beneficios del tour separados por comas</p>
-                </div>
+                {itineraryItems.length === 0 ? (
+                  <div className="text-center py-8 border-2 border-dashed rounded-lg">
+                    <p className="text-muted-foreground mb-4">No hay días agregados al itinerario</p>
+                    <Button type="button" onClick={addItineraryDay} variant="outline">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Agregar Primer Día
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {itineraryItems.map((item, index) => (
+                      <Card key={index} className="border-2">
+                        <CardHeader className="pb-3">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-lg">Día {item.order}</CardTitle>
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => removeItineraryDay(index)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <div className="space-y-2">
+                              <Label htmlFor={`day-${index}-title`}>Título del Día *</Label>
+                              <Input
+                                id={`day-${index}-title`}
+                                value={item.title}
+                                onChange={(e) => updateItineraryDay(index, "title", e.target.value)}
+                                placeholder="Ej: Llegada a Lima y City Tour"
+                                required
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor={`day-${index}-duration`}>Duración (horas)</Label>
+                              <Input
+                                id={`day-${index}-duration`}
+                                type="number"
+                                min="0"
+                                step="0.5"
+                                value={item.durationHours || ""}
+                                onChange={(e) =>
+                                  updateItineraryDay(
+                                    index,
+                                    "durationHours",
+                                    e.target.value ? Number.parseFloat(e.target.value) : undefined,
+                                  )
+                                }
+                                placeholder="Ej: 8"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor={`day-${index}-description`}>Descripción del Día *</Label>
+                            <Textarea
+                              id={`day-${index}-description`}
+                              value={item.description}
+                              onChange={(e) => updateItineraryDay(index, "description", e.target.value)}
+                              rows={3}
+                              placeholder="Describe en detalle las actividades de este día..."
+                              required
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor={`day-${index}-activities`}>Actividades (separadas por comas)</Label>
+                            <Input
+                              id={`day-${index}-activities`}
+                              value={item.activities || ""}
+                              onChange={(e) => updateItineraryDay(index, "activities", e.target.value)}
+                              placeholder="Ej: Visita al centro histórico, Museo Nacional, Plaza Mayor"
+                            />
+                            <p className="text-sm text-muted-foreground">Lista de actividades separadas por comas</p>
+                          </div>
+
+                          <div className="space-y-3">
+                            <Label>Comidas Incluidas</Label>
+                            <div className="flex flex-wrap gap-4">
+                              <div className="flex items-center gap-2">
+                                <Checkbox
+                                  id={`day-${index}-breakfast`}
+                                  checked={item.meals.breakfast}
+                                  onCheckedChange={(checked) => updateItineraryDay(index, "meals.breakfast", checked)}
+                                />
+                                <Label htmlFor={`day-${index}-breakfast`} className="cursor-pointer font-normal">
+                                  Desayuno
+                                </Label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Checkbox
+                                  id={`day-${index}-lunch`}
+                                  checked={item.meals.lunch}
+                                  onCheckedChange={(checked) => updateItineraryDay(index, "meals.lunch", checked)}
+                                />
+                                <Label htmlFor={`day-${index}-lunch`} className="cursor-pointer font-normal">
+                                  Almuerzo
+                                </Label>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <Checkbox
+                                  id={`day-${index}-dinner`}
+                                  checked={item.meals.dinner}
+                                  onCheckedChange={(checked) => updateItineraryDay(index, "meals.dinner", checked)}
+                                />
+                                <Label htmlFor={`day-${index}-dinner`} className="cursor-pointer font-normal">
+                                  Cena
+                                </Label>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            <Checkbox
+                              id={`day-${index}-hotel`}
+                              checked={item.hotelNight}
+                              onCheckedChange={(checked) => updateItineraryDay(index, "hotelNight", checked as boolean)}
+                            />
+                            <Label htmlFor={`day-${index}-hotel`} className="cursor-pointer font-normal">
+                              Incluye noche de hotel
+                            </Label>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+
+                    <Button type="button" onClick={addItineraryDay} variant="outline" className="w-full bg-transparent">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Agregar Otro Día
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             {/* Images */}
             <Card>
               <CardHeader>
-                <CardTitle>Imágenes</CardTitle>
+                <CardTitle>Imágenes del Tour</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -517,7 +704,7 @@ export default function NewTourPage() {
                       id="hasTransport"
                       checked={formData.hasTransport}
                       onCheckedChange={(checked) => {
-                        console.log("[v0] hasTransport changed to:", checked) // Added debug log
+                        console.log("[v0] hasTransport changed to:", checked)
                         setFormData({ ...formData, hasTransport: checked as boolean })
                       }}
                     />
@@ -543,7 +730,7 @@ export default function NewTourPage() {
               </Card>
             )}
 
-            {/* Additional Info */}
+            {/* Additional Info - Improved UI */}
             <Card>
               <CardHeader>
                 <CardTitle>Información Adicional (Se traducirá automáticamente)</CardTitle>
@@ -553,19 +740,23 @@ export default function NewTourPage() {
                   <Label htmlFor="includes">Qué Incluye (separado por comas)</Label>
                   <Textarea
                     id="includes"
-                    placeholder="Ej: Transporte, Guía turístico, Entradas, Almuerzo"
-                    onChange={(e) => handleArrayInput("includes", e.target.value)}
+                    value={includesInput}
+                    onChange={(e) => setIncludesInput(e.target.value)}
+                    placeholder="Transporte privado, Guía turístico certificado, Entradas a todos los sitios, Almuerzo típico, Seguro de viaje"
                     rows={3}
                   />
+                  <p className="text-sm text-muted-foreground">Cada item separado por coma (,)</p>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="excludes">Qué No Incluye (separado por comas)</Label>
                   <Textarea
                     id="excludes"
-                    placeholder="Ej: Propinas, Bebidas alcohólicas, Gastos personales"
-                    onChange={(e) => handleArrayInput("excludes", e.target.value)}
+                    value={excludesInput}
+                    onChange={(e) => setExcludesInput(e.target.value)}
+                    placeholder="Propinas, Bebidas alcohólicas, Gastos personales, Cena"
                     rows={3}
                   />
+                  <p className="text-sm text-muted-foreground">Cada item separado por coma (,)</p>
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
@@ -574,7 +765,7 @@ export default function NewTourPage() {
                       checked={formData.hasGuide}
                       onCheckedChange={(checked) => setFormData({ ...formData, hasGuide: checked as boolean })}
                     />
-                    <Label htmlFor="hasGuide">Incluye guía</Label>
+                    <Label htmlFor="hasGuide">Incluye guía turístico</Label>
                   </div>
                   <div className="flex items-center gap-2">
                     <Checkbox
@@ -582,12 +773,13 @@ export default function NewTourPage() {
                       checked={formData.isActive}
                       onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked as boolean })}
                     />
-                    <Label htmlFor="isActive">Tour activo</Label>
+                    <Label htmlFor="isActive">Tour activo (visible en el sitio web)</Label>
                   </div>
                 </div>
               </CardContent>
             </Card>
 
+            {/* Policies Section */}
             <Card>
               <CardHeader>
                 <CardTitle>Políticas (Se traducirán automáticamente)</CardTitle>
@@ -600,7 +792,7 @@ export default function NewTourPage() {
                     value={formData.cancellationPolicy}
                     onChange={(e) => setFormData({ ...formData, cancellationPolicy: e.target.value })}
                     rows={3}
-                    placeholder="Describe las condiciones de cancelación del tour"
+                    placeholder="Ejemplo: Cancelación gratuita hasta 48 horas antes del tour. Después de ese tiempo se cobrará el 50% del total."
                   />
                 </div>
                 <div className="space-y-2">
@@ -610,7 +802,7 @@ export default function NewTourPage() {
                     value={formData.refundPolicy}
                     onChange={(e) => setFormData({ ...formData, refundPolicy: e.target.value })}
                     rows={3}
-                    placeholder="Describe las condiciones de reembolso"
+                    placeholder="Ejemplo: Reembolso completo si se cancela con más de 7 días de anticipación."
                   />
                 </div>
                 <div className="space-y-2">
@@ -620,7 +812,7 @@ export default function NewTourPage() {
                     value={formData.changePolicy}
                     onChange={(e) => setFormData({ ...formData, changePolicy: e.target.value })}
                     rows={3}
-                    placeholder="Describe las condiciones para realizar cambios en la reserva"
+                    placeholder="Ejemplo: Los cambios de fecha están permitidos sin costo hasta 24 horas antes del tour."
                   />
                 </div>
               </CardContent>
@@ -631,4 +823,3 @@ export default function NewTourPage() {
     </SidebarInset>
   )
 }
-  
