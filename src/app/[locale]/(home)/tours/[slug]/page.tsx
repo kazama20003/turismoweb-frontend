@@ -712,7 +712,7 @@ export default function TourDetailPage() {
                 </div>
 
                 <div className="space-y-3">
-                  {tour.availabilityType === "always_available" ? (
+                  {tour.availabilityType === "unlimited" ? (
                     <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
                       <p className="text-sm font-semibold text-green-700 flex items-center gap-2">
                         <Calendar className="w-4 h-4" />

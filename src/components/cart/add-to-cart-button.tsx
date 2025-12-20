@@ -34,7 +34,7 @@ interface AddToCartButtonProps {
   variant?: "default" | "outline"
   triggerChildren?: React.ReactNode
   className?: string
-  availabilityType?: "always_available" | "fixed_dates" | "date_range"
+  availabilityType?: "unlimited" | "fixed_dates" | "date_range"
   availableDates?: string[]
 }
 
