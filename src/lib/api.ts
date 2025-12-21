@@ -34,6 +34,16 @@ api.interceptors.response.use(
     return Promise.reject(error)
   },
 )
+api.interceptors.request.use((config) => {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
+
 export async function apiClient<TResponse, TBody = unknown>(
   endpoint: string,
   options: RequestOptions<TBody> = {},
