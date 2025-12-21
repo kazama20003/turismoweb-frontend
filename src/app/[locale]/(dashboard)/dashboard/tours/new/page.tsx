@@ -118,12 +118,19 @@ export default function NewTourPage() {
   }
 
   const handleTitleChange = (value: string) => {
-    const slug = value
+    // Normalizar caracteres: elimina acentos y convierte a ASCII
+    const normalized = value
+      .normalize("NFD")                     // separa letras y tildes
+      .replace(/[\u0300-\u036f]/g, "");     // elimina las tildes
+
+    const slug = normalized
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "")
-    setFormData({ ...formData, title: value, slug })
-  }
+      .replace(/ñ/g, "n")                  // ñ -> n (opcional)
+      .replace(/[^a-z0-9]+/g, "-")         // todo lo que no sea letra o número
+      .replace(/^-+|-+$/g, "");            // quitar guiones del inicio y final
+
+    setFormData({ ...formData, title: value, slug });
+  };
 
   const addItineraryDay = () => {
     setFormData({
