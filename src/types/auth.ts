@@ -9,12 +9,13 @@ export enum UserRole {
 }
 
 export interface JwtPayload {
-  sub: string
+  _id: string
   email: string
-  name: string
   roles: UserRole[]
   iat: number
   exp: number
+  firstName?: string
+  lastName?: string
 }
 
 export interface LoginCredentials {
@@ -47,9 +48,11 @@ export interface LocalRegisterCredentials {
 export interface AuthResponse {
   access_token: string
   user: {
-    id: string
-    email: string
-    name: string
-    roles: UserRole[]
-  }
+      id: string
+      email: string
+      roles: UserRole[]
+      firstName?: string
+      lastName?: string
+    }
+
 }
