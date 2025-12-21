@@ -17,35 +17,68 @@ interface CreateUserDto {
   documentNumber?: string
 }
 
+// Tipo para respuestas que tengan token con distintos nombres
+interface TokenResponse {
+  access_token?: string
+  accessToken?: string
+  token?: string
+  refreshToken?: string
+}
+
+function extractToken(data: TokenResponse): string | null {
+  return (
+    data.access_token ||
+    data.accessToken ||
+    data.token ||
+    null
+  )
+}
+
 export const authService = {
-  // POST /auth/register - Registra un usuario local y devuelve JWT guardado en cookie HttpOnly
+  // REGISTER
   async register(data: CreateUserDto) {
     const response = await api.post<AuthResponse>("/auth/register", data)
-    return response.data
+    const res = response.data
+
+    const token = extractToken(res as TokenResponse)
+
+    if (token) {
+      localStorage.setItem("token", token)
+    }
+
+    return res
   },
 
-  // POST /auth/login/local - Login con email/contraseña, genera JWT y lo guarda en cookie HttpOnly
+  // LOGIN
   async loginLocal(credentials: LoginCredentials) {
     const response = await api.post<AuthResponse>("/auth/login/local", credentials)
-    return response.data
+    const data = response.data
+
+    const token = extractToken(data as TokenResponse)
+
+    if (token) {
+      localStorage.setItem("token", token)
+    }
+
+    return data
   },
 
-  // GET /auth/profile - Devuelve el perfil del usuario autenticado (requiere JWT válido)
+  // PROFILE
   async getProfile() {
     const response = await api.get<User>("/auth/profile")
     return response.data
   },
 
-  // PATCH /auth/:id - Actualiza el perfil del usuario autenticado
+  // UPDATE
   async updateProfile(id: string, data: UpdateUserDto) {
     const response = await api.patch<User>(`/auth/${id}`, data)
     return response.data
   },
 
-  // POST /auth/logout - Elimina la cookie JWT del navegador
+  // LOGOUT
   async logout() {
     const response = await api.post("/auth/logout")
-
+    localStorage.removeItem("token")
     return response.data
   },
 
