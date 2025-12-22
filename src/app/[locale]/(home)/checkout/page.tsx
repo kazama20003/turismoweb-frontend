@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useCart } from "@/hooks/use-cart"
+import { useProfile } from "@/hooks/use-auth"
 import { usePayment } from "@/hooks/use-payment"
 import type { CreateOrderDto, CreateOrderItem } from "@/types/order"
 import type { CartItem, Cart } from "@/types/cart"
@@ -13,6 +14,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { toast } from "sonner"
 import { OrderStatus, PaymentStatus } from "@/types/order"
+
 declare global {
   interface Window {
     KR?: {
@@ -50,6 +52,7 @@ const getProductImage = (item: CartItem): string => {
 
 export default function CheckoutPage() {
   const { cart, isLoading: cartLoading } = useCart()
+  const { data: user } = useProfile()
   const { formTokenData, isLoading: paymentLoading, error: paymentError, generateFormToken } = usePayment()
   const [paymentStatus, setPaymentStatus] = useState("idle")
   const [mounted, setMounted] = useState(false)
@@ -72,6 +75,16 @@ export default function CheckoutPage() {
   const discount = appliedOffer ? appliedOffer.discount : 0
   const serviceFee = 0
   const grandTotal = subtotal - discount + serviceFee
+
+  useEffect(() => {
+    if (user?.email) {
+      setCustomerInfo((prev) => ({
+        ...prev,
+        email: user.email,
+        name: prev.name || user.fullName || "",
+      }))
+    }
+  }, [user])
 
   useEffect(() => {
     setMounted(true)
@@ -538,15 +551,21 @@ export default function CheckoutPage() {
                   <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                     Email Address *
                   </label>
-                  <input
-                    type="email"
-                    id="email"
-                    value={customerInfo.email}
-                    onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
-                    className="w-full px-4 py-3 bg-background border border-foreground/10 text-foreground focus:outline-none focus:border-accent transition-colors"
-                    placeholder="juan@ejemplo.com"
-                    required
-                  />
+                  {user ? (
+                    <div className="w-full px-4 py-3 bg-background/50 border border-foreground/10 text-foreground rounded">
+                      {user.email}
+                    </div>
+                  ) : (
+                    <input
+                      type="email"
+                      id="email"
+                      value={customerInfo.email}
+                      onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
+                      className="w-full px-4 py-3 bg-background border border-foreground/10 text-foreground focus:outline-none focus:border-accent transition-colors"
+                      placeholder="juan@ejemplo.com"
+                      required
+                    />
+                  )}
                   <div className="mt-3 flex items-start gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                     <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
                     <div>
