@@ -35,7 +35,7 @@ export const ordersService = {
   },
 
   async getMyOrders() {
-    const response = await api.get<Order[]>("/orders/profile")
-    return response.data
+    const response = await api.get<PaginatedResponse<Order>>("/orders/profile")
+    return response.data.data // Extract the orders array from paginated response
   },
 }
