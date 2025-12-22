@@ -46,6 +46,18 @@ function getPathWithoutLocale(pathname: string): string {
 }
 
 // ---------------------------------------------------------------------
+// COOKIE DELETE OPTIONS (DEBEN COINCIDIR CON EL BACKEND)
+// ---------------------------------------------------------------------
+const COOKIE_DELETE_OPTIONS = {
+  httpOnly: true,
+  secure: true,
+  sameSite: "none" as const,
+  path: "/",
+  domain: ".tawantinsuyoperu.com",
+  maxAge: 0,
+};
+
+// ---------------------------------------------------------------------
 // MAIN MIDDLEWARE
 // ---------------------------------------------------------------------
 export function middleware(request: NextRequest) {
@@ -90,17 +102,21 @@ export function middleware(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const payload = token ? decodeJwtPayload(token) : null;
 
-  // PATCH: eliminar token INVÁLIDO (no decodificable)
+  // TOKEN INVÁLIDO (no decodifica)
   if (token && !payload) {
     const response = NextResponse.redirect(new URL(`/${locale}/login`, request.url));
-    response.cookies.delete("token");
+
+    response.cookies.set("token", "", COOKIE_DELETE_OPTIONS);
+
     return response;
   }
 
-  // PATCH: eliminar token EXPIRADO
+  // TOKEN EXPIRADO
   if (payload?.exp && Date.now() >= payload.exp * 1000) {
     const response = NextResponse.redirect(new URL(`/${locale}/login`, request.url));
-    response.cookies.delete("token");
+
+    response.cookies.set("token", "", COOKIE_DELETE_OPTIONS);
+
     return response;
   }
 
