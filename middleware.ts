@@ -24,8 +24,8 @@ function decodeJwtPayload(token: string): JwtPayload | null {
     if (!base64Url) return null;
 
     const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-
     const jsonPayload = atob(base64);
+
     return JSON.parse(jsonPayload) as JwtPayload;
   } catch {
     return null;
@@ -65,7 +65,7 @@ export function middleware(request: NextRequest) {
   const locale = getLocaleFromPath(pathname);
   const pathNoLocale = getPathWithoutLocale(pathname);
 
-  // FIX: evitar loop /es ↔ /es/
+  // FIX evitar loop /es ↔ /es/
   if (locale && (pathname === `/${locale}` || pathname === `/${locale}/`)) {
     return NextResponse.next();
   }
@@ -84,15 +84,33 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 
+  // ---------------------------------------------------------------------
   // TOKEN HANDLING
+  // ---------------------------------------------------------------------
   const token = request.cookies.get("token")?.value;
   const payload = token ? decodeJwtPayload(token) : null;
+
+  // PATCH: eliminar token INVÁLIDO (no decodificable)
+  if (token && !payload) {
+    const response = NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+    response.cookies.delete("token");
+    return response;
+  }
+
+  // PATCH: eliminar token EXPIRADO
+  if (payload?.exp && Date.now() >= payload.exp * 1000) {
+    const response = NextResponse.redirect(new URL(`/${locale}/login`, request.url));
+    response.cookies.delete("token");
+    return response;
+  }
 
   const roles: UserRole[] = Array.isArray(payload?.roles)
     ? (payload?.roles as UserRole[])
     : [];
 
+  // ---------------------------------------------------------------------
   // PUBLIC ROUTES
+  // ---------------------------------------------------------------------
   if (publicRoutes.some((r) => pathNoLocale.startsWith(r))) {
     if (!payload) return NextResponse.next();
 
@@ -118,22 +136,16 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // ---------------------------------------------------------------------
   // PROTECTED ROUTES
+  // ---------------------------------------------------------------------
   const isProtected =
     pathNoLocale.startsWith("/dashboard") ||
     pathNoLocale.startsWith("/users");
 
   if (isProtected) {
-    // NO TOKEN → login
     if (!token || !payload) {
       return NextResponse.redirect(new URL(`/${locale}/login`, request.url));
-    }
-
-    // TOKEN EXPIRADO
-    if (payload.exp && Date.now() >= payload.exp * 1000) {
-      const response = NextResponse.redirect(new URL(`/${locale}/login`, request.url));
-      response.cookies.delete("token");
-      return response;
     }
 
     // CLIENT intenta entrar al dashboard
