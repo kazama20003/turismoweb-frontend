@@ -27,7 +27,7 @@ import { useProfile, useUpdateProfile } from "@/hooks/use-auth"
 import { useMyOrders } from "@/hooks/use-orders"
 import { useCart } from "@/hooks/use-cart"
 import type { OrderStatus, Tour, Transport, OrderItem } from "@/types/order"
-import { CartItem } from "@/types/cart"
+import type { CartItem } from "@/types/cart"
 import { toast } from "sonner"
 
 export default function ProfilePage() {
@@ -156,7 +156,7 @@ export default function ProfilePage() {
 
   const getProductImage = (productId: string | Tour | Transport): string | undefined => {
     if (typeof productId === "object" && productId && "images" in productId) {
-      return productId.images?.[0]
+      return productId.images?.[0]?.url
     }
     return undefined
   }

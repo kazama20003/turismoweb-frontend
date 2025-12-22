@@ -12,11 +12,17 @@ export enum PaymentStatus {
   FAILED = "failed",
 }
 
+export interface Image {
+  url: string
+  publicId: string
+  _id: string
+}
+
 export interface Product {
   _id: string
   title: string
   description?: string
-  images?: string[]
+  images?: Image[]
   videoUrl?: string
   locationName?: string
   durationDays?: number
@@ -86,7 +92,7 @@ export interface Tour {
   _id: string
   title: string
   description?: string
-  images?: string[]
+  images?: Image[]
   videoUrl?: string
   locationName?: string
   durationDays?: number
@@ -153,9 +159,25 @@ export interface Transport {
   capacity?: number
   currentPrice?: number
   pricePerPerson?: boolean
+  images?: Image[]
+  slug?: string
   isActive?: boolean
   createdAt?: string
   updatedAt?: string
+}
+
+export interface OrderItem {
+  productId: string
+  productType: "Tour" | "Transport"
+  travelDate?: string
+  adults?: number
+  children?: number
+  infants?: number
+  unitPrice: number
+  totalPrice: number
+  appliedOfferId?: string
+  notes?: string
+  addedAt?: string
 }
 
 export interface CreateOrderItem {
@@ -172,23 +194,9 @@ export interface CreateOrderItem {
   addedAt?: string
 }
 
-export interface OrderItem {
-  productId: string | Tour | Transport
-  productType: "Tour" | "Transport"
-  travelDate?: string
-  adults?: number
-  children?: number
-  infants?: number
-  unitPrice: number
-  totalPrice: number
-  appliedOfferId?: string
-  notes?: string
-  addedAt?: string
-}
-
 export interface Order {
   _id: string
-  userId?: string | User
+  userId?: string
   customerName: string
   customerEmail: string
   customerPhone?: string
