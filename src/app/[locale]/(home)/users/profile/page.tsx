@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import {
   User,
   ShoppingBag,
-  Heart,
+  ShoppingCart,
   MapPin,
   Calendar,
   Package,
@@ -19,16 +19,20 @@ import {
   XCircle,
   Clock,
   AlertCircle,
+  Trash2,
 } from "lucide-react"
 import Link from "next/link"
 import { useProfile, useUpdateProfile } from "@/hooks/use-auth"
 import { useMyOrders } from "@/hooks/use-orders"
+import { useCart } from "@/hooks/use-cart"
 import type { OrderStatus, Tour, Transport } from "@/types/order"
+import { toast } from "sonner"
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile")
   const { data: userData } = useProfile()
   const { data: ordersData, isLoading: ordersLoading } = useMyOrders()
+  const { cart, removeItem, clearCart, isLoading: cartLoading } = useCart()
   const { trigger: updateProfile, isMutating: isUpdating } = useUpdateProfile()
 
   const [isEditing, setIsEditing] = useState(false)
@@ -59,8 +63,10 @@ export default function ProfilePage() {
         data: formData,
       })
       setIsEditing(false)
+      toast.success("Profile updated successfully")
     } catch (error) {
       console.error("Error updating profile:", error)
+      toast.error("Failed to update profile")
     }
   }
 
@@ -76,6 +82,24 @@ export default function ProfilePage() {
       documentType: userData?.documentType || "",
       documentNumber: userData?.documentNumber || "",
     })
+  }
+
+  const handleRemoveFromCart = async (productId: string) => {
+    try {
+      await removeItem(productId)
+      toast.success("Item removed from cart")
+    } catch {
+      toast.error("Failed to remove item")
+    }
+  }
+
+  const handleClearCart = async () => {
+    try {
+      await clearCart()
+      toast.success("Cart cleared")
+    } catch {
+      toast.error("Failed to clear cart")
+    }
   }
 
   const getStatusColor = (status: OrderStatus) => {
@@ -128,6 +152,16 @@ export default function ProfilePage() {
     return "Unknown Product"
   }
 
+  const extractProductId = (productId: string | { _id: string }): string => {
+    if (typeof productId === "string") {
+      return productId
+    }
+    if (productId && typeof productId === "object" && productId._id) {
+      return productId._id
+    }
+    return "Unknown"
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
@@ -146,9 +180,9 @@ export default function ProfilePage() {
               <ShoppingBag className="w-4 h-4 mr-2" />
               My Orders
             </TabsTrigger>
-            <TabsTrigger value="wishlist" className="text-xs tracking-wider uppercase">
-              <Heart className="w-4 h-4 mr-2" />
-              Wishlist
+            <TabsTrigger value="cart" className="text-xs tracking-wider uppercase">
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Cart
             </TabsTrigger>
           </TabsList>
 
@@ -364,18 +398,107 @@ export default function ProfilePage() {
             )}
           </TabsContent>
 
-          <TabsContent value="wishlist" className="space-y-4">
-            <h3 className="text-2xl font-serif text-foreground mb-6">My Wishlist</h3>
-            <div className="bg-secondary p-12 text-center rounded-lg">
-              <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground mb-4">Your wishlist is empty</p>
-              <Link
-                href="/tours"
-                className="inline-block px-6 py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:scale-[1.02] transition-all"
-              >
-                Discover Tours
-              </Link>
+          <TabsContent value="cart" className="space-y-4">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-serif text-foreground">My Cart</h3>
+              {cart && cart.items && cart.items.length > 0 && (
+                <Button
+                  onClick={handleClearCart}
+                  variant="outline"
+                  className="text-xs tracking-wider uppercase bg-transparent"
+                >
+                  Clear Cart
+                </Button>
+              )}
             </div>
+
+            {cartLoading ? (
+              <div className="text-center py-8">
+                <p>Loading cart...</p>
+              </div>
+            ) : cart && cart.items && cart.items.length > 0 ? (
+              <div className="space-y-4">
+                {cart.items.map((item, idx) => {
+                  const productTitle = getProductTitle(item.productId)
+                  const productId = extractProductId(item.productId)
+                  const detailsText = [
+                    item.productType,
+                    item.adults && `Adults: ${item.adults}`,
+                    item.children && `Children: ${item.children}`,
+                    item.infants && `Infants: ${item.infants}`,
+                  ]
+                    .filter(Boolean)
+                    .join(" • ")
+
+                  return (
+                    <div key={idx} className="bg-secondary p-6 rounded-lg">
+                      <div className="flex gap-4">
+                        <div className="flex-1">
+                          <h4 className="font-serif text-foreground mb-1 text-lg">{productTitle}</h4>
+                          <p className="text-sm text-muted-foreground mb-2">{detailsText}</p>
+                          {item.travelDate && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Calendar className="w-3 h-3" />
+                              <span>{new Date(item.travelDate).toLocaleDateString()}</span>
+                            </div>
+                          )}
+                          {item.notes && (
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">
+                              <MapPin className="w-3 h-3" />
+                              <span>{item.notes}</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-col items-end justify-between">
+                          <p className="font-serif text-foreground text-xl">${item.totalPrice.toFixed(2)}</p>
+                          <Button
+                            onClick={() => handleRemoveFromCart(productId)}
+                            variant="outline"
+                            size="sm"
+                            className="text-xs"
+                          >
+                            <Trash2 className="w-3 h-3 mr-1" />
+                            Remove
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+
+                <div className="bg-secondary p-6 rounded-lg">
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-muted-foreground">Subtotal:</span>
+                    <span className="text-foreground">${cart.subtotal?.toFixed(2) || "0.00"}</span>
+                  </div>
+                  <div className="flex justify-between text-sm mb-2">
+                    <span className="text-muted-foreground">Discount:</span>
+                    <span className="text-foreground">-${cart.discountTotal?.toFixed(2) || "0.00"}</span>
+                  </div>
+                  <div className="flex justify-between text-xl font-serif border-t border-border pt-3 mt-3">
+                    <span className="text-foreground">Total:</span>
+                    <span className="text-foreground">${cart.totalPrice?.toFixed(2) || "0.00"}</span>
+                  </div>
+                  <Link
+                    href="/checkout"
+                    className="inline-block w-full mt-4 px-6 py-3 bg-primary text-primary-foreground text-center text-xs font-medium tracking-widest uppercase hover:scale-[1.02] transition-all"
+                  >
+                    Proceed to Checkout
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-secondary p-12 text-center rounded-lg">
+                <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground mb-4">Your cart is empty</p>
+                <Link
+                  href="/tours"
+                  className="inline-block px-6 py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:scale-[1.02] transition-all"
+                >
+                  Discover Tours
+                </Link>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
