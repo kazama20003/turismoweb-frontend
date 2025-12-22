@@ -2,8 +2,7 @@
 
 import type React from "react"
 import Image from "next/image"
-
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,6 +27,10 @@ import { useCart } from "@/hooks/use-cart"
 import type { OrderStatus, Tour, Transport, OrderItem } from "@/types/order"
 import type { CartItem } from "@/types/cart"
 import { toast } from "sonner"
+import gsap from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+
+gsap.registerPlugin(ScrollTrigger)
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile")
@@ -36,6 +39,11 @@ export default function ProfilePage() {
   const { cart, removeItem, clearCart, isLoading: cartLoading } = useCart()
   const { trigger: updateProfile, isMutating: isUpdating } = useUpdateProfile()
   const { trigger: logout, isMutating: isLoggingOut } = useLogout()
+
+  const heroRef = useRef<HTMLDivElement>(null)
+  const heroVideoRef = useRef<HTMLDivElement>(null)
+  const heroContentRef = useRef<HTMLDivElement>(null)
+  const [mounted, setMounted] = useState(false)
 
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -48,6 +56,41 @@ export default function ProfilePage() {
     documentType: userData?.documentType || "",
     documentNumber: userData?.documentNumber || "",
   })
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (!mounted) return
+
+    const ctx = gsap.context(() => {
+      if (heroVideoRef.current) {
+        gsap.to(heroVideoRef.current, {
+          scale: 1.1,
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1,
+          },
+        })
+      }
+
+      if (heroContentRef.current) {
+        const children = heroContentRef.current.children
+        gsap.from(children, {
+          y: 50,
+          opacity: 0,
+          duration: 1,
+          stagger: 0.2,
+          ease: "power3.out",
+        })
+      }
+    })
+
+    return () => ctx.revert()
+  }, [mounted])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -149,11 +192,9 @@ export default function ProfilePage() {
       return productId
     }
     if (productId && typeof productId === "object") {
-      // Handle Tour type (has title property)
       if ("title" in productId && productId.title) {
         return productId.title
       }
-      // Handle Transport type (no title, create descriptive string)
       if ("origin" in productId && "destination" in productId) {
         const origin = productId.origin?.name || "Unknown"
         const destination = productId.destination?.name || "Unknown"
@@ -202,28 +243,48 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <section ref={heroRef} className="relative h-[40vh] overflow-hidden">
+        <div ref={heroVideoRef} className="absolute inset-0">
+          <video
+            src="https://res.cloudinary.com/ddbzpbrje/video/upload/v1763011237/11929213_1920_1080_60fps_lq178j.mp4"
+            className="absolute inset-0 w-full h-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+          <div className="absolute inset-0 bg-black/50" />
+        </div>
+
+        <div
+          ref={heroContentRef}
+          className="absolute inset-0 flex flex-col items-start justify-end text-left px-4 md:px-8 lg:px-12 pb-12"
+        >
+          <span className="text-white text-xs font-medium tracking-[0.3em] uppercase mb-3 opacity-0">Mi Cuenta</span>
+          <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-serif mb-2 opacity-0">Profile</h1>
+          <p className="text-white text-sm md:text-base max-w-md opacity-0">
+            Manage your profile, orders, and preferences
+          </p>
+        </div>
+      </section>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="mb-8 flex justify-between items-start">
-          <div>
-            <h1 className="text-4xl font-serif text-foreground mb-2">My Account</h1>
-            <p className="text-muted-foreground">Manage your profile, orders, and preferences</p>
-          </div>
+        <div className="mb-8 flex justify-end items-start">
           <div className="flex gap-3">
             <Link href="/">
-              <Button variant="outline" className="text-xs tracking-wider uppercase bg-transparent">
-                <Home className="w-4 h-4 mr-2" />
+              <button className="px-4 py-2 bg-background border border-foreground/10 text-foreground text-xs tracking-wider uppercase hover:bg-accent hover:text-accent-foreground hover:border-accent transition-colors">
+                <Home className="w-4 h-4 mr-2 inline" />
                 Go Home
-              </Button>
+              </button>
             </Link>
-            <Button
+            <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              variant="outline"
-              className="text-xs tracking-wider uppercase border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 bg-transparent"
+              className="px-4 py-2 bg-background border border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors disabled:opacity-50 text-xs tracking-wider uppercase"
             >
-              <LogOut className="w-4 h-4 mr-2" />
+              <LogOut className="w-4 h-4 mr-2 inline" />
               {isLoggingOut ? "Logging out..." : "Logout"}
-            </Button>
+            </button>
           </div>
         </div>
 
