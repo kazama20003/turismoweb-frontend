@@ -4,11 +4,8 @@ import type React from "react"
 import Image from "next/image"
 
 import { useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
   User,
   ShoppingBag,
@@ -205,7 +202,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="mb-8 flex justify-between items-start">
           <div>
             <h1 className="text-4xl font-serif text-foreground mb-2">My Account</h1>
@@ -247,131 +244,143 @@ export default function ProfilePage() {
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
-            <Card className="rounded-none border-2">
-              <CardContent className="pt-6">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-2xl font-serif text-foreground">Personal Information</h3>
-                  {!isEditing ? (
-                    <Button
-                      onClick={() => setIsEditing(true)}
-                      variant="outline"
-                      className="text-xs tracking-wider uppercase rounded-none"
+            <div className="bg-secondary p-6 md:p-8">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-serif text-foreground">Personal Information</h3>
+                {!isEditing ? (
+                  <button
+                    onClick={() => setIsEditing(true)}
+                    className="px-4 py-2 bg-background border border-foreground/10 text-foreground text-xs tracking-wider uppercase hover:bg-accent hover:text-accent-foreground hover:border-accent transition-colors"
+                  >
+                    Edit Profile
+                  </button>
+                ) : (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleCancelEdit}
+                      className="px-4 py-2 bg-background border border-foreground/10 text-foreground text-xs tracking-wider uppercase hover:bg-muted transition-colors"
                     >
-                      Edit Profile
-                    </Button>
-                  ) : (
-                    <div className="space-x-2">
-                      <Button
-                        onClick={handleCancelEdit}
-                        variant="outline"
-                        className="text-xs tracking-wider uppercase bg-transparent rounded-none"
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        onClick={handleSaveProfile}
-                        disabled={isUpdating}
-                        className="text-xs tracking-wider uppercase rounded-none"
-                      >
-                        {isUpdating ? "Saving..." : "Save Changes"}
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveProfile}
+                      disabled={isUpdating}
+                      className="px-4 py-2 bg-accent text-accent-foreground text-xs tracking-wider uppercase hover:bg-accent/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isUpdating ? "Saving..." : "Save Changes"}
+                    </button>
+                  </div>
+                )}
+              </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input
-                      id="firstName"
-                      name="firstName"
-                      value={formData.firstName}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="rounded-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      name="lastName"
-                      value={formData.lastName}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="rounded-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="rounded-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="rounded-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="country">Country</Label>
-                    <Input
-                      id="country"
-                      name="country"
-                      value={formData.country}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="rounded-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="address">Address</Label>
-                    <Input
-                      id="address"
-                      name="address"
-                      value={formData.address}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="rounded-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="documentType">Document Type</Label>
-                    <Input
-                      id="documentType"
-                      name="documentType"
-                      value={formData.documentType}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="rounded-none"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="documentNumber">Document Number</Label>
-                    <Input
-                      id="documentNumber"
-                      name="documentNumber"
-                      value={formData.documentNumber}
-                      onChange={handleInputChange}
-                      disabled={!isEditing}
-                      className="rounded-none"
-                    />
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="firstName" className="block text-sm font-medium text-foreground mb-2">
+                    First Name
+                  </label>
+                  <input
+                    id="firstName"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-full px-4 py-3 bg-background border border-foreground/10 text-foreground focus:outline-none focus:border-accent transition-colors disabled:opacity-50"
+                  />
                 </div>
-              </CardContent>
-            </Card>
+                <div>
+                  <label htmlFor="lastName" className="block text-sm font-medium text-foreground mb-2">
+                    Last Name
+                  </label>
+                  <input
+                    id="lastName"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-full px-4 py-3 bg-background border border-foreground/10 text-foreground focus:outline-none focus:border-accent transition-colors disabled:opacity-50"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-full px-4 py-3 bg-background border border-foreground/10 text-foreground focus:outline-none focus:border-accent transition-colors disabled:opacity-50"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="phone" className="block text-sm font-medium text-foreground mb-2">
+                    Phone
+                  </label>
+                  <input
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-full px-4 py-3 bg-background border border-foreground/10 text-foreground focus:outline-none focus:border-accent transition-colors disabled:opacity-50"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="country" className="block text-sm font-medium text-foreground mb-2">
+                    Country
+                  </label>
+                  <input
+                    id="country"
+                    name="country"
+                    value={formData.country}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-full px-4 py-3 bg-background border border-foreground/10 text-foreground focus:outline-none focus:border-accent transition-colors disabled:opacity-50"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="address" className="block text-sm font-medium text-foreground mb-2">
+                    Address
+                  </label>
+                  <input
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-full px-4 py-3 bg-background border border-foreground/10 text-foreground focus:outline-none focus:border-accent transition-colors disabled:opacity-50"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="documentType" className="block text-sm font-medium text-foreground mb-2">
+                    Document Type
+                  </label>
+                  <input
+                    id="documentType"
+                    name="documentType"
+                    value={formData.documentType}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-full px-4 py-3 bg-background border border-foreground/10 text-foreground focus:outline-none focus:border-accent transition-colors disabled:opacity-50"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="documentNumber" className="block text-sm font-medium text-foreground mb-2">
+                    Document Number
+                  </label>
+                  <input
+                    id="documentNumber"
+                    name="documentNumber"
+                    value={formData.documentNumber}
+                    onChange={handleInputChange}
+                    disabled={!isEditing}
+                    className="w-full px-4 py-3 bg-background border border-foreground/10 text-foreground focus:outline-none focus:border-accent transition-colors disabled:opacity-50"
+                  />
+                </div>
+              </div>
+            </div>
           </TabsContent>
 
           <TabsContent value="orders" className="space-y-4">
