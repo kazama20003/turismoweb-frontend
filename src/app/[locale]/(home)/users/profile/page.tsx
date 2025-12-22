@@ -24,13 +24,13 @@ import Link from "next/link"
 import { useProfile, useUpdateProfile } from "@/hooks/use-auth"
 import { useMyOrders } from "@/hooks/use-orders"
 import { useCart } from "@/hooks/use-cart"
-import type { OrderStatus, Product } from "@/types/order"
+import type { OrderStatus, Tour, Transport } from "@/types/order"
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState("profile")
   const { data: userData } = useProfile()
   const { data: ordersData, isLoading: ordersLoading } = useMyOrders()
-  const { cart: _cart, removeItem: _removeItem, clearCart: _clearCart, isLoading: _cartLoading } = useCart()
+  const { isLoading: _cartLoading } = useCart()
   const { trigger: updateProfile, isMutating: isUpdating } = useUpdateProfile()
 
   const [isEditing, setIsEditing] = useState(false)
@@ -110,12 +110,22 @@ export default function ProfilePage() {
     }
   }
 
-  const getProductTitle = (productId: string | Product) => {
+  const getProductTitle = (productId: string | Tour | Transport): string => {
     if (typeof productId === "string") {
       return productId
     }
     if (productId && typeof productId === "object") {
-      return productId.title || productId._id || "Unknown Product"
+      // Handle Tour type (has title property)
+      if ("title" in productId && productId.title) {
+        return productId.title
+      }
+      // Handle Transport type (no title, create descriptive string)
+      if ("origin" in productId && "destination" in productId) {
+        const origin = productId.origin?.name || "Unknown"
+        const destination = productId.destination?.name || "Unknown"
+        return `Transport: ${origin} → ${destination}`
+      }
+      return productId._id || "Unknown Product"
     }
     return "Unknown Product"
   }
