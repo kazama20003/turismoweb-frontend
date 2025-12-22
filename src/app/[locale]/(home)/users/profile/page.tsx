@@ -21,9 +21,11 @@ import {
   Clock,
   AlertCircle,
   Trash2,
+  LogOut,
+  Home,
 } from "lucide-react"
 import Link from "next/link"
-import { useProfile, useUpdateProfile } from "@/hooks/use-auth"
+import { useProfile, useUpdateProfile, useLogout } from "@/hooks/use-auth"
 import { useMyOrders } from "@/hooks/use-orders"
 import { useCart } from "@/hooks/use-cart"
 import type { OrderStatus, Tour, Transport, OrderItem } from "@/types/order"
@@ -36,6 +38,7 @@ export default function ProfilePage() {
   const { data: ordersData, isLoading: ordersLoading } = useMyOrders()
   const { cart, removeItem, clearCart, isLoading: cartLoading } = useCart()
   const { trigger: updateProfile, isMutating: isUpdating } = useUpdateProfile()
+  const { trigger: logout, isMutating: isLoggingOut } = useLogout()
 
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState({
@@ -84,6 +87,16 @@ export default function ProfilePage() {
       documentType: userData?.documentType || "",
       documentNumber: userData?.documentNumber || "",
     })
+  }
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      toast.success("Logged out successfully")
+    } catch (error) {
+      console.error("Error logging out:", error)
+      toast.error("Failed to logout")
+    }
   }
 
   const handleRemoveFromCart = async (productId: string) => {
@@ -193,9 +206,28 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        <div className="mb-8">
-          <h1 className="text-4xl font-serif text-foreground mb-2">My Account</h1>
-          <p className="text-muted-foreground">Manage your profile, orders, and preferences</p>
+        <div className="mb-8 flex justify-between items-start">
+          <div>
+            <h1 className="text-4xl font-serif text-foreground mb-2">My Account</h1>
+            <p className="text-muted-foreground">Manage your profile, orders, and preferences</p>
+          </div>
+          <div className="flex gap-3">
+            <Link href="/">
+              <Button variant="outline" className="text-xs tracking-wider uppercase bg-transparent">
+                <Home className="w-4 h-4 mr-2" />
+                Go Home
+              </Button>
+            </Link>
+            <Button
+              onClick={handleLogout}
+              disabled={isLoggingOut}
+              variant="outline"
+              className="text-xs tracking-wider uppercase border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 bg-transparent"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              {isLoggingOut ? "Logging out..." : "Logout"}
+            </Button>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -215,7 +247,7 @@ export default function ProfilePage() {
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
-            <Card>
+            <Card className="rounded-none border-2">
               <CardContent className="pt-6">
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-2xl font-serif text-foreground">Personal Information</h3>
@@ -223,7 +255,7 @@ export default function ProfilePage() {
                     <Button
                       onClick={() => setIsEditing(true)}
                       variant="outline"
-                      className="text-xs tracking-wider uppercase"
+                      className="text-xs tracking-wider uppercase rounded-none"
                     >
                       Edit Profile
                     </Button>
@@ -232,14 +264,14 @@ export default function ProfilePage() {
                       <Button
                         onClick={handleCancelEdit}
                         variant="outline"
-                        className="text-xs tracking-wider uppercase bg-transparent"
+                        className="text-xs tracking-wider uppercase bg-transparent rounded-none"
                       >
                         Cancel
                       </Button>
                       <Button
                         onClick={handleSaveProfile}
                         disabled={isUpdating}
-                        className="text-xs tracking-wider uppercase"
+                        className="text-xs tracking-wider uppercase rounded-none"
                       >
                         {isUpdating ? "Saving..." : "Save Changes"}
                       </Button>
@@ -256,6 +288,7 @@ export default function ProfilePage() {
                       value={formData.firstName}
                       onChange={handleInputChange}
                       disabled={!isEditing}
+                      className="rounded-none"
                     />
                   </div>
                   <div className="space-y-2">
@@ -266,6 +299,7 @@ export default function ProfilePage() {
                       value={formData.lastName}
                       onChange={handleInputChange}
                       disabled={!isEditing}
+                      className="rounded-none"
                     />
                   </div>
                   <div className="space-y-2">
@@ -277,6 +311,7 @@ export default function ProfilePage() {
                       value={formData.email}
                       onChange={handleInputChange}
                       disabled={!isEditing}
+                      className="rounded-none"
                     />
                   </div>
                   <div className="space-y-2">
@@ -287,6 +322,7 @@ export default function ProfilePage() {
                       value={formData.phone}
                       onChange={handleInputChange}
                       disabled={!isEditing}
+                      className="rounded-none"
                     />
                   </div>
                   <div className="space-y-2">
@@ -297,6 +333,7 @@ export default function ProfilePage() {
                       value={formData.country}
                       onChange={handleInputChange}
                       disabled={!isEditing}
+                      className="rounded-none"
                     />
                   </div>
                   <div className="space-y-2">
@@ -307,6 +344,7 @@ export default function ProfilePage() {
                       value={formData.address}
                       onChange={handleInputChange}
                       disabled={!isEditing}
+                      className="rounded-none"
                     />
                   </div>
                   <div className="space-y-2">
@@ -317,6 +355,7 @@ export default function ProfilePage() {
                       value={formData.documentType}
                       onChange={handleInputChange}
                       disabled={!isEditing}
+                      className="rounded-none"
                     />
                   </div>
                   <div className="space-y-2">
@@ -327,6 +366,7 @@ export default function ProfilePage() {
                       value={formData.documentNumber}
                       onChange={handleInputChange}
                       disabled={!isEditing}
+                      className="rounded-none"
                     />
                   </div>
                 </div>
@@ -344,7 +384,7 @@ export default function ProfilePage() {
             ) : Array.isArray(ordersData) && ordersData.length > 0 ? (
               <div className="space-y-4">
                 {ordersData.map((order) => (
-                  <div key={order._id} className="bg-secondary p-6">
+                  <div key={order._id} className="bg-secondary p-6 rounded-none border-2">
                     <div className="flex flex-col md:flex-row md:items-start gap-6">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-3">
@@ -352,7 +392,7 @@ export default function ProfilePage() {
                             {order.confirmationCode || order._id}
                           </span>
                           <span
-                            className={`text-[10px] px-2 py-1 font-medium uppercase tracking-wider flex items-center gap-1 ${getStatusColor(order.status)}`}
+                            className={`text-[10px] px-2 py-1 font-medium uppercase tracking-wider flex items-center gap-1 rounded-none ${getStatusColor(order.status)}`}
                           >
                             {getStatusIcon(order.status)}
                             {order.status}
@@ -376,7 +416,7 @@ export default function ProfilePage() {
                             return (
                               <div key={idx} className="flex gap-4 pb-4 border-b border-border last:border-0">
                                 {productImage && (
-                                  <div className="w-24 h-24 shrink-0 bg-muted overflow-hidden">
+                                  <div className="w-24 h-24 shrink-0 bg-muted overflow-hidden rounded-none">
                                     <Image
                                       src={productImage || "/placeholder.svg"}
                                       alt={productTitle}
@@ -434,12 +474,12 @@ export default function ProfilePage() {
                 ))}
               </div>
             ) : (
-              <div className="bg-secondary p-12 text-center">
+              <div className="bg-secondary p-12 text-center rounded-none border-2">
                 <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground mb-4">No orders yet</p>
                 <Link
                   href="/tours"
-                  className="inline-block px-6 py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:scale-[1.02] transition-all"
+                  className="inline-block px-6 py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:scale-[1.02] transition-all rounded-none"
                 >
                   Browse Tours
                 </Link>
@@ -454,7 +494,7 @@ export default function ProfilePage() {
                 <Button
                   onClick={handleClearCart}
                   variant="outline"
-                  className="text-xs tracking-wider uppercase bg-transparent"
+                  className="text-xs tracking-wider uppercase bg-transparent rounded-none"
                 >
                   Clear Cart
                 </Button>
@@ -482,10 +522,10 @@ export default function ProfilePage() {
                     .join(" • ")
 
                   return (
-                    <div key={idx} className="bg-secondary p-6">
+                    <div key={idx} className="bg-secondary p-6 rounded-none border-2">
                       <div className="flex gap-4">
                         {productImage && (
-                          <div className="w-32 h-32 shrink-0 bg-muted overflow-hidden">
+                          <div className="w-32 h-32 shrink-0 bg-muted overflow-hidden rounded-none">
                             <Image
                               src={productImage || "/placeholder.svg"}
                               alt={productTitle}
@@ -498,12 +538,12 @@ export default function ProfilePage() {
                         <div className="flex-1">
                           {productLink ? (
                             <Link href={productLink}>
-                              <h4 className="font-serif text-foreground mb-1 text-lg hover:text-accent transition-colors">
+                              <h4 className="font-serif text-foreground mb-1 hover:text-accent transition-colors">
                                 {productTitle}
                               </h4>
                             </Link>
                           ) : (
-                            <h4 className="font-serif text-foreground mb-1 text-lg">{productTitle}</h4>
+                            <h4 className="font-serif text-foreground mb-1">{productTitle}</h4>
                           )}
                           <p className="text-sm text-muted-foreground mb-2">{detailsText}</p>
                           {item.travelDate && (
@@ -520,15 +560,14 @@ export default function ProfilePage() {
                           )}
                         </div>
                         <div className="flex flex-col items-end justify-between">
-                          <p className="font-serif text-foreground text-xl">${item.totalPrice.toFixed(2)}</p>
+                          <p className="font-serif text-foreground text-lg">${item.totalPrice.toFixed(2)}</p>
                           <Button
                             onClick={() => handleRemoveFromCart(productId)}
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
-                            className="text-xs"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 rounded-none"
                           >
-                            <Trash2 className="w-3 h-3 mr-1" />
-                            Remove
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </div>
@@ -536,33 +575,39 @@ export default function ProfilePage() {
                   )
                 })}
 
-                <div className="bg-secondary p-6">
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">Subtotal:</span>
-                    <span className="text-foreground">${cart.subtotal?.toFixed(2) || "0.00"}</span>
+                <div className="bg-secondary p-6 rounded-none border-2">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Subtotal:</span>
+                      <span className="text-foreground">${cart.subtotal.toFixed(2)}</span>
+                    </div>
+                    {cart.discountTotal > 0 && (
+                      <div className="flex justify-between text-sm text-green-600">
+                        <span>Discount:</span>
+                        <span>-${cart.discountTotal.toFixed(2)}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-xl font-serif pt-2 border-t border-border">
+                      <span className="text-foreground">Total:</span>
+                      <span className="text-foreground">${cart.grandTotal.toFixed(2)}</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">Discount:</span>
-                    <span className="text-foreground">-${cart.discountTotal?.toFixed(2) || "0.00"}</span>
-                  </div>
-                  <div className="flex justify-between text-xl font-serif border-t border-border pt-3 mt-3">
-                    <span className="text-foreground">Total:</span>
-                    <span className="text-foreground">${cart.totalPrice?.toFixed(2) || "0.00"}</span>
-                  </div>
-                  <Button className="w-full mt-6 text-xs font-medium tracking-widest uppercase">
-                    Proceed to Checkout
-                  </Button>
+                  <Link href="/checkout">
+                    <Button className="w-full mt-4 text-xs tracking-wider uppercase rounded-none">
+                      Proceed to Checkout
+                    </Button>
+                  </Link>
                 </div>
               </div>
             ) : (
-              <div className="bg-secondary p-12 text-center">
+              <div className="bg-secondary p-12 text-center rounded-none border-2">
                 <ShoppingCart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground mb-4">Your cart is empty</p>
                 <Link
                   href="/tours"
-                  className="inline-block px-6 py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:scale-[1.02] transition-all"
+                  className="inline-block px-6 py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:scale-[1.02] transition-all rounded-none"
                 >
-                  Browse Tours
+                  Start Shopping
                 </Link>
               </div>
             )}
