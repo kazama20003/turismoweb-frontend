@@ -4,11 +4,9 @@ import type * as React from "react"
 import {
   Plane,
   Bus,
-  Hotel,
   Users,
   BarChart3,
   Ticket,
-  Settings2,
   LifeBuoy,
   MessageSquare,
   Globe,

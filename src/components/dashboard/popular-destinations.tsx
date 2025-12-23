@@ -1,65 +1,39 @@
-import { MapPin, TrendingUp } from "lucide-react"
-import { Progress } from "@/components/ui/progress"
+"use client"
 
-const destinations = [
-  {
-    id: 1,
-    name: "Cancún, México",
-    bookings: 156,
-    percentage: 92,
-    trend: "+15%",
-  },
-  {
-    id: 2,
-    name: "Machu Picchu, Perú",
-    bookings: 134,
-    percentage: 78,
-    trend: "+22%",
-  },
-  {
-    id: 3,
-    name: "Cartagena, Colombia",
-    bookings: 98,
-    percentage: 65,
-    trend: "+8%",
-  },
-  {
-    id: 4,
-    name: "Buenos Aires, Argentina",
-    bookings: 87,
-    percentage: 54,
-    trend: "+12%",
-  },
-  {
-    id: 5,
-    name: "Patagonia, Chile",
-    bookings: 72,
-    percentage: 45,
-    trend: "+18%",
-  },
-]
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts"
 
-export function PopularDestinations() {
+interface PopularDestinationsProps {
+  tours: Array<{ _id: string; count: number; revenue: number; title: string }>
+}
+
+export function PopularDestinations({ tours }: PopularDestinationsProps) {
+  if (!tours || tours.length === 0) {
+    return <div className="text-sm text-muted-foreground">Sin datos disponibles</div>
+  }
+
+  const chartData = tours.slice(0, 5).map((tour) => ({
+    name: tour.title.length > 20 ? tour.title.substring(0, 20) + "..." : tour.title,
+    bookings: tour.count,
+    revenue: tour.revenue,
+  }))
+
   return (
-    <div className="space-y-6">
-      {destinations.map((destination) => (
-        <div key={destination.id} className="space-y-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">{destination.name}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">{destination.bookings} reservas</span>
-              <span className="text-xs text-emerald-500 flex items-center gap-0.5">
-                <TrendingUp className="h-3 w-3" />
-                {destination.trend}
-              </span>
-            </div>
-          </div>
-          <Progress value={destination.percentage} className="h-2" />
-        </div>
-      ))}
-    </div>
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={chartData} layout="vertical" margin={{ top: 5, right: 30, left: 200, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+        <XAxis type="number" stroke="var(--muted-foreground)" />
+        <YAxis dataKey="name" type="category" stroke="var(--muted-foreground)" width={190} tick={{ fontSize: 12 }} />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: "var(--card)",
+            border: `1px solid var(--border)`,
+            borderRadius: "var(--radius)",
+          }}
+        />
+        <Legend />
+        <Bar dataKey="bookings" fill="var(--chart-1)" radius={[0, 8, 8, 0]} />
+        <Bar dataKey="revenue" fill="var(--chart-2)" radius={[0, 8, 8, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
   )
 }

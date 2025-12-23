@@ -1,59 +1,36 @@
 "use client"
 
-import { Line, LineChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import { type ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
 
-const chartData = [
-  { date: "Lun", revenue: 12400, target: 15000 },
-  { date: "Mar", revenue: 18200, target: 15000 },
-  { date: "Mié", revenue: 15800, target: 15000 },
-  { date: "Jue", revenue: 21500, target: 15000 },
-  { date: "Vie", revenue: 28900, target: 15000 },
-  { date: "Sáb", revenue: 35200, target: 15000 },
-  { date: "Dom", revenue: 24600, target: 15000 },
-]
+interface RevenueChartProps {
+  data: Array<{ _id: string; total: number; count: number }>
+}
 
-const chartConfig = {
-  revenue: {
-    label: "Ingresos",
-    color: "hsl(var(--chart-3))",
-  },
-  target: {
-    label: "Objetivo",
-    color: "hsl(var(--chart-4))",
-  },
-} satisfies ChartConfig
+export function RevenueChart({ data }: RevenueChartProps) {
+  if (!data || data.length === 0) {
+    return <div className="h-[300px] flex items-center justify-center text-muted-foreground">Sin datos disponibles</div>
+  }
 
-export function RevenueChart() {
+  const chartData = data.map((item) => ({
+    date: new Date(item._id).toLocaleDateString("es-ES", { month: "short", day: "numeric" }),
+    revenue: item.total,
+  }))
+
   return (
-    <ChartContainer config={chartConfig} className="h-[300px] w-full">
-      <LineChart data={chartData}>
-        <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-        <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} className="text-xs" />
-        <YAxis
-          tickLine={false}
-          axisLine={false}
-          tickMargin={8}
-          className="text-xs"
-          tickFormatter={(value) => `$${value / 1000}k`}
+    <ResponsiveContainer width="100%" height={300}>
+      <BarChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+        <XAxis dataKey="date" stroke="var(--muted-foreground)" />
+        <YAxis stroke="var(--muted-foreground)" />
+        <Tooltip
+          contentStyle={{
+            backgroundColor: "var(--card)",
+            border: `1px solid var(--border)`,
+            borderRadius: "var(--radius)",
+          }}
         />
-        <ChartTooltip content={<ChartTooltipContent />} />
-        <Line
-          dataKey="target"
-          type="monotone"
-          stroke="hsl(var(--chart-4))"
-          strokeWidth={2}
-          strokeDasharray="5 5"
-          dot={false}
-        />
-        <Line
-          dataKey="revenue"
-          type="monotone"
-          stroke="hsl(var(--chart-3))"
-          strokeWidth={2}
-          dot={{ fill: "hsl(var(--chart-3))", r: 4 }}
-        />
-      </LineChart>
-    </ChartContainer>
+        <Bar dataKey="revenue" fill="var(--chart-2)" radius={[8, 8, 0, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
   )
 }
