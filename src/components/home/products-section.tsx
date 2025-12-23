@@ -4,19 +4,15 @@ import { useEffect, useRef } from "react"
 import Image from "next/image"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { getProductsSectionDictionary } from "@/lib/i18n/dictionaries/products-section"
-import type { Locale } from "@/lib/i18n/config"
+import { useTranslation } from "@/lib/i18n/context"
 import { usePopularTours } from "@/hooks/use-tours"
-import {AddToCartButton} from "@/components/cart/add-to-cart-button"
+import { AddToCartButton } from "@/components/cart/add-to-cart-button"
 
 gsap.registerPlugin(ScrollTrigger)
 
-interface ProductsSectionProps {
-  locale: Locale
-}
-
-export function ProductsSection({ locale }: ProductsSectionProps) {
-  const dict = getProductsSectionDictionary(locale)
+export function ProductsSection() {
+  const { locale, dictionary } = useTranslation()
+  const dict = dictionary.productsSection
   const { data: tours, isLoading } = usePopularTours(locale)
 
   const titleRef = useRef<HTMLHeadingElement>(null)
@@ -65,7 +61,7 @@ export function ProductsSection({ locale }: ProductsSectionProps) {
   const displayTours = tours?.slice(0, 4) || []
 
   return (
-    <section className="w-full bg-white border-l-8 border-r-8 border-white">
+    <section id="products-section" className="w-full bg-white border-l-8 border-r-8 border-white">
       <div ref={dividerRef} className="border-t-8 border-white" />
 
       <div className="py-12 md:py-16 px-4 sm:px-6 md:px-12 lg:px-20">
@@ -99,7 +95,6 @@ export function ProductsSection({ locale }: ProductsSectionProps) {
         className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-t-8 border-white"
       >
         {isLoading ? (
-          // Loading state
           Array.from({ length: 4 }).map((_, index) => (
             <div key={index}>
               <div className="relative h-64 sm:h-80 md:h-96 lg:h-screen overflow-hidden bg-gray-200 animate-pulse">
@@ -113,7 +108,6 @@ export function ProductsSection({ locale }: ProductsSectionProps) {
           ))
         ) : displayTours.length > 0 ? (
           displayTours.map((tour, index) => {
-            // Even index (0, 2) shows image, odd index (1, 3) shows video
             const useVideo = index % 2 === 1 && tour.videoUrl
             const mainImage = tour.images?.[0]?.url || "/placeholder.svg"
 
@@ -168,7 +162,6 @@ export function ProductsSection({ locale }: ProductsSectionProps) {
             )
           })
         ) : (
-          // No tours available
           <div className="col-span-full p-12 text-center text-gray-500">
             <p>No tours available at the moment</p>
           </div>

@@ -5,51 +5,48 @@ import Image from "next/image"
 import gsap from "gsap"
 import ScrollTrigger from "gsap/ScrollTrigger"
 import { ChevronLeft, ChevronRight } from "lucide-react"
-import type { Locale } from "@/lib/i18n/config"
-import { getTestimonialsDictionary } from "@/lib/i18n/dictionaries/testimonials"
+import { useTranslation } from "@/lib/i18n/context"
 
 gsap.registerPlugin(ScrollTrigger)
 
-interface TestimonialsSectionProps {
-  locale: Locale
-}
+export function TestimonialsSection() {
+  const { dictionary } = useTranslation()
+  const dict = dictionary.testimonials
 
-export function TestimonialsSection({ locale }: TestimonialsSectionProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const carouselRef = useRef<HTMLDivElement>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
-  const dictionary = getTestimonialsDictionary(locale)
 
   const testimonials = [
     {
       id: 1,
-      name: dictionary.testimonial1Name,
-      role: dictionary.testimonial1Role,
-      comment: dictionary.testimonial1Comment,
+      name: dict.testimonial1Name,
+      role: dict.testimonial1Role,
+      comment: dict.testimonial1Comment,
       image: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1760740352/main-sample.png",
       rating: 5,
     },
     {
       id: 2,
-      name: dictionary.testimonial2Name,
-      role: dictionary.testimonial2Role,
-      comment: dictionary.testimonial2Comment,
+      name: dict.testimonial2Name,
+      role: dict.testimonial2Role,
+      comment: dict.testimonial2Comment,
       image: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1760740347/samples/man-portrait.jpg",
       rating: 5,
     },
     {
       id: 3,
-      name: dictionary.testimonial3Name,
-      role: dictionary.testimonial3Role,
-      comment: dictionary.testimonial3Comment,
+      name: dict.testimonial3Name,
+      role: dict.testimonial3Role,
+      comment: dict.testimonial3Comment,
       image: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1760740334/samples/people/bicycle.jpg",
       rating: 5,
     },
     {
       id: 4,
-      name: dictionary.testimonial4Name,
-      role: dictionary.testimonial4Role,
-      comment: dictionary.testimonial4Comment,
+      name: dict.testimonial4Name,
+      role: dict.testimonial4Role,
+      comment: dict.testimonial4Comment,
       image: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1760740333/samples/people/jazz.jpg",
       rating: 5,
     },
@@ -114,9 +111,8 @@ export function TestimonialsSection({ locale }: TestimonialsSectionProps) {
   return (
     <section ref={containerRef} className="w-full bg-white py-16">
       <div className="w-full px-4 md:px-8">
-        {/* Header */}
         <div className="flex items-center justify-between mb-12">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-wide uppercase">{dictionary.title}</h2>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-wide uppercase">{dict.title}</h2>
 
           <div className="flex gap-2">
             <button
@@ -150,12 +146,10 @@ export function TestimonialsSection({ locale }: TestimonialsSectionProps) {
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
 
-                {/* Dark Overlay */}
                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors duration-300" />
 
                 <div className="absolute inset-0 flex flex-col justify-between p-6 text-white">
                   <div>
-                    {/* Stars */}
                     <div className="flex gap-1 mb-3">
                       {[...Array(testimonial.rating)].map((_, i) => (
                         <svg key={i} className="w-4 h-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
@@ -171,9 +165,8 @@ export function TestimonialsSection({ locale }: TestimonialsSectionProps) {
                     <p className="text-xs md:text-sm leading-relaxed line-clamp-4 italic">{testimonial.comment}</p>
                   </div>
 
-                  {/* Button */}
                   <button className="self-start px-3 py-2 bg-transparent border border-white text-white text-xs font-bold hover:bg-white hover:text-black transition-all duration-300 uppercase">
-                    {dictionary.readMore}
+                    {dict.readMore}
                   </button>
                 </div>
               </div>

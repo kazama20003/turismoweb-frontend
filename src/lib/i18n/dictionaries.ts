@@ -7,6 +7,10 @@ import { getClubDictionary, type ClubDictionary } from "./dictionaries/club"
 import { getEventsDictionary, type EventsDictionary } from "./dictionaries/events"
 import { getAboutDictionary, type AboutDictionary } from "./dictionaries/about"
 import { getHeroSectionDictionary, type HeroSectionDictionary } from "./dictionaries/hero-section"
+import { getFeaturedSectionDictionary, type FeaturedSectionDictionary } from "./dictionaries/featured-section"
+import { getProductsSectionDictionary, type ProductsSectionDictionary } from "./dictionaries/products-section"
+import { getTestimonialsDictionary, type TestimonialsDictionary } from "./dictionaries/testimonials"
+import { getPaymentMethodsDictionary, type PaymentMethodsDictionary } from "./dictionaries/payment-methods"
 export interface DictionarySchema extends GlobalDictionary {
   hero: HomeDictionary["hero"]
   products: HomeDictionary["products"]
@@ -16,6 +20,10 @@ export interface DictionarySchema extends GlobalDictionary {
   events: EventsDictionary
   about: AboutDictionary
   heroSection: HeroSectionDictionary
+  featuredSection: FeaturedSectionDictionary
+   productsSection: ProductsSectionDictionary
+  testimonials: TestimonialsDictionary
+  paymentMethods: PaymentMethodsDictionary
 }
 
 export type Dictionary = DictionarySchema
@@ -29,9 +37,17 @@ export function getDictionary(locale: Locale): DictionarySchema {
     club: getClubDictionary(locale),
     events: getEventsDictionary(locale),
     about: getAboutDictionary(locale),
-        heroSection: getHeroSectionDictionary(locale),
+      heroSection: getHeroSectionDictionary(locale),
+      featuredSection: getFeaturedSectionDictionary(locale),
+      productsSection: getProductsSectionDictionary(locale),
+    testimonials: getTestimonialsDictionary(locale),
+    paymentMethods: getPaymentMethodsDictionary(locale),
 
   }
 }
 
-export { getGlobalDictionary, getHomeDictionary, getToursDictionary, getVisitDictionary, getClubDictionary, getEventsDictionary, getAboutDictionary,getHeroSectionDictionary }
+export { getGlobalDictionary, getHomeDictionary, getToursDictionary, getVisitDictionary, getClubDictionary, getEventsDictionary, getAboutDictionary,getHeroSectionDictionary,
+  getFeaturedSectionDictionary,
+  getProductsSectionDictionary,
+  getTestimonialsDictionary,
+  getPaymentMethodsDictionary, }

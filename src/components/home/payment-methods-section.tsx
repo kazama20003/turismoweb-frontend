@@ -4,28 +4,33 @@ import { useEffect, useRef } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import Image from "next/image"
-import type { Locale } from "@/lib/i18n/config"
-import { getPaymentMethodsDictionary } from "@/lib/i18n/dictionaries/payment-methods"
+import { useTranslation } from "@/lib/i18n/context"
 
 gsap.registerPlugin(ScrollTrigger)
 
-export interface PaymentMethodsSectionProps {
-  locale: Locale
-}
+export function PaymentMethodsSection() {
+  const { dictionary } = useTranslation()
+  const dict = dictionary.paymentMethods
 
-export function PaymentMethodsSection({ locale }: PaymentMethodsSectionProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const topLeftRef = useRef<HTMLDivElement>(null)
   const bottomRightRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<HTMLDivElement>(null)
 
-  const dict = getPaymentMethodsDictionary(locale)
-
   const paymentMethods = [
     { name: "Visa", logo: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1765989974/Visa_Inc._logo_ounvgj.svg" },
-    { name: "Mastercard", logo: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1765989990/2560px-MasterCard_Logo.svg_hed2pt.png" },
-    { name: "American Express", logo: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1765990006/American_Express_logo__282018_29_rtp1bw.svg" },
-    { name: "Diners Club", logo: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1765990023/2560px-Diners_Club_Logo3.svg_u44inc.png" },
+    {
+      name: "Mastercard",
+      logo: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1765989990/2560px-MasterCard_Logo.svg_hed2pt.png",
+    },
+    {
+      name: "American Express",
+      logo: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1765990006/American_Express_logo__282018_29_rtp1bw.svg",
+    },
+    {
+      name: "Diners Club",
+      logo: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1765990023/2560px-Diners_Club_Logo3.svg_u44inc.png",
+    },
   ]
 
   useEffect(() => {
@@ -64,9 +69,14 @@ export function PaymentMethodsSection({ locale }: PaymentMethodsSectionProps) {
       <div className="border-t-8 border-white" />
 
       <div ref={containerRef} className="relative w-full min-h-[500px] md:min-h-[600px] lg:min-h-[700px]">
-        {/* Background image */}
         <div className="absolute inset-0">
-          <Image src="https://res.cloudinary.com/ddbzpbrje/image/upload/v1765989893/pexels-mikhail-nilov-6612282_aund7w.jpg" alt="Payment background" fill className="object-cover" sizes="100vw" />
+          <Image
+            src="https://res.cloudinary.com/ddbzpbrje/image/upload/v1765989893/pexels-mikhail-nilov-6612282_aund7w.jpg"
+            alt="Payment background"
+            fill
+            className="object-cover"
+            sizes="100vw"
+          />
           <div className="absolute inset-0 bg-black/30" />
         </div>
 
