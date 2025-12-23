@@ -32,6 +32,7 @@ import { isValidLocale, defaultLocale, type Locale } from "@/lib/i18n/config"
 import { getTourDetailDictionary } from "@/lib/i18n/dictionaries/tour-detail"
 import { AddToCartButton } from "@/components/cart/add-to-cart-button"
 import { Badge } from "@/components/ui/badge"
+import { WhatsappButton } from "@/components/home/whatsapp-button"
 import type { Vehicle } from "@/types/vehicle"
 
 if (typeof window !== "undefined") {
@@ -751,22 +752,23 @@ export default function TourDetailPage() {
                   ) : null}
                 </div>
 
-                <AddToCartButton
-                  productId={tour._id}
-                  productType="tour"
-                  productTitle={tour.title}
-                  productImage={tour.images[0]?.url}
-                  unitPrice={tour.currentPrice}
-                  variant="default"
-                  className="w-full"
-                  availabilityType={tour.availabilityType}
-                  availableDates={tour.availableDates}
-                  triggerChildren={
-                    <div className="w-full px-6 py-4 bg-primary text-primary-foreground hover:bg-primary/90 transition-all font-bold text-center rounded-lg border-2 border-primary shadow-md hover:shadow-lg cursor-pointer">
-                      <span className="text-base tracking-wide">Reservar Ahora</span>
-                    </div>
-                  }
-                />
+                <div className="space-y-3 mb-6">
+                  <AddToCartButton
+                    productId={tour._id}
+                    productType="tour"
+                    productTitle={tour.title}
+                    productImage={currentImage}
+                    productDescription={tour.description}
+                    unitPrice={tour.currentPrice}
+                    className="w-full"
+                    triggerChildren={
+                      <button className="w-full py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:bg-primary/90 transition-colors">
+                        {dict.cta.bookNow}
+                      </button>
+                    }
+                  />
+                  <WhatsappButton productName={tour.title} className="w-full" />
+                </div>
 
                 <div className="space-y-3 pt-4 border-t border-border">
                   <div className="flex items-start gap-3 text-sm">

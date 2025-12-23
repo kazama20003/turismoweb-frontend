@@ -13,6 +13,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { AddToCartButton } from "@/components/cart/add-to-cart-button"
 import { Badge } from "@/components/ui/badge"
+import { WhatsappButton } from "@/components/home/whatsapp-button"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
@@ -279,22 +280,25 @@ export default function TransportDetailPage({
               </div>
 
               {/* Book button */}
-              <AddToCartButton
-                productId={transport._id}
-                productType="transport"
-                productTitle={transport.title}
-                productImage={mainImage}
-                productDescription={transport.description}
-                unitPrice={transport.currentPrice}
-                availabilityType={hasAvailableDates ? "fixed_dates" : "unlimited"}
-                availableDates={availableDates}
-                className="w-full"
-                triggerChildren={
-                  <button className="w-full py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:bg-primary/90 transition-colors">
-                    {t.bookNow}
-                  </button>
-                }
-              />
+              <div className="space-y-3">
+                <AddToCartButton
+                  productId={transport._id}
+                  productType="transport"
+                  productTitle={transport.title}
+                  productImage={mainImage}
+                  productDescription={transport.description}
+                  unitPrice={transport.currentPrice}
+                  availabilityType={hasAvailableDates ? "fixed_dates" : "unlimited"}
+                  availableDates={availableDates}
+                  className="w-full"
+                  triggerChildren={
+                    <button className="w-full py-3 bg-primary text-primary-foreground text-xs font-medium tracking-widest uppercase hover:bg-primary/90 transition-colors">
+                      {t.bookNow}
+                    </button>
+                  }
+                />
+                <WhatsappButton productName={transport.title} className="w-full" />
+              </div>
             </div>
 
             {/* Right content */}

@@ -85,6 +85,7 @@ export interface TourDetailDictionary {
     title: string
     description: string
     button: string
+    bookNow: string
   }
   cart: {
     added: string
@@ -179,6 +180,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       title: "¿Tienes Preguntas?",
       description: "Nuestro equipo está disponible 24/7 para ayudarte a planificar tu aventura perfecta.",
       button: "Contactar Ahora",
+      bookNow: "Reservar Ahora", // Added bookNow property to CTA section
     },
     cart: {
       added: "Agregado al carrito",
@@ -271,6 +273,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       title: "Have Questions?",
       description: "Our team is available 24/7 to help you plan your perfect adventure.",
       button: "Contact Now",
+      bookNow: "Book Now", // Added bookNow property to CTA section
     },
     cart: {
       added: "Added to cart",
@@ -352,6 +355,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       title: "Des Questions?",
       description: "Notre équipe est disponible 24/7 pour vous aider à planifier votre aventure parfaite.",
       button: "Contacter Maintenant",
+      bookNow: "Réserver Maintenant", // Added bookNow property to CTA section
     },
     cart: { added: "Ajouté au panier", viewCart: "Voir le Panier", continueShopping: "Continuer les Achats" },
   },
@@ -429,6 +433,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       title: "Hai Domande?",
       description: "Il nostro team è disponibile 24/7 per aiutarti a pianificare la tua avventura perfetta.",
       button: "Contatta Ora",
+      bookNow: "Prenota Ora", // Added bookNow property to CTA section
     },
     cart: { added: "Aggiunto al carrello", viewCart: "Vedi Carrello", continueShopping: "Continua lo Shopping" },
   },
@@ -507,6 +512,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       description:
         "Unser Team ist rund um die Uhr verfügbar, um Ihnen bei der Planung Ihres perfekten Abenteuers zu helfen.",
       button: "Jetzt Kontaktieren",
+      bookNow: "Jetzt Buchen", // Added bookNow property to CTA section
     },
     cart: { added: "Zum Warenkorb hinzugefügt", viewCart: "Warenkorb Anzeigen", continueShopping: "Weiter Einkaufen" },
   },
@@ -584,6 +590,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       title: "Tem Perguntas?",
       description: "Nossa equipe está disponível 24/7 para ajudá-lo a planejar sua aventura perfeita.",
       button: "Contatar Agora",
+      bookNow: "Reservar Agora", // Added bookNow property to CTA section
     },
     cart: { added: "Adicionado ao carrinho", viewCart: "Ver Carrinho", continueShopping: "Continuar Comprando" },
   },
@@ -657,7 +664,12 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       changes: "更改政策",
       contactUs: "联系我们了解更多政策信息",
     },
-    cta: { title: "有问题吗？", description: "我们的团队全天候为您提供帮助，帮您规划完美的冒险。", button: "立即联系" },
+    cta: {
+      title: "有问题吗？",
+      description: "我们的团队全天候为您提供帮助，帮您规划完美的冒险。",
+      button: "立即联系",
+      bookNow: "立即预订", // Added bookNow property to CTA section
+    },
     cart: { added: "已加入购物车", viewCart: "查看购物车", continueShopping: "继续购物" },
   },
   ja: {
@@ -734,6 +746,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       title: "ご質問はありますか？",
       description: "私たちのチームは、完璧な冒険を計画するために24時間365日対応しています。",
       button: "お問い合わせ",
+      bookNow: "今すぐ予約", // Added bookNow property to CTA section
     },
     cart: { added: "カートに追加されました", viewCart: "カートを見る", continueShopping: "ショッピングを続ける" },
   },
@@ -771,7 +784,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       cutoff: "Срок бронирования",
       before: "до начала",
       alwaysAvailable: "Доступно каждый день",
-      noAvailableDates: "В настоящее время нет дост��пных дат",
+      noAvailableDates: "В настоящее время нет доступных дат",
     },
     sections: {
       overview: "Обзор",
@@ -811,6 +824,7 @@ const tourDetailDictionaries: Record<Locale, TourDetailDictionary> = {
       title: "Есть Вопросы?",
       description: "Наша команда доступна 24/7, чтобы помочь вам спланировать идеальное приключение.",
       button: "Связаться Сейчас",
+      bookNow: "Забронировать Сейчас", // Added bookNow property to CTA section
     },
     cart: { added: "Добавлено в корзину", viewCart: "Просмотреть Корзину", continueShopping: "Продолжить Покупки" },
   },
