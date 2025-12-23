@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { useTranslation } from "@/lib/i18n/context"
@@ -135,21 +136,29 @@ export function ProductsSection() {
                     <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-3">
                       ${tour.currentPrice.toFixed(2)}
                     </p>
-                    <AddToCartButton
-                      productId={tour._id}
-                      productType="tour"
-                      productTitle={tour.title}
-                      productImage={tour.images?.[0]?.url}
-                      productDescription={tour.description}
-                      unitPrice={tour.currentPrice}
-                      availabilityType={tour.availabilityType}
-                      availableDates={tour.availableDates}
-                      triggerChildren={
-                        <button className="text-white font-semibold text-xs sm:text-sm underline hover:opacity-70 transition-opacity w-fit">
-                          {dict.reserve}
-                        </button>
-                      }
-                    />
+                    <div className="flex items-center gap-4">
+                      <AddToCartButton
+                        productId={tour._id}
+                        productType="tour"
+                        productTitle={tour.title}
+                        productImage={tour.images?.[0]?.url}
+                        productDescription={tour.description}
+                        unitPrice={tour.currentPrice}
+                        availabilityType={tour.availabilityType}
+                        availableDates={tour.availableDates}
+                        triggerChildren={
+                          <button className="text-white font-semibold text-xs sm:text-sm underline hover:opacity-70 transition-opacity w-fit">
+                            {dict.reserve}
+                          </button>
+                        }
+                      />
+                      <Link
+                        href={`/${locale}/tours/${tour.slug}`}
+                        className="text-white font-semibold text-xs sm:text-sm underline hover:opacity-70 transition-opacity w-fit"
+                      >
+                        {dict.viewDetails}
+                      </Link>
+                    </div>
                   </div>
 
                   {index < displayTours.length - 1 && (
