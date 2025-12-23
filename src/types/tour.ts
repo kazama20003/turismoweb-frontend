@@ -163,6 +163,7 @@ export interface CreateTourDto {
   currentPrice: number
   durationDays: number
   slug: string
+  
 
   // Optional fields
   oldPrice?: number

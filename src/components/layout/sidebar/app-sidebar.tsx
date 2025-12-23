@@ -12,6 +12,7 @@ import {
   LifeBuoy,
   MessageSquare,
   Globe,
+  TicketPercent
 } from "lucide-react"
 
 import { NavMain } from "./nav-main"
@@ -45,14 +46,6 @@ const navigationData = {
           title: "Resumen General",
           url: "/dashboard",
         },
-        {
-          title: "Analíticas",
-          url: "/dashboard",
-        },
-        {
-          title: "Reportes",
-          url: "/dashboard",
-        },
       ],
     },
     {
@@ -65,15 +58,7 @@ const navigationData = {
           url: "/dashboard/bookings",
         },
         {
-          title: "Pendientes",
-          url: "/dashboard/bookings",
-        },
-        {
           title: "Confirmadas",
-          url: "/dashboard/bookings",
-        },
-        {
-          title: "Canceladas",
           url: "/dashboard/bookings",
         },
       ],
@@ -91,14 +76,6 @@ const navigationData = {
           title: "Rutas",
           url: "/dashboard/transports",
         },
-        {
-          title: "Horarios",
-          url: "/dashboard/transports",
-        },
-        {
-          title: "Conductores",
-          url: "/dashboard/transports",
-        },
       ],
     },
     {
@@ -114,31 +91,15 @@ const navigationData = {
           title: "Crear Nuevo Usuario",
           url: "/dashboard/users/new",
         },
-        {
-          title: "Reseñas",
-          url: "/dashboard/users",
-        },
       ],
     },
     {
-      title: "Configuración",
-      url: "/dashboard/config",
-      icon: Settings2,
+      title: "Ofertas",
+      url: "/dashboard/offers",
+      icon: TicketPercent,
       items: [
         {
           title: "General",
-          url: "/dashboard/config",
-        },
-        {
-          title: "Precios",
-          url: "/dashboard/config",
-        },
-        {
-          title: "Notificaciones",
-          url: "/dashboard/config",
-        },
-        {
-          title: "Integraciones",
           url: "/dashboard/config",
         },
       ],
@@ -158,14 +119,9 @@ const navigationData = {
   ],
   projectsList: [
     {
-      name: "Servicios de Vuelo",
-      url: "#",
+      name: "Cupones de descuento",
+      url: "/dashboard/offers",
       icon: Plane,
-    },
-    {
-      name: "Alianzas Hoteleras",
-      url: "#",
-      icon: Hotel,
     },
     {
       name: "Paquetes Turísticos",

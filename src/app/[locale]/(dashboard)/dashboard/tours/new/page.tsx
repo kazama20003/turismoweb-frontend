@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import Image from "next/image"
 import { SidebarInset, SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,11 +11,11 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Save, Loader2, Info, Plus, Trash2, MapPin } from "lucide-react"
+import { ArrowLeft, Save, Upload, Loader2, X, Info, Plus, Trash2, MapPin } from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useCreateTour } from "@/hooks/use-tours"
+import { useCreateTour, SUPPORTED_LANGUAGES } from "@/hooks/use-tours"
 import { useVehicles } from "@/hooks/use-vehicles"
 import { useUploadImage } from "@/hooks/use-uploads"
 import { toast } from "sonner"
@@ -30,6 +31,7 @@ export default function NewTourPage() {
     title: "",
     description: "",
     locationName: "",
+    meetingPoint: "",
     durationDays: 1,
     currentPrice: 0,
     oldPrice: undefined,
@@ -38,6 +40,7 @@ export default function NewTourPage() {
     videoUrl: "",
     vehicleIds: [],
     isActive: true,
+    isBookable: true, // Changed isBookeable to isBookable
     hasTransport: false,
     hasGuide: false,
     benefits: [],
@@ -61,7 +64,6 @@ export default function NewTourPage() {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [includesInput, setIncludesInput] = useState("")
   const [excludesInput, setExcludesInput] = useState("")
-
   const [coordinatesInput, setCoordinatesInput] = useState({ lat: "", lng: "" })
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -172,7 +174,7 @@ export default function NewTourPage() {
             lunch: false,
             dinner: false,
           },
-          hotelNight: newOrder < (formData.durationDays || 1), // Hotel night if not the last day
+          hotelNight: newOrder < (formData.durationDays || 1),
         },
       ],
     })
@@ -249,7 +251,6 @@ export default function NewTourPage() {
       return
     }
 
-    // Validate itinerary for single-day and multi-day tours
     const isSingleDay = formData.durationDays === 1
     if (!formData.itinerary || formData.itinerary.length === 0) {
       toast.error(`Por favor agrega al menos un ${isSingleDay ? "itinerario" : "día"} al tour`)
@@ -393,6 +394,16 @@ export default function NewTourPage() {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="meetingPoint">Punto de Encuentro</Label>
+                    <Input
+                      id="meetingPoint"
+                      value={formData.meetingPoint || ""}
+                      onChange={(e) => setFormData({ ...formData, meetingPoint: e.target.value })}
+                      placeholder="Ej: Hotel Central, lobby principal"
+                    />
+                    <p className="text-xs text-muted-foreground">Lugar de encuentro con los pasajeros</p>
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="durationDays">Días de duración *</Label>
                     <Input
                       id="durationDays"
@@ -408,6 +419,9 @@ export default function NewTourPage() {
                       placeholder="1"
                     />
                   </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-3">
                   <div className="space-y-2">
                     <Label htmlFor="currentPrice">Precio Actual (USD) *</Label>
                     <Input
@@ -421,9 +435,6 @@ export default function NewTourPage() {
                       placeholder="99.00"
                     />
                   </div>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label htmlFor="oldPrice">Precio Original (USD)</Label>
                     <Input
@@ -442,7 +453,6 @@ export default function NewTourPage() {
                     />
                     <p className="text-xs text-muted-foreground">Precio anterior para mostrar descuento</p>
                   </div>
-
                   <div className="space-y-2">
                     <Label htmlFor="difficulty">Dificultad</Label>
                     <Select
@@ -578,7 +588,7 @@ export default function NewTourPage() {
                     </SelectContent>
                   </Select>
                   <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-900">
-                    <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                    <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
                     <p className="text-xs text-blue-800 dark:text-blue-300">
                       <strong>Siempre Disponible:</strong> El tour se puede reservar cualquier día del año.
                       <br />
@@ -634,6 +644,7 @@ export default function NewTourPage() {
               </CardContent>
             </Card>
 
+            {/* Itinerary Section - Improved with single/multi-day handling */}
             <Card>
               <CardHeader>
                 <CardTitle>
@@ -647,7 +658,7 @@ export default function NewTourPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-md border border-blue-200 dark:border-blue-900 mb-4">
-                  <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
                   <p className="text-xs text-blue-800 dark:text-blue-300">
                     {isSingleDay
                       ? "Define todas las actividades y detalles para este tour de un día."
@@ -686,7 +697,6 @@ export default function NewTourPage() {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-5 pt-6">
-                          {/* Título y Duración */}
                           <div className="grid gap-4 md:grid-cols-2">
                             <div className="space-y-2">
                               <Label htmlFor={`day-${dayIndex}-title`} className="font-medium">
@@ -721,13 +731,12 @@ export default function NewTourPage() {
                                     e.target.value ? Number.parseFloat(e.target.value) : undefined,
                                   )
                                 }
-                                placeholder={isSingleDay ? "Ej: 8" : "Ej: 8"}
+                                placeholder="Ej: 8"
                                 className="h-10"
                               />
                             </div>
                           </div>
 
-                          {/* Descripción */}
                           <div className="space-y-2">
                             <Label htmlFor={`day-${dayIndex}-description`} className="font-medium">
                               Descripción {isSingleDay ? "del Tour" : "del Día"}{" "}
@@ -769,7 +778,7 @@ export default function NewTourPage() {
                               <div className="space-y-2">
                                 {(item.activities || []).map((activity, activityIndex) => (
                                   <div key={activityIndex} className="flex gap-2 items-center">
-                                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium">
+                                    <div className="shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-medium">
                                       {activityIndex + 1}
                                     </div>
                                     <Input
@@ -783,7 +792,7 @@ export default function NewTourPage() {
                                       variant="ghost"
                                       size="sm"
                                       onClick={() => removeActivity(dayIndex, activityIndex)}
-                                      className="flex-shrink-0"
+                                      className="shrink-0"
                                     >
                                       <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
@@ -793,7 +802,6 @@ export default function NewTourPage() {
                             )}
                           </div>
 
-                          {/* Comidas Incluidas */}
                           <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
                             <Label className="font-medium">Comidas Incluidas</Label>
                             <div className="flex flex-wrap gap-4">
@@ -832,7 +840,6 @@ export default function NewTourPage() {
                             </div>
                           </div>
 
-                          {/* Noche de Hotel - Solo para multi-día */}
                           {!isSingleDay && (
                             <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-lg">
                               <Checkbox
@@ -867,7 +874,215 @@ export default function NewTourPage() {
               </CardContent>
             </Card>
 
-            {/* Images, Inclusions/Exclusions, and other sections would continue here */}
+            {/* Images */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Imágenes del Tour</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={uploadingImage}
+                    className="hidden"
+                    id="image-upload"
+                  />
+                  <Label htmlFor="image-upload" className="cursor-pointer">
+                    <div className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-muted">
+                      {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                      {uploadingImage ? "Subiendo..." : "Subir Imagen"}
+                    </div>
+                  </Label>
+                </div>
+
+                {formData.images && formData.images.length > 0 && (
+                  <div className="grid gap-4 md:grid-cols-4">
+                    {formData.images.map((img, index) => (
+                      <div key={`${img.publicId}-${index}`} className="relative group">
+                        <Image
+                          src={img.url || "/placeholder.svg"}
+                          alt={`Tour image ${index + 1}`}
+                          width={128}
+                          height={128}
+                          className="w-full h-32 object-cover rounded-md"
+                        />
+                        <Button
+                          type="button"
+                          size="icon"
+                          variant="destructive"
+                          className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleRemoveImage(index)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Languages */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Idiomas Soportados</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Selecciona los idiomas en los que el tour estará disponible. La traducción se hará automáticamente.
+                </p>
+                <div className="grid gap-2 md:grid-cols-3">
+                  {SUPPORTED_LANGUAGES.map((lang) => (
+                    <div key={lang.code} className="flex items-center gap-2 p-3 border rounded-md">
+                      <Checkbox
+                        id={`lang-${lang.code}`}
+                        checked={formData.languages?.includes(lang.code)}
+                        onCheckedChange={(checked) => handleLanguageToggle(lang.code, checked as boolean)}
+                      />
+                      <Label htmlFor={`lang-${lang.code}`} className="flex-1 cursor-pointer">
+                        {lang.name} ({lang.code.toUpperCase()})
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Vehicles */}
+            {activeVehicles.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Vehículos Disponibles</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center gap-2 mb-4">
+                    <Checkbox
+                      id="hasTransport"
+                      checked={formData.hasTransport}
+                      onCheckedChange={(checked) => {
+                        console.log("[v0] hasTransport changed to:", checked)
+                        setFormData({ ...formData, hasTransport: checked as boolean })
+                      }}
+                    />
+                    <Label htmlFor="hasTransport">Este tour incluye transporte</Label>
+                  </div>
+                  {formData.hasTransport && (
+                    <div className="grid gap-2">
+                      {activeVehicles.map((vehicle) => (
+                        <div key={vehicle._id} className="flex items-center gap-2 p-3 border rounded-md">
+                          <Checkbox
+                            id={`vehicle-${vehicle._id}`}
+                            checked={formData.vehicleIds?.includes(vehicle._id)}
+                            onCheckedChange={(checked) => handleVehicleToggle(vehicle._id, checked as boolean)}
+                          />
+                          <Label htmlFor={`vehicle-${vehicle._id}`} className="flex-1 cursor-pointer">
+                            {vehicle.brand} {vehicle.model} ({vehicle.capacity} personas)
+                          </Label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Additional Info */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Información Adicional (Se traducirá automáticamente)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="includes">Qué Incluye (separado por comas)</Label>
+                  <Textarea
+                    id="includes"
+                    value={includesInput}
+                    onChange={(e) => setIncludesInput(e.target.value)}
+                    placeholder="Transporte privado, Guía turístico certificado, Entradas a todos los sitios, Almuerzo típico, Seguro de viaje"
+                    rows={3}
+                  />
+                  <p className="text-sm text-muted-foreground">Cada item separado por coma (,)</p>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="excludes">Qué No Incluye (separado por comas)</Label>
+                  <Textarea
+                    id="excludes"
+                    value={excludesInput}
+                    onChange={(e) => setExcludesInput(e.target.value)}
+                    placeholder="Propinas, Bebidas alcohólicas, Gastos personales, Cena"
+                    rows={3}
+                  />
+                  <p className="text-sm text-muted-foreground">Cada item separado por coma (,)</p>
+                </div>
+                <div className="flex flex-wrap gap-4">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="hasGuide"
+                      checked={formData.hasGuide}
+                      onCheckedChange={(checked) => setFormData({ ...formData, hasGuide: checked as boolean })}
+                    />
+                    <Label htmlFor="hasGuide">Incluye guía turístico</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="isBookable"
+                      checked={formData.isBookable}
+                      onCheckedChange={(checked) => setFormData({ ...formData, isBookable: checked as boolean })}
+                    />
+                    <Label htmlFor="isBookable">Tour es reservable</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="isActive"
+                      checked={formData.isActive}
+                      onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked as boolean })}
+                    />
+                    <Label htmlFor="isActive">Tour activo (visible en el sitio web)</Label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Policies */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Políticas (Se traducirán automáticamente)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="cancellationPolicy">Política de Cancelación</Label>
+                  <Textarea
+                    id="cancellationPolicy"
+                    value={formData.cancellationPolicy}
+                    onChange={(e) => setFormData({ ...formData, cancellationPolicy: e.target.value })}
+                    rows={3}
+                    placeholder="Ej: Cancelación gratuita hasta 48 horas antes del tour. Después de ese tiempo se cobrará el 50% del total."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="refundPolicy">Política de Reembolso</Label>
+                  <Textarea
+                    id="refundPolicy"
+                    value={formData.refundPolicy}
+                    onChange={(e) => setFormData({ ...formData, refundPolicy: e.target.value })}
+                    rows={3}
+                    placeholder="Ej: Reembolso completo si se cancela con más de 7 días de anticipación."
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="changePolicy">Política de Cambios</Label>
+                  <Textarea
+                    id="changePolicy"
+                    value={formData.changePolicy}
+                    onChange={(e) => setFormData({ ...formData, changePolicy: e.target.value })}
+                    rows={3}
+                    placeholder="Ej: Los cambios de fecha están permitidos sin costo hasta 24 horas antes del tour."
+                  />
+                </div>
+              </CardContent>
+            </Card>
           </form>
         </main>
       </div>
