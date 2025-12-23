@@ -21,6 +21,7 @@ interface RegisterDto {
   address?: string
   documentType?: string
   documentNumber?: string
+  avatar?: string
 }
 
 const PROFILE_KEY = "auth-profile"

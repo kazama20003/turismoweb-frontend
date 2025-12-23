@@ -15,6 +15,7 @@ interface CreateUserDto {
   address?: string
   documentType?: string
   documentNumber?: string
+  avatar?: string
 }
 
 // Tipo para respuestas que tengan token con distintos nombres

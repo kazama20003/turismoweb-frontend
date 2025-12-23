@@ -1,17 +1,7 @@
 "use client"
 
 import type * as React from "react"
-import {
-  Plane,
-  Bus,
-  Users,
-  BarChart3,
-  Ticket,
-  LifeBuoy,
-  MessageSquare,
-  Globe,
-  TicketPercent
-} from "lucide-react"
+import { Plane, Bus, Users, BarChart3, Ticket, LifeBuoy, MessageSquare, Globe, TicketPercent } from "lucide-react"
 
 import { NavMain } from "./nav-main"
 import { NavProjects } from "./nav-projects"
@@ -26,13 +16,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import Link from "next/link"
 
 const navigationData = {
-  user: {
-    name: "Usuario Admin",
-    email: "admin@tourism.com",
-    avatar: "/avatars/admin.jpg",
-  },
   mainNavigation: [
     {
       title: "Panel Principal",
@@ -136,15 +122,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <Link href="/dashboard">
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Globe className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">TravelHub</span>
+                  <span className="truncate font-semibold">Peru Travel</span>
                   <span className="truncate text-xs">Turismo y Transporte</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -155,7 +141,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={navigationData.secondaryNavigation} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={navigationData.user} />
+        <NavUser />
       </SidebarFooter>
     </Sidebar>
   )
