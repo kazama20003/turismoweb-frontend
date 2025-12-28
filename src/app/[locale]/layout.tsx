@@ -5,6 +5,7 @@ import { isValidLocale, defaultLocale, type Locale } from "@/lib/i18n/config"
 import { I18nProvider } from "@/lib/i18n/context"
 import { Suspense } from "react"
 import { loadLocaleData } from "@/lib/i18n/get-locale-data"
+import { QueryProvider } from "@/components/providers/query-provider"
 
 interface LocaleLayoutProps {
   children: React.ReactNode
@@ -27,8 +28,10 @@ export default async function LocaleLayout({ children, params }: LocaleLayoutPro
   const { dictionary } = await loadLocaleData(validLocale)
 
   return (
-    <I18nProvider key={validLocale} locale={validLocale} dictionary={dictionary}>
+    <QueryProvider>
+      <I18nProvider key={validLocale} locale={validLocale} dictionary={dictionary}>
       <Suspense fallback={null}>{children}</Suspense>
     </I18nProvider>
+    </QueryProvider>
   )
 }
