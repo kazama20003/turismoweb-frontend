@@ -1,51 +1,34 @@
 import type React from "react"
-import { Suspense } from "react"
-import { Toaster } from "sonner"
-import { QueryProvider } from "@/components/providers/query-provider"
+import type { Metadata } from "next"
+import { generateLocaleSEO } from "@/lib/seo/seo-config"
+import { isValidLocale, defaultLocale, type Locale } from "@/lib/i18n/config"
 import { I18nProvider } from "@/lib/i18n/context"
+import { Suspense } from "react"
 import { loadLocaleData } from "@/lib/i18n/get-locale-data"
-import "../globals.css"
 
-import { Poppins } from "next/font/google"
-
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  variable: "--font-poppins",
-  display: "swap",
-})
-
-export default function LocaleLayout({
-  children,
-  params,
-}: {
+interface LocaleLayoutProps {
   children: React.ReactNode
   params: Promise<{ locale: string }>
-}) {
-  return <LocaleLayoutContentWrapper params={params}>{children}</LocaleLayoutContentWrapper>
 }
 
-async function LocaleLayoutContentWrapper({
-  children,
-  params,
-}: {
-  children: React.ReactNode
-  params: Promise<{ locale: string }>
-}) {
+// SEO dinámico por idioma
+export async function generateMetadata({ params }: LocaleLayoutProps): Promise<Metadata> {
+  const { locale } = await params
+  const validLocale: Locale = isValidLocale(locale) ? (locale as Locale) : defaultLocale
+  return generateLocaleSEO(validLocale, "home")
+}
+
+// Layout que agrega providers por idioma
+export default async function LocaleLayout({ children, params }: LocaleLayoutProps) {
   const { locale: rawLocale } = await params
-  const { locale, dictionary } = await loadLocaleData(rawLocale)
+  const validLocale: Locale = isValidLocale(rawLocale) ? (rawLocale as Locale) : defaultLocale
+
+  // carga de diccionario + datos del idioma
+  const { dictionary } = await loadLocaleData(validLocale)
 
   return (
-    <html lang={locale}>
-      <body className={`${poppins.variable} font-sans`}>
-        <QueryProvider>
-          <I18nProvider key={locale} locale={locale} dictionary={dictionary}>
-            <Suspense fallback={null}>{children}</Suspense>
-          </I18nProvider>
-
-          <Toaster />
-        </QueryProvider>
-      </body>
-    </html>
+    <I18nProvider key={validLocale} locale={validLocale} dictionary={dictionary}>
+      <Suspense fallback={null}>{children}</Suspense>
+    </I18nProvider>
   )
 }
