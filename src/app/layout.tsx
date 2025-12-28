@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     siteName: "eTourism",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1766907724/ChatGPT_Image_28_dic_2025_02_41_45_kwivpk.png",
         width: 1200,
         height: 630,
         alt: "eTourism",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "eTourism - Tourism & Transport Dashboard",
     description: "Book tours and transportation services worldwide.",
-    images: ["/og-image.png"],
+    images: ["https://res.cloudinary.com/ddbzpbrje/image/upload/v1766907724/ChatGPT_Image_28_dic_2025_02_41_45_kwivpk.png"],
   },
   robots: {
     index: true,
@@ -77,7 +77,7 @@ export default function RootLayout({
               name: "eTourism",
               description: "Global tourism and transportation booking platform",
               url: siteConfig.url,
-              logo: `${siteConfig.url}/logo.png`,
+              logo: `${siteConfig.url}https://res.cloudinary.com/ddbzpbrje/image/upload/v1766907724/ChatGPT_Image_28_dic_2025_02_41_45_kwivpk.png`,
               contactPoint: {
                 "@type": "ContactPoint",
                 contactType: "Customer Support",
