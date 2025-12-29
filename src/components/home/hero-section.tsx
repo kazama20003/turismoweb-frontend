@@ -95,23 +95,7 @@ export function HeroSection() {
   }
 
   return (
-    <section className="relative w-full h-screen overflow-hidden video-showcase">
-      <div className="absolute inset-0 overflow-hidden">
-        <video
-          ref={videoRef}
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute top-1/2 left-1/2 w-full h-full object-cover -translate-x-1/2 -translate-y-1/2 scale-[1.05] md:scale-[1.2]"
-        >
-          <source
-            src="https://res.cloudinary.com/djldb5hqg/video/upload/v1766447444/YTDown.com_YouTube_Empieza-Tu-Aventura-en-Peru_Media_vgNus8s2tzs_002_720p_a5tzsg.mp4"
-            type="video/mp4"
-          />
-        </video>
-      </div>
-
+    <section className="relative w-full h-screen overflow-hidden video-showcase pt-16">
       {/* OVERLAY */}
       <div className="absolute inset-0 bg-black/40 z-10" />
 
