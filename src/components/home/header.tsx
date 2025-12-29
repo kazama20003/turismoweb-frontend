@@ -39,6 +39,7 @@ const Header = () => {
   const mobileMenuOverlayRef = useRef<HTMLDivElement>(null)
 
   const { data: user } = useProfile()
+
   const pathname = usePathname()
 
   const currentLocaleFromPath = pathname.split("/")[1]
@@ -70,19 +71,9 @@ const Header = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      const scrollY = window.scrollY
-      setIsScrolled(scrollY > 50)
-
-      // Animar el header suavemente con scroll
-      if (headerRef.current) {
-        gsap.to(headerRef.current, {
-          y: scrollY > 50 ? 0 : 0,
-          duration: 0.3,
-          ease: "power2.out",
-        })
-      }
+      setIsScrolled(window.scrollY > 50)
     }
-    window.addEventListener("scroll", handleScroll, { passive: true })
+    window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
@@ -99,16 +90,20 @@ const Header = () => {
   useEffect(() => {
     if (mobileMenuOverlayRef.current && mobileMenuRef.current) {
       if (isMenuOpen) {
+        // Prevenir scroll del body
         document.body.style.overflow = "hidden"
 
-        gsap.fromTo(mobileMenuOverlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power2.out" })
+        // Animar el overlay (fondo negro)
+        gsap.fromTo(mobileMenuOverlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" })
 
+        // Animar el menú deslizándose desde la izquierda
         gsap.fromTo(
           mobileMenuRef.current,
-          { x: -100, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.35, ease: "power3.out", delay: 0.05 },
+          { x: -300, opacity: 0 },
+          { x: 0, opacity: 1, duration: 0.4, ease: "power3.out", delay: 0.1 },
         )
       } else {
+        // Restaurar scroll del body
         document.body.style.overflow = ""
       }
     }
@@ -126,62 +121,59 @@ const Header = () => {
   const hoverBgClass = isScrolled ? "hover:bg-muted" : "hover:bg-white/10"
   const borderColorClass = isScrolled ? "border-foreground" : "border-white"
 
-  const reservationsHref = user ? `/${currentLocale}/users/profile` : `/${currentLocale}/login`
-
   return (
     <>
       <header
         ref={headerRef}
         className={`fixed top-0 w-full z-50 transition-all duration-300 ${
-          isScrolled ? "bg-background/95 backdrop-blur-md border-b shadow-md" : "bg-transparent"
+          isScrolled ? "bg-background/95 backdrop-blur-md border-b shadow-sm" : "bg-transparent"
         }`}
       >
-        <div className="w-full px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16 lg:h-16">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Mobile menu button */}
             <button
-              className={`lg:hidden p-1.5 rounded-lg transition-all duration-300 ${hoverBgClass} flex items-center justify-center`}
+              className={`lg:hidden p-2 -ml-2 rounded-full transition-all duration-300 ${hoverBgClass} flex items-center justify-center`}
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label={dict.common.menu}
             >
               {isMenuOpen ? (
-                <X size={24} className={`transition-colors duration-300 ${textColorClass}`} />
+                <X size={22} className={`transition-colors duration-300 ${textColorClass}`} />
               ) : (
-                <Menu size={24} className={`transition-colors duration-300 ${textColorClass}`} />
+                <Menu size={22} className={`transition-colors duration-300 ${textColorClass}`} />
               )}
             </button>
 
             {/* Desktop navigation */}
-            <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+            <nav className="hidden lg:flex items-center gap-4 xl:gap-6">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`text-xs font-semibold transition-all duration-300 ${textColorClass} hover:opacity-70 whitespace-nowrap`}
+                  className={`text-[10px] xl:text-xs font-bold transition-colors duration-300 ${textColorClass} hover:opacity-70 whitespace-nowrap`}
                 >
                   {item.name}
                 </Link>
               ))}
             </nav>
 
-            {/* Logo - centered */}
             <Link
               href={`/${currentLocale}`}
-              className="flex items-center gap-1.5 sm:gap-2 absolute left-1/2 transform -translate-x-1/2"
+              className="flex items-center gap-2 sm:gap-2.5 absolute left-1/2 transform -translate-x-1/2"
             >
               <IncaIcon className={`w-6 h-6 sm:w-7 sm:h-7 transition-colors duration-300 ${textColorClass}`} />
               <span
-                className={`font-bold text-base sm:text-lg lg:text-xl tracking-wide transition-colors duration-300 ${textColorClass}`}
+                className={`font-bold text-lg sm:text-xl tracking-wide transition-colors duration-300 ${textColorClass}`}
               >
                 PERÚ
               </span>
             </Link>
 
             {/* Right actions */}
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
               <Link
-                href={reservationsHref}
-                className={`hidden md:inline-flex px-3 lg:px-4 py-1.5 lg:py-2 border text-xs lg:text-sm font-semibold rounded-full transition-all duration-300 ${borderColorClass} ${textColorClass} ${
+                href={`/${currentLocale}/users/profile`}
+                className={`hidden md:inline-block px-3 lg:px-4 py-1.5 lg:py-2 border text-[10px] lg:text-xs font-bold rounded-full transition-all duration-300 ${borderColorClass} ${textColorClass} ${
                   isScrolled ? "hover:bg-foreground hover:text-background" : "hover:bg-white hover:text-foreground"
                 }`}
               >
@@ -197,7 +189,7 @@ const Header = () => {
                   aria-label={dict.common.language}
                 >
                   <Globe size={18} className={`transition-colors duration-300 ${textColorClass}`} />
-                  <span className={`text-xs font-semibold uppercase ${textColorClass} hidden sm:inline`}>
+                  <span className={`text-[10px] sm:text-xs font-bold uppercase ${textColorClass} hidden sm:inline`}>
                     {currentLocale}
                   </span>
                   <ChevronDown
@@ -207,9 +199,9 @@ const Header = () => {
                 </button>
 
                 {isLangMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 sm:w-56 bg-white rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 border border-black/5 z-50">
-                    <div className="px-4 py-3 border-b border-black/5 bg-neutral-50">
-                      <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">
+                  <div className="absolute right-0 mt-2 w-48 sm:w-52 bg-white rounded-lg shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200 border border-black/5">
+                    <div className="px-4 py-2.5 border-b border-black/5 bg-neutral-50">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
                         {dict.common.language}
                       </span>
                     </div>
@@ -220,7 +212,7 @@ const Header = () => {
                           onClick={() => switchLocale(loc)}
                           className={`w-full px-4 py-2.5 text-left text-sm flex items-center justify-between transition-colors ${
                             currentLocale === loc
-                              ? "bg-neutral-100 text-black font-semibold"
+                              ? "bg-neutral-100 text-black font-medium"
                               : "text-neutral-700 hover:bg-neutral-50"
                           }`}
                         >
@@ -258,32 +250,31 @@ const Header = () => {
         </div>
       </header>
 
-      {/* Mobile menu */}
       {isMenuOpen && (
         <div
           ref={mobileMenuOverlayRef}
-          className="fixed inset-0 bg-black/80 z-40 lg:hidden"
+          className="fixed inset-0 bg-black z-40 lg:hidden"
           onClick={() => setIsMenuOpen(false)}
         >
           <nav
             ref={mobileMenuRef}
-            className="fixed top-14 sm:top-16 left-0 right-0 bottom-0 bg-black px-4 sm:px-6 pt-4 pb-8 overflow-y-auto"
+            className="fixed top-14 sm:top-16 left-0 right-0 bottom-0 bg-black px-4 sm:px-6 pt-6 pb-8 overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className="px-4 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors duration-300 rounded-lg"
+                  className="px-4 py-4 text-base font-medium text-white hover:bg-white/10 transition-colors duration-300 rounded-lg"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.name}
                 </Link>
               ))}
               <Link
-                href={reservationsHref}
-                className="px-4 py-3 text-sm font-medium text-white hover:bg-white/10 transition-colors duration-300 rounded-lg"
+                href={`/${currentLocale}/users/profile`}
+                className="px-4 py-4 text-base font-medium text-white hover:bg-white/10 transition-colors duration-300 rounded-lg"
                 onClick={() => setIsMenuOpen(false)}
               >
                 {dict.nav.reservations}
