@@ -1,58 +1,24 @@
 "use client"
 
-import { useRef, useState, useEffect } from "react"
+import { useRef, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
-import { useTranslation } from "@/lib/i18n/context"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 
 gsap.registerPlugin(ScrollTrigger)
 
 export function HeroSection() {
-  const { dictionary } = useTranslation()
-  const translations = dictionary.heroSection
   const router = useRouter()
-
-  const audioRef = useRef<HTMLAudioElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const buttonsRef = useRef<HTMLDivElement>(null)
-  const [audioActive, setAudioActive] = useState(false)
+  const [audioActive, setAudioActive] = useState(true)
 
   useEffect(() => {
-    const audio = audioRef.current
     const video = videoRef.current
-
     if (video) {
       video.play().catch(() => {
-        // Silenciar error de autoplay
+        // El autoplay falló, podría ser por política del navegador
       })
-    }
-
-    if (!audio) return
-
-    const unlockAudio = () => {
-      audio
-        .play()
-        .then(() => {
-          setAudioActive(true)
-        })
-        .catch(() => {
-          // Silenciar error de autoplay
-        })
-
-      window.removeEventListener("click", unlockAudio)
-      window.removeEventListener("touchstart", unlockAudio)
-      window.removeEventListener("keydown", unlockAudio)
-    }
-
-    window.addEventListener("click", unlockAudio)
-    window.addEventListener("touchstart", unlockAudio)
-    window.addEventListener("keydown", unlockAudio)
-
-    return () => {
-      window.removeEventListener("click", unlockAudio)
-      window.removeEventListener("touchstart", unlockAudio)
-      window.removeEventListener("keydown", unlockAudio)
     }
   }, [])
 
@@ -80,20 +46,16 @@ export function HeroSection() {
     }
   }, [])
 
-  const toggleAudio = async () => {
-    const audio = audioRef.current
-    if (!audio) return
+  const toggleAudio = () => {
+    const video = videoRef.current
+    if (!video) return
 
-    try {
-      if (audioActive) {
-        audio.pause()
-      } else {
-        await audio.play()
-      }
-      setAudioActive(!audioActive)
-    } catch {
-      // Silenciar error
+    if (audioActive) {
+      video.muted = true
+    } else {
+      video.muted = false
     }
+    setAudioActive(!audioActive)
   }
 
   const handlePlanVisit = () => {
@@ -113,7 +75,7 @@ export function HeroSection() {
           ref={videoRef}
           autoPlay
           loop
-          muted
+          muted={false}
           playsInline
           className="absolute top-1/2 left-1/2 w-full h-full object-cover -translate-x-1/2 -translate-y-1/2 scale-[1.05] md:scale-[1.2]"
         >
@@ -133,18 +95,17 @@ export function HeroSection() {
           <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 pb-12 md:pb-16">
             <div className="max-w-2xl">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 md:mb-6 leading-tight">
-                {translations.title} <br /> {translations.titleLine2}
+                Empieza Tu <br /> Aventura en Perú
               </h1>
 
               <p className="text-base sm:text-lg md:text-xl text-white/90 italic font-light max-w-md mb-6 md:mb-8">
-                {translations.description}
+                Descubre la magia de Perú con nosotros
               </p>
             </div>
           </div>
         </div>
 
         <div className="w-full px-4 sm:px-8 md:px-12 lg:px-16 pb-8 md:pb-16 lg:pb-20 flex flex-col sm:flex-row justify-between items-center sm:items-end gap-4 sm:gap-0">
-          {/* AUDIO BUTTON */}
           <button
             onClick={(e) => {
               e.stopPropagation()
@@ -176,7 +137,7 @@ export function HeroSection() {
               }}
               className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-black text-white font-semibold rounded-full hover:bg-black/80 transition-all text-sm sm:text-base"
             >
-              {translations.planVisit}
+              Planificar Visita
             </button>
             <button
               onClick={(e) => {
@@ -185,16 +146,11 @@ export function HeroSection() {
               }}
               className="w-full sm:w-auto px-6 sm:px-8 py-3 bg-transparent text-white font-semibold rounded-full hover:bg-white/10 transition-all border border-white text-sm sm:text-base"
             >
-              {translations.shopNow}
+              Ver Tours
             </button>
           </div>
         </div>
       </div>
-
-      {/* AUDIO FILE */}
-      <audio ref={audioRef} loop preload="auto">
-        <source src="/home/hero.m4a" type="audio/mp4" />
-      </audio>
     </section>
   )
 }
