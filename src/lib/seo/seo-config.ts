@@ -4,8 +4,8 @@ import type { Locale } from "@/lib/i18n/config"
 export const siteConfig = {
   name: "eTourism - Tourism & Transport Booking",
   description: "Book tours and transportation services worldwide. Find the best travel experiences.",
-  url: process.env.NEXT_PUBLIC_APP_URL || "https://etourism.com",
-  ogImage: "/og-image.png",
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://tawantinsuyoperu.com",
+  ogImage: "https://res.cloudinary.com/ddbzpbrje/image/upload/v1766907724/ChatGPT_Image_28_dic_2025_02_41_45_kwivpk.png",
 }
 
 export const seoTranslations: Record<

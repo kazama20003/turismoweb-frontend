@@ -10,25 +10,25 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "https://res.cloudinary.com/ddbzpbrje/image/upload/v1767042671/icon-192-maskable_xegibt.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-512.png",
+      "src": "https://res.cloudinary.com/ddbzpbrje/image/upload/v1767042672/icon-512-maskable_b7ncly.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon-192-maskable.png",
+      "src": "https://res.cloudinary.com/ddbzpbrje/image/upload/v1767042671/icon-192_1_vrhb5e.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icon-512-maskable.png",
+      "src": "https://res.cloudinary.com/ddbzpbrje/image/upload/v1767042672/icon-512_1_panzwh.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -36,13 +36,13 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshot-1.png",
+      "src": "https://res.cloudinary.com/ddbzpbrje/image/upload/v1767042999/ChatGPT_Image_29_dic_2025_16_16_20_ruw4ux.png",
       "sizes": "540x720",
       "type": "image/png",
       "form_factor": "narrow"
     },
     {
-      "src": "/screenshot-2.png",
+      "src": "https://res.cloudinary.com/ddbzpbrje/image/upload/v1767043081/ChatGPT_Image_29_dic_2025_16_17_46_nyqaca.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide"
@@ -55,14 +55,14 @@
       "short_name": "Tours",
       "description": "Browse available tours",
       "url": "/es/tours",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "https://res.cloudinary.com/ddbzpbrje/image/upload/v1767042671/icon-192-maskable_xegibt.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Browse Transport",
       "short_name": "Transport",
       "description": "Browse transportation services",
       "url": "/es/transports",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "https://res.cloudinary.com/ddbzpbrje/image/upload/v1767042671/icon-192-maskable_xegibt.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }
