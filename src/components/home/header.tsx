@@ -8,7 +8,6 @@ import { CartDrawer } from "@/components/cart/cart-drawer"
 import { useProfile } from "@/hooks/use-auth"
 import { locales, localeNames, defaultLocale, isValidLocale, type Locale } from "@/lib/i18n/config"
 import { getGlobalDictionary } from "@/lib/i18n/dictionaries/global"
-import { gsap } from "gsap"
 
 const IncaIcon = ({ className }: { className?: string }) => (
   <svg
@@ -35,8 +34,6 @@ const Header = () => {
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false)
   const headerRef = useRef<HTMLHeadingElement>(null)
   const langMenuRef = useRef<HTMLDivElement>(null)
-  const mobileMenuRef = useRef<HTMLDivElement>(null)
-  const mobileMenuOverlayRef = useRef<HTMLDivElement>(null)
 
   const { data: user } = useProfile()
 
@@ -88,24 +85,10 @@ const Header = () => {
   }, [])
 
   useEffect(() => {
-    if (mobileMenuOverlayRef.current && mobileMenuRef.current) {
-      if (isMenuOpen) {
-        // Prevenir scroll del body
-        document.body.style.overflow = "hidden"
-
-        // Animar el overlay (fondo negro)
-        gsap.fromTo(mobileMenuOverlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.3, ease: "power2.out" })
-
-        // Animar el menú deslizándose desde la izquierda
-        gsap.fromTo(
-          mobileMenuRef.current,
-          { x: -300, opacity: 0 },
-          { x: 0, opacity: 1, duration: 0.4, ease: "power3.out", delay: 0.1 },
-        )
-      } else {
-        // Restaurar scroll del body
-        document.body.style.overflow = ""
-      }
+    if (isMenuOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
     }
 
     return () => {
@@ -172,12 +155,12 @@ const Header = () => {
             {/* Right actions */}
             <div className="flex items-center gap-1 sm:gap-2 lg:gap-3">
               <Link
-                href={`/${currentLocale}/users/profile`}
+                href={user ? `/${currentLocale}/users/profile` : `/${currentLocale}/login`}
                 className={`hidden md:inline-block px-3 lg:px-4 py-1.5 lg:py-2 border text-[10px] lg:text-xs font-bold rounded-full transition-all duration-300 ${borderColorClass} ${textColorClass} ${
                   isScrolled ? "hover:bg-foreground hover:text-background" : "hover:bg-white hover:text-foreground"
                 }`}
               >
-                {dict.nav.reservations}
+                {user ? dict.nav.reservations : "Login"}
               </Link>
 
               <div className="relative" ref={langMenuRef}>
@@ -250,39 +233,32 @@ const Header = () => {
         </div>
       </header>
 
-      {isMenuOpen && (
-        <div
-          ref={mobileMenuOverlayRef}
-          className="fixed inset-0 bg-black z-40 lg:hidden"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          <nav
-            ref={mobileMenuRef}
-            className="fixed top-14 sm:top-16 left-0 right-0 bottom-0 bg-black px-4 sm:px-6 pt-6 pb-8 overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
+      {isMenuOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setIsMenuOpen(false)} />}
+      <nav
+        className={`fixed top-14 sm:top-16 left-0 right-0 bottom-0 bg-white/95 backdrop-blur-sm px-4 sm:px-6 pt-6 pb-8 overflow-y-auto z-40 lg:hidden transition-transform duration-300 ease-out ${
+          isMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex flex-col gap-2">
+          {navItems.map((item) => (
+            <Link
+              key={item.name}
+              href={item.href}
+              className="px-4 py-3 text-base font-medium text-foreground hover:bg-muted transition-colors duration-300 rounded-lg"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {item.name}
+            </Link>
+          ))}
+          <Link
+            href={user ? `/${currentLocale}/users/profile` : `/${currentLocale}/login`}
+            className="px-4 py-3 text-base font-medium text-foreground hover:bg-muted transition-colors duration-300 rounded-lg border border-foreground"
+            onClick={() => setIsMenuOpen(false)}
           >
-            <div className="flex flex-col gap-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="px-4 py-4 text-base font-medium text-white hover:bg-white/10 transition-colors duration-300 rounded-lg"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
-              ))}
-              <Link
-                href={`/${currentLocale}/users/profile`}
-                className="px-4 py-4 text-base font-medium text-white hover:bg-white/10 transition-colors duration-300 rounded-lg"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {dict.nav.reservations}
-              </Link>
-            </div>
-          </nav>
+            {user ? dict.nav.reservations : "Login"}
+          </Link>
         </div>
-      )}
+      </nav>
     </>
   )
 }
