@@ -23,40 +23,40 @@ export function ProductsSection() {
   const imagesContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const elements = [
-      titleRef.current,
-      subtitleRef.current,
-      descriptionRef.current,
-      dividerRef.current,
-      imagesContainerRef.current,
-    ]
+    const ctx = gsap.context(() => {
+      const elements = [
+        titleRef.current,
+        subtitleRef.current,
+        descriptionRef.current,
+        dividerRef.current,
+        imagesContainerRef.current,
+      ]
 
-    elements.forEach((el) => {
-      if (!el) return
+      elements.forEach((el) => {
+        if (!el) return
 
-      gsap.set(el, {
-        opacity: 0,
-        y: 50,
-      })
+        gsap.set(el, {
+          opacity: 0,
+          y: 50,
+        })
 
-      gsap.to(el, {
-        opacity: 1,
-        y: 0,
-        duration: 0.6,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: el,
-          start: "top 90%",
-          end: "top 70%",
-          scrub: 0.1,
-          markers: false,
-        },
+        gsap.to(el, {
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          ease: "power2.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 90%",
+            end: "top 70%",
+            scrub: 0.1,
+            markers: false,
+          },
+        })
       })
     })
 
-    return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
-    }
+    return () => ctx.revert()
   }, [])
 
   const displayTours = tours?.slice(0, 4) || []

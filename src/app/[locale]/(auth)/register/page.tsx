@@ -2,6 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,6 +11,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { useRegister } from "@/hooks/use-auth"
 import { authService } from "@/services/auth-service"
+import { resolveLocale } from "@/lib/i18n/config"
 
 export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false)
@@ -41,6 +43,9 @@ export default function RegisterPage() {
   }
 
   const handleOAuthRegister = (provider: "google" | "facebook") => {
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("oauth_locale", locale)
+    }
     if (provider === "google") {
       window.location.href = authService.getGoogleAuthUrl()
     } else {
@@ -56,7 +61,7 @@ export default function RegisterPage() {
             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center mr-3">
               <div className="w-4 h-4 rounded-sm bg-primary"></div>
             </div>
-             <Link href="/" className="text-white text-lg font-semibold">
+             <Link href={`/${locale}`} className="text-white text-lg font-semibold">
              <h1 className="text-xl font-semibold text-white">E-tourims</h1>
             </Link>
           </div>
@@ -274,7 +279,7 @@ export default function RegisterPage() {
 
             <div className="text-center text-sm text-muted-foreground">
               Already Have An Account?{" "}
-              <Link href="/login" className="text-primary hover:text-primary/80 font-medium">
+              <Link href={`/${locale}/login`} className="text-primary hover:text-primary/80 font-medium">
                 Sign In.
               </Link>
             </div>
@@ -284,3 +289,5 @@ export default function RegisterPage() {
     </div>
   )
 }
+  const pathname = usePathname()
+  const locale = resolveLocale(pathname.split("/")[1])

@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useEffect, useState } from "react"
+import { useRef, useEffect, useState, useCallback } from "react"
 import Image from "next/image"
 import gsap from "gsap"
 import ScrollTrigger from "gsap/ScrollTrigger"
@@ -52,61 +52,59 @@ export function TestimonialsSection() {
     },
   ]
 
-  useEffect(() => {
-    const carousel = carouselRef.current
-    if (!carousel) return
+  const updateCarousel = useCallback(
+    (index: number) => {
+      const carousel = carouselRef.current
+      if (!carousel) return
 
-    const cardWidth = carousel.children[0]?.getBoundingClientRect().width || 0
-    const gap = 16
+      const cardWidth = carousel.children[0]?.getBoundingClientRect().width || 0
+      const gap = 16
 
-    const updateCarousel = (index: number) => {
       gsap.to(carousel, {
         x: -(index * (cardWidth + gap)),
         duration: 0.6,
         ease: "power2.inOut",
       })
-    }
+    },
+    [],
+  )
 
-    const handlePrev = () => {
-      const newIndex = Math.max(0, currentIndex - 1)
-      setCurrentIndex(newIndex)
-      updateCarousel(newIndex)
-    }
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      if (!containerRef.current) return
 
-    const handleNext = () => {
-      const newIndex = Math.min(testimonials.length - 1, currentIndex + 1)
-      setCurrentIndex(newIndex)
-      updateCarousel(newIndex)
-    }
-
-    const prevBtn = containerRef.current?.querySelector("[data-prev]")
-    const nextBtn = containerRef.current?.querySelector("[data-next]")
-
-    prevBtn?.addEventListener("click", handlePrev)
-    nextBtn?.addEventListener("click", handleNext)
-
-    gsap.fromTo(
-      containerRef.current,
-      { opacity: 0, y: 50 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: "top 80%",
-          end: "top 50%",
-          scrub: 0.1,
-          markers: false,
+      gsap.fromTo(
+        containerRef.current,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 80%",
+            end: "top 50%",
+            scrub: 0.1,
+            markers: false,
+          },
         },
-      },
-    )
+      )
+    }, containerRef)
 
-    return () => {
-      prevBtn?.removeEventListener("click", handlePrev)
-      nextBtn?.removeEventListener("click", handleNext)
-    }
-  }, [currentIndex, testimonials.length])
+    return () => ctx.revert()
+  }, [])
+
+  useEffect(() => {
+    updateCarousel(currentIndex)
+  }, [currentIndex, updateCarousel])
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => Math.max(0, prev - 1))
+  }
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => Math.min(testimonials.length - 1, prev + 1))
+  }
 
   return (
     <section ref={containerRef} className="w-full bg-white py-16">
@@ -116,14 +114,14 @@ export function TestimonialsSection() {
 
           <div className="flex gap-2">
             <button
-              data-prev
+              onClick={handlePrev}
               className="w-10 h-10 border border-gray-400 text-gray-600 hover:bg-gray-400 hover:text-white transition-all duration-300 flex items-center justify-center"
               aria-label="Previous"
             >
               <ChevronLeft size={18} />
             </button>
             <button
-              data-next
+              onClick={handleNext}
               className="w-10 h-10 border border-gray-400 text-gray-600 hover:bg-gray-400 hover:text-white transition-all duration-300 flex items-center justify-center"
               aria-label="Next"
             >

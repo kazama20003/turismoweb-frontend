@@ -17,6 +17,13 @@ export function isValidLocale(locale: unknown): locale is Locale {
   return typeof locale === "string" && locales.includes(locale as Locale)
 }
 
+export function resolveLocale(rawLocale: unknown): Locale {
+  if (typeof rawLocale !== "string") return defaultLocale
+
+  const normalized = rawLocale.trim().toLowerCase().split(/[-_]/)[0]
+  return isValidLocale(normalized) ? normalized : defaultLocale
+}
+
 
 export const localeNames: Record<Locale, string> = {
   es: "Español",

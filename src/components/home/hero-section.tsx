@@ -57,7 +57,9 @@ export function HeroSection() {
   }, [])
 
   useEffect(() => {
-    if (buttonsRef.current) {
+    const ctx = gsap.context(() => {
+      if (!buttonsRef.current) return
+
       gsap.set(buttonsRef.current, { y: 100, opacity: 0 })
 
       ScrollTrigger.create({
@@ -73,11 +75,9 @@ export function HeroSection() {
         },
         once: true,
       })
-    }
+    })
 
-    return () => {
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
-    }
+    return () => ctx.revert()
   }, [])
 
   const toggleAudio = async () => {
@@ -114,11 +114,12 @@ export function HeroSection() {
           autoPlay
           loop
           muted
+          preload="metadata"
           playsInline
           className="absolute top-1/2 left-1/2 w-full h-full object-cover -translate-x-1/2 -translate-y-1/2 scale-[1.05] md:scale-[1.2]"
         >
           <source
-            src="https://res.cloudinary.com/ddbzpbrje/video/upload/v1767046025/13772447_1920_1080_60fps_w44d8k.mp4"
+            src="https://res.cloudinary.com/demzflxgq/video/upload/v1771280070/15317702_1920_1080_24fps_lycbta.mp4"
             type="video/mp4"
           />
         </video>

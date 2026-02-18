@@ -18,50 +18,24 @@ interface CreateUserDto {
   avatar?: string
 }
 
-// Tipo para respuestas que tengan token con distintos nombres
-interface TokenResponse {
-  access_token?: string
-  accessToken?: string
-  token?: string
-  refreshToken?: string
-}
-
-function extractToken(data: TokenResponse): string | null {
-  return (
-    data.access_token ||
-    data.accessToken ||
-    data.token ||
-    null
-  )
+function clearClientTokenCookie() {
+  if (typeof document === "undefined") return
+  const secure = window.location.protocol === "https:" ? "; Secure" : ""
+  document.cookie = `auth_token=; Path=/; Max-Age=0; SameSite=Lax${secure}`
+  document.cookie = `token=; Path=/; Max-Age=0; SameSite=Lax${secure}`
 }
 
 export const authService = {
   // REGISTER
   async register(data: CreateUserDto) {
     const response = await api.post<AuthResponse>("/auth/register", data)
-    const res = response.data
-
-    const token = extractToken(res as TokenResponse)
-
-    if (token) {
-      localStorage.setItem("token", token)
-    }
-
-    return res
+    return response.data
   },
 
   // LOGIN
   async loginLocal(credentials: LoginCredentials) {
     const response = await api.post<AuthResponse>("/auth/login/local", credentials)
-    const data = response.data
-
-    const token = extractToken(data as TokenResponse)
-
-    if (token) {
-      localStorage.setItem("token", token)
-    }
-
-    return data
+    return response.data
   },
 
   // PROFILE
@@ -79,7 +53,8 @@ export const authService = {
   // LOGOUT
   async logout() {
     const response = await api.post("/auth/logout")
-    localStorage.removeItem("token")
+    localStorage.removeItem("token") // legado
+    clearClientTokenCookie()
     return response.data
   },
 

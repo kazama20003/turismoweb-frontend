@@ -1,9 +1,6 @@
 import { HeroSection } from "@/components/home/hero-section"
-import { FeaturedSection } from "@/components/home/featured-section"
-import { ProductsSection } from "@/components/home/products-section"
 import { CustomCursor } from "@/components/home/custom-cursor"
-import { PaymentMethodsSection } from "@/components/home/payment-methods-section"
-import { TestimonialsSection } from "@/components/home/testimonials-section"
+import { HomeDeferredSections } from "@/components/home/home-deferred-sections"
 
 export default async function HomePage() {
   return (
@@ -11,16 +8,7 @@ export default async function HomePage() {
       <CustomCursor scrollToId="reservar">
         <HeroSection />
       </CustomCursor>
-
-      <div id="reservar">
-        <CustomCursor text="+TOURS" navigateTo="/tours">
-          <ProductsSection />
-        </CustomCursor>
-      </div>
-
-      <FeaturedSection />
-      <PaymentMethodsSection />
-      <TestimonialsSection />
+      <HomeDeferredSections />
     </main>
   )
 }

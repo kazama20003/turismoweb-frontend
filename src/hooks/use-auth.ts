@@ -2,8 +2,9 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { authService } from "@/services/auth-service"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import type { UpdateUserDto } from "@/types/user"
+import { resolveLocale } from "@/lib/i18n/config"
 
 interface LoginCredentials {
   email: string
@@ -25,19 +26,31 @@ interface RegisterDto {
 }
 
 const PROFILE_KEY = "auth-profile"
+const ADMIN_PANEL_ROLES = new Set(["ADMIN", "EDITOR", "SUPPORT"])
+
+function getRedirectByRoles(roles: unknown): "/dashboard" | "/users/profile" {
+  const normalizedRoles = Array.isArray(roles)
+    ? roles.map((role) => (typeof role === "string" ? role.toUpperCase() : "")).filter(Boolean)
+    : []
+  const hasAdminRole = normalizedRoles.some((role) => ADMIN_PANEL_ROLES.has(role))
+  return hasAdminRole ? "/dashboard" : "/users/profile"
+}
 
 // Hook para login local
 export function useLogin() {
   const router = useRouter()
+  const pathname = usePathname()
   const queryClient = useQueryClient()
+  const locale = resolveLocale(pathname.split("/")[1])
 
   const mutation = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
       return authService.loginLocal(credentials)
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [PROFILE_KEY] })
-      router.push("/dashboard")
+      const target = getRedirectByRoles(data?.user?.roles)
+      router.push(`/${locale}${target}`)
     },
   })
 
@@ -51,7 +64,9 @@ export function useLogin() {
 // Hook para registro local
 export function useRegister() {
   const router = useRouter()
+  const pathname = usePathname()
   const queryClient = useQueryClient()
+  const locale = resolveLocale(pathname.split("/")[1])
 
   const mutation = useMutation({
     mutationFn: async (credentials: RegisterDto) => {
@@ -61,9 +76,10 @@ export function useRegister() {
       }
       return authService.register(registerData)
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [PROFILE_KEY] })
-      router.push("/dashboard")
+      const target = getRedirectByRoles(data?.user?.roles)
+      router.push(`/${locale}${target}`)
     },
   })
 
@@ -77,7 +93,9 @@ export function useRegister() {
 // Hook para logout
 export function useLogout() {
   const router = useRouter()
+  const pathname = usePathname()
   const queryClient = useQueryClient()
+  const locale = resolveLocale(pathname.split("/")[1])
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -85,7 +103,7 @@ export function useLogout() {
     },
     onSuccess: () => {
       queryClient.setQueryData([PROFILE_KEY], null)
-      router.push("/login")
+      router.push(`/${locale}/login`)
     },
   })
 
@@ -98,7 +116,9 @@ export function useLogout() {
 
 export function useOAuthCallback() {
   const router = useRouter()
+  const pathname = usePathname()
   const queryClient = useQueryClient()
+  const locale = resolveLocale(pathname.split("/")[1])
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -108,10 +128,10 @@ export function useOAuthCallback() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [PROFILE_KEY] })
-      router.push("/dashboard")
+      router.push(`/${locale}/dashboard`)
     },
     onError: () => {
-      router.push("/login?error=oauth_failed")
+      router.push(`/${locale}/login?error=oauth_failed`)
     },
   })
 
@@ -122,12 +142,13 @@ export function useOAuthCallback() {
   }
 }
 
-export function useProfile() {
+export function useProfile(options?: { enabled?: boolean }) {
   const query = useQuery({
     queryKey: [PROFILE_KEY],
     queryFn: () => authService.getProfile(),
     retry: false,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    enabled: options?.enabled ?? true,
   })
 
   return {

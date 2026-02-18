@@ -126,6 +126,20 @@
   }
 }
 
+/* Lenis smooth scroll defaults */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
 /* Custom scrollbar styles */
 @layer utilities {
   .scrollbar-thin {

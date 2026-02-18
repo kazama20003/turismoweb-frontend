@@ -20,10 +20,6 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Silenciosamente manejar 401 sin loguear error (usuario no autenticado es esperado)
-      if (typeof window !== "undefined" && !window.location.pathname.includes("/login")) {
-        localStorage.removeItem("token")
-        localStorage.removeItem("user")
-      }
       // No loguear el error 401, es un estado esperado cuando no hay usuario
       return Promise.reject(new Error("Unauthorized"))
     }
@@ -34,15 +30,6 @@ api.interceptors.response.use(
     return Promise.reject(error)
   },
 )
-api.interceptors.request.use((config) => {
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-  }
-  return config;
-});
 
 
 export async function apiClient<TResponse, TBody = unknown>(

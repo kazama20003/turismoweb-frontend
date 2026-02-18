@@ -96,7 +96,11 @@ export function CustomCursor({ children, text = "RESERVAR", scrollToId, navigate
         } else if (scrollToId) {
           const element = document.getElementById(scrollToId)
           if (element) {
-            element.scrollIntoView({ behavior: "smooth" })
+            if (window.lenis?.scrollTo) {
+              window.lenis.scrollTo(element, { duration: 1.1 })
+            } else {
+              element.scrollIntoView({ behavior: "smooth" })
+            }
           }
         }
       }

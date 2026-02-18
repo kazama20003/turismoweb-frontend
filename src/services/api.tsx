@@ -1,4 +1,5 @@
 "use client"
+import { resolveLocale } from "@/lib/i18n/config"
 
 // ============================================================================
 // TYPES
@@ -33,6 +34,12 @@ export interface RequestConfig extends RequestInit {
   retry?: boolean
   skipAuth?: boolean
   skipErrorNotification?: boolean
+}
+
+function getLocalizedAuthPath(path: "/login"): string {
+  if (typeof window === "undefined") return path
+  const locale = resolveLocale(window.location.pathname.split("/")[1])
+  return `/${locale}${path}`
 }
 
 // ============================================================================
@@ -435,7 +442,7 @@ class ApiClient {
             this.tokenManager.clearTokens()
 
             if (typeof window !== "undefined") {
-              window.location.href = "/login"
+              window.location.href = getLocalizedAuthPath("/login")
             }
 
             throw new AuthenticationError()
@@ -539,7 +546,7 @@ class ApiClient {
   logout(): void {
     this.tokenManager.clearTokens()
     if (typeof window !== "undefined") {
-      window.location.href = "/login"
+      window.location.href = getLocalizedAuthPath("/login")
     }
   }
 

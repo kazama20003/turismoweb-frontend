@@ -2,12 +2,12 @@
 
 import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Search, User, Menu, X, Globe, Check, ChevronDown } from "lucide-react"
 import { CartDrawer } from "@/components/cart/cart-drawer"
 import { useProfile } from "@/hooks/use-auth"
 import { locales, localeNames, defaultLocale, isValidLocale, type Locale } from "@/lib/i18n/config"
-import { getGlobalDictionary } from "@/lib/i18n/dictionaries/global"
+import { useTranslation } from "@/lib/i18n/context"
 
 const IncaIcon = ({ className }: { className?: string }) => (
   <svg
@@ -32,17 +32,20 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false)
+  const [hasToken, setHasToken] = useState(false)
   const headerRef = useRef<HTMLHeadingElement>(null)
   const langMenuRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
-  const { data: user } = useProfile()
+  const { dictionary } = useTranslation()
+  const { data: user } = useProfile({ enabled: hasToken })
 
   const pathname = usePathname()
 
   const currentLocaleFromPath = pathname.split("/")[1]
   const currentLocale: Locale = isValidLocale(currentLocaleFromPath) ? currentLocaleFromPath : defaultLocale
 
-  const dict = getGlobalDictionary(currentLocale)
+  const dict = dictionary
 
   const navItems = [
     { name: dict.nav.tours, href: `/${currentLocale}/tours` },
@@ -63,8 +66,18 @@ const Header = () => {
     const pathWithoutLocale = segments.length > 0 ? "/" + segments.join("/") : ""
 
     setIsLangMenuOpen(false)
-    window.location.href = `/${newLocale}${pathWithoutLocale}`
+    router.replace(`/${newLocale}${pathWithoutLocale}`)
   }
+
+  useEffect(() => {
+    const updateTokenState = () => {
+      setHasToken(Boolean(localStorage.getItem("token")))
+    }
+
+    updateTokenState()
+    window.addEventListener("storage", updateTokenState)
+    return () => window.removeEventListener("storage", updateTokenState)
+  }, [])
 
   useEffect(() => {
     const handleScroll = () => {

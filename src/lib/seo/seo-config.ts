@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import type { Locale } from "@/lib/i18n/config"
+import { locales, type Locale } from "@/lib/i18n/config"
 
 export const siteConfig = {
   name: "eTourism - Tourism & Transport Booking",
@@ -130,8 +130,6 @@ export function generateLocaleSEO(locale: Locale, type: "home" | "tours" | "tran
   const baseUrl = siteConfig.url
 
   const alternateLanguages: Record<string, string | URL> = {}
-  const locales = ["es", "en", "fr", "it", "de", "pt", "zh", "ja", "ru"] as const
-
   locales.forEach((lang) => {
     if (type === "home") {
       alternateLanguages[lang] = `${baseUrl}/${lang}`
@@ -191,7 +189,6 @@ export function generateTourSEO(
   const seoDescription = `${tour.description} Reserve desde $${tour.currentPrice} por persona.`
 
   const alternateLanguages: Record<string, string | URL> = {}
-  const locales = ["es", "en", "fr", "it", "de", "pt", "zh", "ja", "ru"] as const
   locales.forEach((lang) => {
     alternateLanguages[lang] = `${baseUrl}/${lang}/tours/${slug}`
   })
@@ -242,7 +239,6 @@ export function generateTransportSEO(
   const seoDescription = `${transport.description} Reserva desde $${transport.currentPrice} por persona.`
 
   const alternateLanguages: Record<string, string | URL> = {}
-  const locales = ["es", "en", "fr", "it", "de", "pt", "zh", "ja", "ru"] as const
   locales.forEach((lang) => {
     alternateLanguages[lang] = `${baseUrl}/${lang}/transports/${slug}`
   })
