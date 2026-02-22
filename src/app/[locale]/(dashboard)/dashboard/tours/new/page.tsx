@@ -62,6 +62,7 @@ export default function NewTourPage() {
   })
 
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [uploadingItineraryImageDay, setUploadingItineraryImageDay] = useState<number | null>(null)
   const [includesInput, setIncludesInput] = useState("")
   const [excludesInput, setExcludesInput] = useState("")
   const [coordinatesInput, setCoordinatesInput] = useState({ lat: "", lng: "" })
@@ -93,6 +94,48 @@ export default function NewTourPage() {
       ...prev,
       images: prev.images?.filter((_, i) => i !== index),
     }))
+  }
+
+  const handleItineraryImageUpload = async (dayIndex: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingItineraryImageDay(dayIndex)
+    try {
+      const result = await uploadMutation.trigger(file)
+      if (!result) return
+
+      setFormData((prev) => {
+        const updated = [...(prev.itinerary || [])]
+        const currentImages = updated[dayIndex]?.images || []
+        updated[dayIndex] = {
+          ...updated[dayIndex],
+          images: [...currentImages, result.url],
+        }
+        return { ...prev, itinerary: updated }
+      })
+
+      toast.success("Imagen del itinerario subida correctamente")
+    } catch (error) {
+      console.log("[v0] Error uploading itinerary image:", error)
+      toast.error("Error al subir la imagen del itinerario")
+    } finally {
+      setUploadingItineraryImageDay(null)
+      e.target.value = ""
+    }
+  }
+
+  const removeItineraryImage = (dayIndex: number, imageIndex: number) => {
+    setFormData((prev) => {
+      const updated = [...(prev.itinerary || [])]
+      const images = [...(updated[dayIndex]?.images || [])]
+      images.splice(imageIndex, 1)
+      updated[dayIndex] = {
+        ...updated[dayIndex],
+        images,
+      }
+      return { ...prev, itinerary: updated }
+    })
   }
 
   const parseCommaList = (value: string): string[] => {
@@ -142,6 +185,7 @@ export default function NewTourPage() {
       title: "",
       description: "",
       durationHours: undefined,
+      images: [],
       activities: [],
       meals: {
         breakfast: false,
@@ -168,6 +212,7 @@ export default function NewTourPage() {
           title: "",
           description: "",
           durationHours: undefined,
+          images: [],
           activities: [],
           meals: {
             breakfast: false,
@@ -257,11 +302,27 @@ export default function NewTourPage() {
       return
     }
 
+    if (formData.hasTransport && (!formData.vehicleIds || formData.vehicleIds.length === 0)) {
+      toast.error("Selecciona al menos un vehículo cuando el tour incluye transporte")
+      return
+    }
+
+    if (formData.availabilityType === "fixed_dates" && (!formData.availableDates || formData.availableDates.length === 0)) {
+      toast.error("Debes ingresar al menos una fecha disponible para tipo 'Fechas Fijas'")
+      return
+    }
+
+    if (formData.availabilityType === "date_range" && (!formData.startDate || !formData.endDate)) {
+      toast.error("Debes ingresar fecha de inicio y fecha de fin para tipo 'Rango de Fechas'")
+      return
+    }
+
     const parsedItinerary = (formData.itinerary || []).map((item) => ({
       order: item.order,
       title: item.title,
       description: item.description,
       durationHours: item.durationHours,
+      images: item.images && item.images.length > 0 ? item.images : undefined,
       activities: item.activities,
       meals: item.meals,
       hotelNight: item.hotelNight,
@@ -755,6 +816,55 @@ export default function NewTourPage() {
                               required
                               className="resize-none"
                             />
+                          </div>
+
+                          <div className="space-y-3">
+                            <Label className="font-medium">Imágenes del {isSingleDay ? "Itinerario" : "Día"}</Label>
+                            <div className="flex items-center gap-2">
+                              <Input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleItineraryImageUpload(dayIndex, e)}
+                                disabled={uploadingItineraryImageDay === dayIndex}
+                                className="hidden"
+                                id={`itinerary-image-upload-${dayIndex}`}
+                              />
+                              <Label htmlFor={`itinerary-image-upload-${dayIndex}`} className="cursor-pointer">
+                                <div className="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-muted">
+                                  {uploadingItineraryImageDay === dayIndex ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  ) : (
+                                    <Upload className="h-4 w-4" />
+                                  )}
+                                  {uploadingItineraryImageDay === dayIndex ? "Subiendo..." : "Agregar Imagen"}
+                                </div>
+                              </Label>
+                            </div>
+
+                            {item.images && item.images.length > 0 && (
+                              <div className="grid gap-3 md:grid-cols-3">
+                                {item.images.map((img, imgIndex) => (
+                                  <div key={`${img}-${imgIndex}`} className="relative group">
+                                    <Image
+                                      src={img || "/placeholder.svg"}
+                                      alt={`Itinerario día ${item.order} imagen ${imgIndex + 1}`}
+                                      width={200}
+                                      height={120}
+                                      className="w-full h-28 object-cover rounded-md"
+                                    />
+                                    <Button
+                                      type="button"
+                                      size="icon"
+                                      variant="destructive"
+                                      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      onClick={() => removeItineraryImage(dayIndex, imgIndex)}
+                                    >
+                                      <X className="h-4 w-4" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
 
                           <div className="space-y-3">

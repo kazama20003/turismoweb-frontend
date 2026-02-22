@@ -3,8 +3,8 @@
 import { use, useEffect, useRef } from "react"
 import { gsap } from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
-import { MapPin, Clock, Users, Calendar, ArrowLeft, ArrowRight, Car, Bus } from "lucide-react"
-import { useTransportBySlug } from "@/hooks/use-transports"
+import { MapPin, Clock, Users, Calendar, ArrowLeft, ArrowRight, Car, Bus, Route } from "lucide-react"
+import { useTransport, useTransportBySlug } from "@/hooks/use-transports"
 import { useVehicle } from "@/hooks/use-vehicles"
 import { isValidLocale, defaultLocale, type Locale } from "@/lib/i18n/config"
 import { getTransportsDictionary } from "@/lib/i18n/dictionaries/transports"
@@ -17,6 +17,16 @@ import { WhatsappButton } from "@/components/home/whatsapp-button"
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger)
+}
+
+function resolveLocalizedText(
+  baseText: string | undefined,
+  translations: Partial<Record<string, string>> | undefined,
+  locale: Locale,
+): string {
+  const localized = translations?.[locale]?.trim()
+  if (localized) return localized
+  return baseText?.trim() || ""
 }
 
 function generateAvailableDates(availableDays: WeekDay[] | undefined, daysAhead = 90): string[] {
@@ -53,12 +63,26 @@ export default function TransportDetailPage({
 }: {
   params: Promise<{ locale: string; slug: string }>
 }) {
-  const { locale: localeParam, slug } = use(params)
+  const { locale: localeParam, slug: rawSlug } = use(params)
   const locale: Locale = isValidLocale(localeParam) ? localeParam : defaultLocale
   const dictionary = getTransportsDictionary(locale)
   const t = dictionary.detail
 
-  const { data: transport, isLoading } = useTransportBySlug(slug, locale)
+  const normalizedSlug = rawSlug?.trim()
+  const hasValidSlug = Boolean(normalizedSlug && normalizedSlug !== "undefined" && normalizedSlug !== "null")
+  const isMongoId = Boolean(normalizedSlug && /^[a-f\d]{24}$/i.test(normalizedSlug))
+
+  const { data: transportBySlug, isLoading: isLoadingBySlug } = useTransportBySlug(
+    hasValidSlug && !isMongoId ? normalizedSlug : null,
+    locale,
+  )
+  const { data: transportById, isLoading: isLoadingById } = useTransport(
+    hasValidSlug && isMongoId ? normalizedSlug : null,
+    locale,
+  )
+
+  const transport = transportBySlug ?? transportById
+  const isLoading = isLoadingBySlug || isLoadingById
 
   const vehicleId = typeof transport?.vehicle === "string" ? transport.vehicle : null
   const { data: vehicleData, isLoading: isVehicleLoading } = useVehicle(vehicleId)
@@ -185,6 +209,71 @@ export default function TransportDetailPage({
   }
 
   const mainImage = transport.images?.[0]?.url || "/placeholder.svg"
+  const localizedTitle = resolveLocalizedText(transport.title, transport.titleTranslations, locale)
+  const localizedDescription = resolveLocalizedText(transport.description, transport.descriptionTranslations, locale)
+  const localizedRouteDescription = resolveLocalizedText(
+    transport.routeDescription,
+    transport.routeDescriptionTranslations,
+    locale,
+  )
+  const sortedRoute = [...(transport.route || [])].sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+  const routeTexts: Record<Locale, { title: string; step: string; coordinates: string; routeDescription: string }> = {
+    es: {
+      title: "Itinerario de la Ruta",
+      step: "Paso",
+      coordinates: "Coordenadas",
+      routeDescription: "Descripción de la ruta",
+    },
+    en: {
+      title: "Route Itinerary",
+      step: "Step",
+      coordinates: "Coordinates",
+      routeDescription: "Route description",
+    },
+    fr: {
+      title: "Itinéraire de la Route",
+      step: "Étape",
+      coordinates: "Coordonnées",
+      routeDescription: "Description de l'itinéraire",
+    },
+    it: {
+      title: "Itinerario del Percorso",
+      step: "Passo",
+      coordinates: "Coordinate",
+      routeDescription: "Descrizione del percorso",
+    },
+    de: {
+      title: "Routenverlauf",
+      step: "Schritt",
+      coordinates: "Koordinaten",
+      routeDescription: "Routenbeschreibung",
+    },
+    pt: {
+      title: "Itinerário da Rota",
+      step: "Etapa",
+      coordinates: "Coordenadas",
+      routeDescription: "Descrição da rota",
+    },
+    zh: {
+      title: "路线行程",
+      step: "步骤",
+      coordinates: "坐标",
+      routeDescription: "路线描述",
+    },
+    ja: {
+      title: "ルート行程",
+      step: "ステップ",
+      coordinates: "座標",
+      routeDescription: "ルート説明",
+    },
+    ru: {
+      title: "Маршрут Поездки",
+      step: "Шаг",
+      coordinates: "Координаты",
+      routeDescription: "Описание маршрута",
+    },
+  }
+  const routeDict = routeTexts[locale]
   const availableDates = generateAvailableDates(transport.availableDays)
   const hasAvailableDates = availableDates.length > 0
 
@@ -235,9 +324,9 @@ export default function TransportDetailPage({
             {t.backButton}
           </Link>
 
-          <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-serif mb-2 opacity-0">{transport.title}</h1>
+          <h1 className="text-white text-4xl md:text-5xl lg:text-6xl font-serif mb-2 opacity-0">{localizedTitle}</h1>
 
-          <p className="text-white/60 text-sm md:text-base max-w-md opacity-0">{transport.description}</p>
+          <p className="text-white/60 text-sm md:text-base max-w-md opacity-0">{localizedDescription}</p>
         </div>
       </section>
 
@@ -284,9 +373,9 @@ export default function TransportDetailPage({
                 <AddToCartButton
                   productId={transport._id}
                   productType="transport"
-                  productTitle={transport.title}
+                  productTitle={localizedTitle}
                   productImage={mainImage}
-                  productDescription={transport.description}
+                  productDescription={localizedDescription}
                   unitPrice={transport.currentPrice}
                   availabilityType={hasAvailableDates ? "fixed_dates" : "unlimited"}
                   availableDates={availableDates}
@@ -297,7 +386,7 @@ export default function TransportDetailPage({
                     </button>
                   }
                 />
-                <WhatsappButton productName={transport.title} className="w-full" />
+                <WhatsappButton productName={localizedTitle} className="w-full" />
               </div>
             </div>
 
@@ -306,7 +395,7 @@ export default function TransportDetailPage({
               {/* Image Gallery */}
               <div className="opacity-0">
                 <div className="relative aspect-3/4 md:aspect-video overflow-hidden bg-muted mb-4">
-                  <Image src={mainImage || "/placeholder.svg"} alt={transport.title} fill className="object-cover" />
+                  <Image src={mainImage || "/placeholder.svg"} alt={localizedTitle} fill className="object-cover" />
                   {transport.oldPrice && (
                     <span className="absolute top-4 left-4 px-3 py-1 bg-accent text-accent-foreground text-xs tracking-widest uppercase">
                       {Math.round(((transport.oldPrice - transport.currentPrice) / transport.oldPrice) * 100)}% OFF
@@ -320,7 +409,7 @@ export default function TransportDetailPage({
                       <div key={idx} className="relative aspect-square overflow-hidden bg-muted cursor-pointer group">
                         <Image
                           src={img.url || "/placeholder.svg"}
-                          alt={`${transport.title} ${idx + 2}`}
+                          alt={`${localizedTitle} ${idx + 2}`}
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-105"
                         />
@@ -393,8 +482,63 @@ export default function TransportDetailPage({
               {/* Description */}
               <div className="opacity-0">
                 <h3 className="text-2xl font-serif text-foreground mb-4">{t.fullDescription}</h3>
-                <p className="text-muted-foreground leading-relaxed">{transport.description}</p>
+                <p className="text-muted-foreground leading-relaxed">{localizedDescription}</p>
               </div>
+
+              {/* Route itinerary */}
+              {(localizedRouteDescription || sortedRoute.length > 0) && (
+                <div className="opacity-0">
+                  <div className="flex items-center gap-2 text-muted-foreground mb-4">
+                    <Route className="w-4 h-4" />
+                    <span className="text-xs tracking-widest uppercase">{routeDict.title}</span>
+                  </div>
+
+                  {localizedRouteDescription && (
+                    <p className="text-muted-foreground leading-relaxed mb-6">
+                      <span className="font-medium text-foreground">{routeDict.routeDescription}: </span>
+                      {localizedRouteDescription}
+                    </p>
+                  )}
+
+                  {sortedRoute.length > 0 && (
+                    <div className="space-y-4">
+                      {sortedRoute.map((step, index) => {
+                        const stepOrder = step.order ?? index + 1
+                        const localizedStepName = resolveLocalizedText(step.name, step.translations, locale)
+
+                        return (
+                          <div
+                            key={`${stepOrder}-${step.lat}-${step.lng}-${index}`}
+                            className="p-4 bg-background border border-border space-y-3"
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="text-sm uppercase tracking-wider text-muted-foreground">
+                                {routeDict.step} {stepOrder}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {routeDict.coordinates}: {step.lat}, {step.lng}
+                              </p>
+                            </div>
+
+                            <h4 className="text-lg font-serif text-foreground">{localizedStepName || "-"}</h4>
+
+                            {step.image?.url && (
+                              <div className="relative h-44 w-full overflow-hidden bg-muted">
+                                <Image
+                                  src={step.image.url || "/placeholder.svg"}
+                                  alt={`${routeDict.step} ${stepOrder}`}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Vehicle Details */}
               {vehicleData && !isVehicleLoading && (

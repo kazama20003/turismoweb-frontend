@@ -11,8 +11,57 @@ import { ArrowLeft, User, Mail, Shield, Loader2, Save } from "lucide-react"
 import { useRouter, useParams } from "next/navigation"
 import { useEffect, useState } from "react"
 import { useUser, useUpdateUser } from "@/hooks/use-users"
-import type { UpdateUserDto } from "@/types/user"
+import { UserRole, type UpdateUserDto } from "@/types/user"
 import { toast } from "sonner"
+
+const ROLE_OPTIONS = [
+  { value: UserRole.CLIENT, label: "Cliente" },
+  { value: UserRole.ADMIN, label: "Administrador" },
+  { value: UserRole.EDITOR, label: "Editor" },
+  { value: UserRole.SUPPORT, label: "Soporte" },
+] as const
+type RoleValue = (typeof ROLE_OPTIONS)[number]["value"]
+
+function normalizeRole(role?: string) {
+  const normalized = (role ?? "").trim().toUpperCase()
+  return normalized === "USER" ? "CLIENT" : normalized
+}
+
+function normalizeRolesFromUnknown(input: unknown): UserRole[] {
+  const validRoles = new Set<string>(Object.values(UserRole))
+
+  if (Array.isArray(input)) {
+    return input
+      .map((role) => {
+        if (typeof role === "string") return normalizeRole(role)
+        if (role && typeof role === "object") {
+          const roleObject = role as { role?: unknown; value?: unknown; name?: unknown }
+          if (typeof roleObject.role === "string") return normalizeRole(roleObject.role)
+          if (typeof roleObject.value === "string") return normalizeRole(roleObject.value)
+          if (typeof roleObject.name === "string") return normalizeRole(roleObject.name)
+        }
+        return ""
+      })
+      .filter((role): role is string => !!role && validRoles.has(role))
+      .map((role) => role as UserRole)
+  }
+
+  if (typeof input === "string") {
+    const normalized = normalizeRole(input)
+    return validRoles.has(normalized) ? [normalized as UserRole] : []
+  }
+
+  return []
+}
+
+function getSelectableRole(roles?: UserRole[]): RoleValue | undefined {
+  const normalizedRoles = normalizeRolesFromUnknown(roles)
+  if (normalizedRoles.includes(UserRole.ADMIN)) return UserRole.ADMIN
+  if (normalizedRoles.includes(UserRole.EDITOR)) return UserRole.EDITOR
+  if (normalizedRoles.includes(UserRole.SUPPORT)) return UserRole.SUPPORT
+  if (normalizedRoles.includes(UserRole.CLIENT)) return UserRole.CLIENT
+  return undefined
+}
 
 export default function EditUserPage() {
   const router = useRouter()
@@ -32,17 +81,23 @@ export default function EditUserPage() {
   })
 
   useEffect(() => {
-    if (user) {
-      setFormData({
-        firstName: user.firstName || "",
-        lastName: user.lastName || "",
-        email: user.email || "",
-        roles: user.roles || [],
-        phone: user.phone || "",
-        country: user.country || "",
-      })
-    }
-  }, [user])
+    if (!user) return
+
+    const roleCandidates = (user as unknown as { roles?: unknown; role?: unknown }).roles
+      ?? (user as unknown as { role?: unknown }).role
+    const normalizedRoles = normalizeRolesFromUnknown(roleCandidates)
+
+    setFormData({
+      firstName: user.firstName || "",
+      lastName: user.lastName || "",
+      email: user.email || "",
+      roles: normalizedRoles,
+      phone: user.phone || "",
+      country: user.country || "",
+    })
+  }, [user, userId])
+
+  const selectedRole = getSelectableRole(formData.roles)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -52,8 +107,14 @@ export default function EditUserPage() {
       return
     }
 
+    const normalizedRoles = normalizeRolesFromUnknown(formData.roles)
+    const payload: UpdateUserDto = {
+      ...formData,
+      roles: normalizedRoles.length > 0 ? normalizedRoles : undefined,
+    }
+
     updateUserMutation
-      .trigger({ id: userId, data: formData })
+      .trigger({ id: userId, data: payload })
       .then(() => {
         toast.success("Usuario actualizado correctamente")
         router.push("/dashboard/users")
@@ -185,15 +246,21 @@ export default function EditUserPage() {
                 <div className="space-y-2">
                   <Label htmlFor="role">Rol del Usuario</Label>
                   <Select
-                    value={formData.roles?.[0] || "USER"}
-                    onValueChange={(value) => setFormData({ ...formData, roles: [value] })}
+                    value={selectedRole}
+                    onValueChange={(value) => {
+                      const nextRole = value as RoleValue
+                      setFormData((prev) => ({ ...prev, roles: [nextRole] }))
+                    }}
                   >
                     <SelectTrigger id="role">
                       <SelectValue placeholder="Selecciona un rol" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="USER">Usuario</SelectItem>
-                      <SelectItem value="ADMIN">Administrador</SelectItem>
+                      {ROLE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-muted-foreground">

@@ -46,6 +46,17 @@ const Header = () => {
   const currentLocale: Locale = isValidLocale(currentLocaleFromPath) ? currentLocaleFromPath : defaultLocale
 
   const dict = dictionary
+  const loginLabelByLocale: Record<Locale, string> = {
+    es: "Iniciar sesión",
+    en: "Login",
+    fr: "Connexion",
+    it: "Accedi",
+    de: "Anmelden",
+    pt: "Entrar",
+    zh: "登录",
+    ja: "ログイン",
+    ru: "Войти",
+  }
 
   const navItems = [
     { name: dict.nav.tours, href: `/${currentLocale}/tours` },
@@ -173,7 +184,7 @@ const Header = () => {
                   isScrolled ? "hover:bg-foreground hover:text-background" : "hover:bg-white hover:text-foreground"
                 }`}
               >
-                {user ? dict.nav.reservations : "Login"}
+                {user ? dict.nav.reservations : loginLabelByLocale[currentLocale]}
               </Link>
 
               <div className="relative" ref={langMenuRef}>
@@ -268,7 +279,7 @@ const Header = () => {
             className="px-4 py-3 text-base font-medium text-foreground hover:bg-muted transition-colors duration-300 rounded-lg border border-foreground"
             onClick={() => setIsMenuOpen(false)}
           >
-            {user ? dict.nav.reservations : "Login"}
+            {user ? dict.nav.reservations : loginLabelByLocale[currentLocale]}
           </Link>
         </div>
       </nav>

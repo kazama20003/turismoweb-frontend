@@ -1,21 +1,14 @@
-export enum UserRole {
-  // Roles de la aplicación (Web/Cliente)
-  CLIENT = "CLIENT",
-
-  // Roles de Administración (Panel)
-  ADMIN = "ADMIN",
-  EDITOR = "EDITOR",
-  SUPPORT = "SUPPORT",
-}
+import { UserRole } from "@/types/user"
+export { UserRole }
 
 export interface JwtPayload {
-  _id: string          // viene desde jwt.strategy
-  email: string        // viene desde el JWT
-  roles: UserRole[]    // roles incluidos en el token
-  iat: number          // issued-at (automático JWT)
-  exp: number          // expiration (automático JWT)
-  firstName?: string   // opcional si lo agregas en jwt.strategy
-  lastName?: string    // opcional
+  _id: string
+  email: string
+  roles: UserRole[]
+  iat: number
+  exp: number
+  firstName?: string
+  lastName?: string
 }
 
 export interface LoginCredentials {
@@ -48,7 +41,7 @@ export interface LocalRegisterCredentials {
 export interface AuthResponse {
   access_token: string
   user: {
-    id: string          // igual a _id, pero en la respuesta del login
+    id: string
     email: string
     roles: UserRole[]
     firstName?: string

@@ -32,10 +32,25 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useEffect, useState } from "react"
-import type { User } from "@/types/user"
+import { UserRole, type User } from "@/types/user"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useUsers, useDeleteUser } from "@/hooks/use-users"
+
+function normalizeRole(role?: string) {
+  return (role ?? "").trim().toUpperCase()
+}
+
+function getRoleDisplay(roles?: UserRole[]) {
+  const normalizedRoles = (roles ?? []).map(normalizeRole).filter(Boolean)
+  const rolePriority = [UserRole.ADMIN, UserRole.EDITOR, UserRole.SUPPORT, UserRole.CLIENT]
+  const resolvedRole = rolePriority.find((role) => normalizedRoles.includes(role)) ?? UserRole.CLIENT
+  const isAdminFamily = resolvedRole !== UserRole.CLIENT
+  return {
+    label: resolvedRole,
+    variant: isAdminFamily ? "default" : "outline",
+  } as const
+}
 
 function getProviderBadge(provider: string) {
   switch (provider.toLowerCase()) {
@@ -272,8 +287,8 @@ export default function ClientsPage() {
                                 </div>
                               </TableCell>
                               <TableCell>
-                                <Badge variant={client.roles?.[0] === "ADMIN" ? "default" : "outline"}>
-                                  {client.roles?.[0] || "USER"}
+                                <Badge variant={getRoleDisplay(client.roles).variant}>
+                                  {getRoleDisplay(client.roles).label}
                                 </Badge>
                               </TableCell>
                               <TableCell className="text-muted-foreground">{client.country || "-"}</TableCell>
@@ -287,7 +302,7 @@ export default function ClientsPage() {
                                   <DropdownMenuContent align="end" className="w-48">
                                     <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                     <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={() => router.push(`/dashboard/users/${client._id}`)}>
+                                    <DropdownMenuItem onClick={() => router.push(`/dashboard/users/${client._id}/edit`)}>
                                       <Eye className="mr-2 h-4 w-4" />
                                       Ver detalles
                                     </DropdownMenuItem>
@@ -386,8 +401,8 @@ export default function ClientsPage() {
                               </div>
                               <div className="flex items-center justify-between">
                                 <span className="text-muted-foreground">Rol:</span>
-                                <Badge variant={client.roles?.[0] === "ADMIN" ? "default" : "outline"}>
-                                  {client.roles?.[0] || "USER"}
+                                <Badge variant={getRoleDisplay(client.roles).variant}>
+                                  {getRoleDisplay(client.roles).label}
                                 </Badge>
                               </div>
                               <div className="flex items-center justify-between">

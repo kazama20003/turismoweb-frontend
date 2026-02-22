@@ -12,11 +12,15 @@ import { UserPlus, ArrowLeft, Loader2, Mail, Lock, User, Shield } from "lucide-r
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useCreateUser } from "@/hooks/use-users"
-import type { CreateUserDto } from "@/types/user"
+import { UserRole, type CreateUserDto } from "@/types/user"
 import { toast } from "sonner"
 
-const USER_ROLES = ["USER", "ADMIN"]
-const AUTH_PROVIDERS = ["local", "google", "facebook"]
+const USER_ROLES = [
+  { value: UserRole.CLIENT, label: "Cliente" },
+  { value: UserRole.ADMIN, label: "Administrador" },
+  { value: UserRole.EDITOR, label: "Editor" },
+  { value: UserRole.SUPPORT, label: "Soporte" },
+] as const
 
 export default function NewUserPage() {
   const router = useRouter()
@@ -27,7 +31,7 @@ export default function NewUserPage() {
     email: "",
     password: "",
     authProvider: "local",
-    roles: ["USER"],
+    roles: [UserRole.CLIENT],
     phone: "",
     country: "",
   })
@@ -200,16 +204,16 @@ export default function NewUserPage() {
                         Rol del Usuario
                       </Label>
                       <Select
-                        value={formData.roles?.[0] || "USER"}
-                        onValueChange={(value) => setFormData({ ...formData, roles: [value] })}
+                        value={formData.roles?.[0] || UserRole.CLIENT}
+                        onValueChange={(value) => setFormData({ ...formData, roles: [value as UserRole] })}
                       >
                         <SelectTrigger id="role" className="w-full">
                           <SelectValue placeholder="Selecciona un rol" />
                         </SelectTrigger>
                         <SelectContent>
                           {USER_ROLES.map((role) => (
-                            <SelectItem key={role} value={role}>
-                              {role === "ADMIN" ? "Administrador" : "Usuario"}
+                            <SelectItem key={role.value} value={role.value}>
+                              {role.label}
                             </SelectItem>
                           ))}
                         </SelectContent>

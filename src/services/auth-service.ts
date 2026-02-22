@@ -1,6 +1,6 @@
 import { api } from "@/lib/api"
 import type { AuthResponse, LoginCredentials } from "@/types/auth"
-import type { User, UpdateUserDto } from "@/types/user"
+import type { User, UpdateUserDto, UserRole } from "@/types/user"
 
 interface CreateUserDto {
   firstName: string
@@ -9,7 +9,7 @@ interface CreateUserDto {
   authProvider: "LOCAL" | "GOOGLE" | "FACEBOOK"
   password?: string
   externalId?: string
-  roles?: string[]
+  roles?: UserRole[]
   country?: string
   phone?: string
   address?: string

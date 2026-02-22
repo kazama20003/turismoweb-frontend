@@ -20,6 +20,7 @@ export function useUser(id: string | null) {
     queryKey: ["user", id],
     queryFn: () => usersService.getUserById(id!),
     enabled: !!id,
+    refetchOnMount: "always",
   })
 }
 

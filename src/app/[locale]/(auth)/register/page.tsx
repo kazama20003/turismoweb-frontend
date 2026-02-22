@@ -14,6 +14,9 @@ import { authService } from "@/services/auth-service"
 import { resolveLocale } from "@/lib/i18n/config"
 
 export default function RegisterPage() {
+  const pathname = usePathname()
+  const locale = resolveLocale(pathname.split("/")[1])
+
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [firstName, setFirstName] = useState("")
@@ -289,5 +292,3 @@ export default function RegisterPage() {
     </div>
   )
 }
-  const pathname = usePathname()
-  const locale = resolveLocale(pathname.split("/")[1])

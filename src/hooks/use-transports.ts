@@ -23,10 +23,10 @@ export function useTransports(page = 1, limit = 10, lang = "es") {
 }
 
 // Hook para obtener un transporte por ID
-export function useTransport(id: string | null) {
+export function useTransport(id: string | null, lang = "es") {
   const query = useQuery({
-    queryKey: ["transport", id],
-    queryFn: () => transportsService.getTransportById(id!),
+    queryKey: ["transport", id, lang],
+    queryFn: () => transportsService.getTransportById(id!, lang),
     enabled: !!id,
   })
 
@@ -41,10 +41,13 @@ export function useTransport(id: string | null) {
 
 // Hook para obtener un transporte por slug
 export function useTransportBySlug(slug: string | null, lang = "es") {
+  const normalizedSlug = slug?.trim()
+  const hasValidSlug = Boolean(normalizedSlug && normalizedSlug !== "undefined" && normalizedSlug !== "null")
+
   const query = useQuery({
     queryKey: ["transport-slug", slug, lang],
-    queryFn: () => transportsService.getTransportBySlug(slug!, lang),
-    enabled: !!slug,
+    queryFn: () => transportsService.getTransportBySlug(normalizedSlug!, lang),
+    enabled: hasValidSlug,
   })
 
   return {

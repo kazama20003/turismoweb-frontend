@@ -18,7 +18,6 @@ export default function DashboardPage() {
   const { data: summary, isLoading } = useDashboardSummary()
   const [period, setPeriod] = useState("7d")
 
-  const confirmedOrders = summary?.ordersByStatus?.find((s) => s._id === "confirmed")?.count ?? 0
   const totalOrders = summary?.totalOrders ?? 0
   const totalSales = summary?.totalSales ?? 0
   const totalUsers = summary?.totalUsers ?? 0

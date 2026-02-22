@@ -30,8 +30,10 @@ export const transportsService = {
     return []
   },
 
-  async getTransportById(id: string) {
-    const response = await api.get<Transport>(`/transports/${id}`)
+  async getTransportById(id: string, lang = "es") {
+    const response = await api.get<Transport>(`/transports/${id}`, {
+      params: { lang },
+    })
     return response.data
   },
 

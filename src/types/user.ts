@@ -4,6 +4,13 @@ export enum AuthProvider {
   FACEBOOK = "FACEBOOK",
 }
 
+export enum UserRole {
+  CLIENT = "CLIENT",
+  ADMIN = "ADMIN",
+  EDITOR = "EDITOR",
+  SUPPORT = "SUPPORT",
+}
+
 export interface User {
   _id: string
   id?: string
@@ -12,7 +19,7 @@ export interface User {
   lastName: string
   fullName?: string
   authProvider: AuthProvider | string
-  roles: string[]
+  roles: UserRole[]
   isActive?: boolean
   country?: string
   phone?: string
@@ -31,7 +38,7 @@ export interface CreateUserDto {
   authProvider: string
   password?: string
   externalId?: string
-  roles?: string[]
+  roles?: UserRole[]
   country?: string
   phone?: string
   address?: string
@@ -49,7 +56,7 @@ export interface UpdateUserDto {
   address?: string
   documentType?: string
   documentNumber?: string
-  roles?: string[]
+  roles?: UserRole[]
 }
 
 export interface PaginatedResponse<T> {

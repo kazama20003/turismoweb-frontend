@@ -128,6 +128,10 @@ function TransportCard({
 
   const availableDates = generateAvailableDates(transport.availableDays)
   const hasAvailableDates = availableDates.length > 0
+  const rawSlug = typeof transport.slug === "string" ? transport.slug.trim() : ""
+  const safeSlug = rawSlug && rawSlug !== "undefined" && rawSlug !== "null" ? rawSlug : null
+  const detailIdentifier = safeSlug || transport._id
+  const detailHref = `/${locale}/transports/${detailIdentifier}`
 
   return (
     <div ref={cardRef} className="group opacity-0">
@@ -205,7 +209,7 @@ function TransportCard({
       </div>
 
       <div className="flex flex-col gap-2">
-        <Link href={`/${locale}/transports/${transport.slug}`}>
+        <Link href={detailHref}>
           <button className="w-full py-2.5 bg-secondary text-foreground border border-border text-xs font-medium tracking-widest uppercase hover:bg-accent transition-colors flex items-center justify-center gap-2">
             {t.viewDetails}
             <ArrowRight className="w-3 h-3" />
