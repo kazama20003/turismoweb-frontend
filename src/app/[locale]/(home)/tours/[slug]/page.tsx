@@ -536,9 +536,16 @@ export default function TourDetailPage() {
               {activeSection === "itinerary" && (
                 <div className="space-y-4">
                   {tour.itinerary && tour.itinerary.length > 0 ? (
-                    tour.itinerary
-                      .sort((a, b) => a.order - b.order)
-                      .map((day, idx) => (
+                    [...tour.itinerary].sort((a, b) => a.order - b.order).map((day, idx) => {
+                      const hasDescription = Boolean(day.description?.trim())
+                      const hasImages = Boolean(day.images && day.images.length > 0)
+                      const hasActivities = Boolean(day.activities && day.activities.length > 0)
+                      const hasMealsOrHotel = Boolean(
+                        day.meals?.breakfast || day.meals?.lunch || day.meals?.dinner || day.hotelNight,
+                      )
+                      const hasAnyDetail = hasDescription || hasImages || hasActivities || hasMealsOrHotel
+
+                      return (
                         <div key={day._id || idx} className="bg-background overflow-hidden">
                           <button
                             onClick={() => setExpandedDay(expandedDay === idx ? null : idx)}
@@ -566,52 +573,78 @@ export default function TourDetailPage() {
 
                           {expandedDay === idx && (
                             <div className="p-6 pt-0 space-y-4 border-t">
-                              <p className="text-muted-foreground leading-relaxed">{day.description}</p>
+                              {hasDescription && <p className="text-muted-foreground leading-relaxed">{day.description}</p>}
 
-                              {day.activities && day.activities.length > 0 && (
+                              {hasImages && (
+                                <div className="space-y-2">
+                                  <h4 className="font-medium">Galeria del dia</h4>
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    {day.images?.map((imageUrl, imageIndex) => (
+                                      <div
+                                        key={`${day._id || day.order}-img-${imageIndex}`}
+                                        className="relative aspect-[4/3] overflow-hidden rounded-md border bg-muted/30"
+                                      >
+                                        <Image
+                                          src={imageUrl || "/placeholder.svg"}
+                                          alt={`${day.title || `Dia ${day.order}`} ${imageIndex + 1}`}
+                                          fill
+                                          className="object-cover"
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {hasActivities && (
                                 <div>
                                   <h4 className="font-medium mb-2 flex items-center gap-2">
                                     <Info className="w-4 h-4" />
                                     {dict.itinerary.activities}
                                   </h4>
                                   <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                                    {day.activities.map((activity, i) => (
+                                    {day.activities?.map((activity, i) => (
                                       <li key={i}>{activity}</li>
                                     ))}
                                   </ul>
                                 </div>
                               )}
 
-                              <div className="flex flex-wrap gap-3 pt-2">
-                                {day.meals?.breakfast && (
-                                  <Badge variant="outline" className="gap-1">
-                                    <Utensils className="w-3 h-3" />
-                                    {dict.itinerary.meals.breakfast}
-                                  </Badge>
-                                )}
-                                {day.meals?.lunch && (
-                                  <Badge variant="outline" className="gap-1">
-                                    <Utensils className="w-3 h-3" />
-                                    {dict.itinerary.meals.lunch}
-                                  </Badge>
-                                )}
-                                {day.meals?.dinner && (
-                                  <Badge variant="outline" className="gap-1">
-                                    <Utensils className="w-3 h-3" />
-                                    {dict.itinerary.meals.dinner}
-                                  </Badge>
-                                )}
-                                {day.hotelNight && (
-                                  <Badge variant="outline" className="gap-1">
-                                    <Hotel className="w-3 h-3" />
-                                    {dict.itinerary.hotelNight}
-                                  </Badge>
-                                )}
-                              </div>
+                              {hasMealsOrHotel && (
+                                <div className="flex flex-wrap gap-3 pt-2">
+                                  {day.meals?.breakfast && (
+                                    <Badge variant="outline" className="gap-1">
+                                      <Utensils className="w-3 h-3" />
+                                      {dict.itinerary.meals.breakfast}
+                                    </Badge>
+                                  )}
+                                  {day.meals?.lunch && (
+                                    <Badge variant="outline" className="gap-1">
+                                      <Utensils className="w-3 h-3" />
+                                      {dict.itinerary.meals.lunch}
+                                    </Badge>
+                                  )}
+                                  {day.meals?.dinner && (
+                                    <Badge variant="outline" className="gap-1">
+                                      <Utensils className="w-3 h-3" />
+                                      {dict.itinerary.meals.dinner}
+                                    </Badge>
+                                  )}
+                                  {day.hotelNight && (
+                                    <Badge variant="outline" className="gap-1">
+                                      <Hotel className="w-3 h-3" />
+                                      {dict.itinerary.hotelNight}
+                                    </Badge>
+                                  )}
+                                </div>
+                              )}
+
+                              {!hasAnyDetail && <p className="text-sm text-muted-foreground">{dict.sections.noInfo}</p>}
                             </div>
                           )}
                         </div>
-                      ))
+                      )
+                    })
                   ) : (
                     <p className="text-center text-muted-foreground py-8">{dict.sections.noInfo}</p>
                   )}
