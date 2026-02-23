@@ -202,11 +202,11 @@ export default function NewTourPage() {
   }
 
   const addItineraryDay = () => {
-    const newOrder = (formData.itinerary || []).length + 1
-    setFormData({
-      ...formData,
-      itinerary: [
-        ...(formData.itinerary || []),
+    setFormData((prev) => {
+      const currentItinerary = prev.itinerary || []
+      const newOrder = currentItinerary.length + 1
+      const updatedItinerary = [
+        ...currentItinerary,
         {
           order: newOrder,
           title: "",
@@ -219,9 +219,15 @@ export default function NewTourPage() {
             lunch: false,
             dinner: false,
           },
-          hotelNight: newOrder < (formData.durationDays || 1),
+          hotelNight: false,
         },
-      ],
+      ]
+
+      return {
+        ...prev,
+        durationDays: updatedItinerary.length,
+        itinerary: updatedItinerary,
+      }
     })
   }
 
@@ -282,10 +288,19 @@ export default function NewTourPage() {
   }
 
   const removeItineraryDay = (dayIndex: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      itinerary: prev.itinerary?.filter((_, i) => i !== dayIndex),
-    }))
+    setFormData((prev) => {
+      const filteredItinerary = (prev.itinerary || []).filter((_, i) => i !== dayIndex)
+      const reorderedItinerary = filteredItinerary.map((day, index) => ({
+        ...day,
+        order: index + 1,
+      }))
+
+      return {
+        ...prev,
+        durationDays: reorderedItinerary.length || 1,
+        itinerary: reorderedItinerary,
+      }
+    })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -968,7 +983,6 @@ export default function NewTourPage() {
                       </Card>
                     ))}
 
-                    {!isSingleDay && (
                       <Button
                         type="button"
                         onClick={addItineraryDay}
@@ -978,7 +992,6 @@ export default function NewTourPage() {
                         <Plus className="mr-2 h-4 w-4" />
                         Agregar Otro Día
                       </Button>
-                    )}
                   </div>
                 )}
               </CardContent>
