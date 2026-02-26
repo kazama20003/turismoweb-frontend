@@ -36,11 +36,11 @@ export function HomeDeferredSections() {
       <LazySection placeholderHeight="80vh">
         <TransportSection />
       </LazySection>
-      <LazySection placeholderHeight="70vh">
+      <LazySection placeholderHeight="95vh">
         <PaymentMethodsSection />
       </LazySection>
       <LazySection placeholderHeight="70vh">
-         <FeaturedSection />
+        <FeaturedSection />
       </LazySection>
       <LazySection placeholderHeight="65vh">
         <TestimonialsSection />

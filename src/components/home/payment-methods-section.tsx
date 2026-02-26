@@ -4,17 +4,21 @@ import { useEffect, useRef } from "react"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import Image from "next/image"
+import Link from "next/link"
+import { MailCheck, Search, ShoppingCart, Wallet } from "lucide-react"
 import { useTranslation } from "@/lib/i18n/context"
 
 gsap.registerPlugin(ScrollTrigger)
 
 export function PaymentMethodsSection() {
-  const { dictionary } = useTranslation()
+  const { locale, dictionary } = useTranslation()
   const dict = dictionary.paymentMethods
+  const bookingDict = dictionary.bookingStepsSection
 
   const containerRef = useRef<HTMLDivElement>(null)
-  const topLeftRef = useRef<HTMLDivElement>(null)
-  const bottomRightRef = useRef<HTMLDivElement>(null)
+  const topContentRef = useRef<HTMLDivElement>(null)
+  const stepsRef = useRef<HTMLDivElement>(null)
+  const bottomContentRef = useRef<HTMLDivElement>(null)
   const cardsRef = useRef<HTMLDivElement>(null)
 
   const paymentMethods = [
@@ -33,9 +37,11 @@ export function PaymentMethodsSection() {
     },
   ]
 
+  const stepIcons = [Search, ShoppingCart, Wallet, MailCheck]
+
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const elements = [topLeftRef.current, bottomRightRef.current, cardsRef.current]
+      const elements = [topContentRef.current, stepsRef.current, bottomContentRef.current, cardsRef.current]
 
       elements.forEach((el) => {
         if (!el) return
@@ -68,7 +74,7 @@ export function PaymentMethodsSection() {
     <section className="w-full bg-white border-l-8 border-r-8 border-white">
       <div className="border-t-8 border-white" />
 
-      <div ref={containerRef} className="relative w-full min-h-[500px] md:min-h-[600px] lg:min-h-[700px]">
+      <div ref={containerRef} className="relative w-full min-h-[760px] md:min-h-[860px] lg:min-h-[940px]">
         <div className="absolute inset-0">
           <Image
             src="https://res.cloudinary.com/ddbzpbrje/image/upload/v1765989893/pexels-mikhail-nilov-6612282_aund7w.jpg"
@@ -77,56 +83,81 @@ export function PaymentMethodsSection() {
             className="object-cover"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-black/30" />
+          <div className="absolute inset-0 bg-black/50" />
         </div>
 
         <div className="absolute inset-4 md:inset-6 lg:inset-8 border border-white/80 pointer-events-none z-20" />
 
         <div
-          ref={topLeftRef}
-          className="absolute top-10 md:top-14 lg:top-16 left-10 md:left-14 lg:left-16 z-10 max-w-xs md:max-w-sm"
+          ref={topContentRef}
+          className="absolute top-10 md:top-14 lg:top-16 left-8 right-8 md:left-14 md:right-14 lg:left-16 lg:right-16 z-10"
         >
-          <h2 className="text-white font-bold text-sm md:text-base tracking-wider uppercase mb-4 md:mb-6">
-            {dict.title}
-          </h2>
+          <p className="inline-flex border border-white/60 bg-black/25 px-3 py-1.5 text-[11px] md:text-xs text-white tracking-[0.2em] uppercase font-semibold mb-4">
+            {bookingDict.badge}
+          </p>
+          <h2 className="text-white font-bold text-2xl md:text-3xl lg:text-4xl leading-tight max-w-3xl">{bookingDict.title}</h2>
+          <p className="text-white/85 italic text-sm md:text-base lg:text-lg mt-2 max-w-2xl">{bookingDict.subtitle}</p>
+          <p className="text-white/80 text-xs md:text-sm mt-3 max-w-3xl">{bookingDict.description}</p>
 
-          <div className="border-l-2 border-white/60 pl-4">
-            <p className="text-white italic text-sm md:text-base leading-relaxed mb-2">{dict.quote}</p>
-            <p className="text-white text-xs md:text-sm font-semibold tracking-wider uppercase">{dict.quoteAuthor}</p>
+          <div ref={stepsRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mt-6">
+            {bookingDict.steps.map((step, index) => {
+              const Icon = stepIcons[index] ?? Search
+
+              return (
+                <article key={`${step.title}-${index}`} className="border border-white/40 bg-black/25 backdrop-blur-sm p-3 md:p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="inline-flex items-center justify-center h-7 w-7 rounded-full bg-white text-black text-xs font-semibold">
+                      {index + 1}
+                    </span>
+                    <Icon className="h-4 w-4 text-white/85" />
+                  </div>
+                  <h3 className="text-white text-sm font-semibold leading-snug mb-1.5">{step.title}</h3>
+                  <p className="text-white/75 text-xs leading-relaxed">{step.description}</p>
+                </article>
+              )
+            })}
           </div>
         </div>
 
         <div
-          ref={bottomRightRef}
-          className="absolute bottom-10 md:bottom-14 lg:bottom-16 right-10 md:right-14 lg:right-16 z-10 max-w-xs md:max-w-md text-right"
+          ref={bottomContentRef}
+          className="absolute bottom-10 md:bottom-14 lg:bottom-16 left-8 right-8 md:left-14 md:right-14 lg:left-16 lg:right-16 z-10 flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6"
         >
-          <p className="text-white text-sm md:text-base leading-relaxed mb-4">{dict.description}</p>
-
-          <div ref={cardsRef} className="flex items-center justify-end gap-2 md:gap-3 mb-4">
-            {paymentMethods.map((method) => (
-              <div
-                key={method.name}
-                className="w-10 h-6 md:w-12 md:h-8 bg-white rounded flex items-center justify-center p-1"
-              >
-                <Image
-                  src={method.logo || "/placeholder.svg"}
-                  alt={method.name}
-                  width={40}
-                  height={24}
-                  className="object-contain max-w-full max-h-full"
-                  style={{ width: "auto", height: "auto" }}
-                />
-              </div>
-            ))}
+          <div className="max-w-md border-l-2 border-white/60 pl-4">
+            <h3 className="text-white font-bold text-sm md:text-base tracking-wider uppercase mb-3">{dict.title}</h3>
+            <p className="text-white italic text-sm md:text-base leading-relaxed mb-2">{dict.quote}</p>
+            <p className="text-white text-xs md:text-sm font-semibold tracking-wider uppercase">{dict.quoteAuthor}</p>
           </div>
 
-          <a
-            href="#"
-            className="inline-flex items-center text-white text-xs md:text-sm font-semibold tracking-wider uppercase hover:opacity-80 transition-opacity"
-          >
-            {dict.ctaText}
-            <span className="ml-2">→</span>
-          </a>
+          <div className="max-w-xs md:max-w-md lg:text-right">
+            <p className="text-white text-sm md:text-base leading-relaxed mb-4">{dict.description}</p>
+
+            <div ref={cardsRef} className="flex items-center lg:justify-end gap-2 md:gap-3 mb-4">
+              {paymentMethods.map((method) => (
+                <div
+                  key={method.name}
+                  className="w-10 h-6 md:w-12 md:h-8 bg-white rounded flex items-center justify-center p-1"
+                >
+                  <Image
+                    src={method.logo || "/placeholder.svg"}
+                    alt={method.name}
+                    width={40}
+                    height={24}
+                    className="object-contain max-w-full max-h-full"
+                    style={{ width: "auto", height: "auto" }}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <Link
+              href={`/${locale}/tours`}
+              className="inline-flex items-center text-white text-xs md:text-sm font-semibold tracking-wider uppercase hover:opacity-80 transition-opacity"
+            >
+              {bookingDict.ctaButton}
+              <span className="ml-2">-&gt;</span>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

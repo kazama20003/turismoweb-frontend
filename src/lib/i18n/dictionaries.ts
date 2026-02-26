@@ -10,6 +10,7 @@ import { getHeroSectionDictionary, type HeroSectionDictionary } from "./dictiona
 import { getFeaturedSectionDictionary, type FeaturedSectionDictionary } from "./dictionaries/featured-section"
 import { getProductsSectionDictionary, type ProductsSectionDictionary } from "./dictionaries/products-section"
 import { getTransportSectionDictionary, type TransportSectionDictionary } from "./dictionaries/transport-section"
+import { getBookingStepsSectionDictionary, type BookingStepsSectionDictionary } from "./dictionaries/booking-steps-section"
 import { getTestimonialsDictionary, type TestimonialsDictionary } from "./dictionaries/testimonials"
 import { getPaymentMethodsDictionary, type PaymentMethodsDictionary } from "./dictionaries/payment-methods"
 export interface DictionarySchema extends GlobalDictionary {
@@ -24,6 +25,7 @@ export interface DictionarySchema extends GlobalDictionary {
   featuredSection: FeaturedSectionDictionary
   productsSection: ProductsSectionDictionary
   transportSection: TransportSectionDictionary
+  bookingStepsSection: BookingStepsSectionDictionary
   testimonials: TestimonialsDictionary
   paymentMethods: PaymentMethodsDictionary
 }
@@ -43,6 +45,7 @@ export function getDictionary(locale: Locale): DictionarySchema {
     featuredSection: getFeaturedSectionDictionary(locale),
     productsSection: getProductsSectionDictionary(locale),
     transportSection: getTransportSectionDictionary(locale),
+    bookingStepsSection: getBookingStepsSectionDictionary(locale),
     testimonials: getTestimonialsDictionary(locale),
     paymentMethods: getPaymentMethodsDictionary(locale),
 
@@ -53,5 +56,6 @@ export { getGlobalDictionary, getHomeDictionary, getToursDictionary, getVisitDic
   getFeaturedSectionDictionary,
   getProductsSectionDictionary,
   getTransportSectionDictionary,
+  getBookingStepsSectionDictionary,
   getTestimonialsDictionary,
   getPaymentMethodsDictionary, }
