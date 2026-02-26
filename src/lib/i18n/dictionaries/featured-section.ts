@@ -10,80 +10,79 @@ export interface FeaturedSectionDictionary {
 
 export const featuredSectionDictionaries: Record<Locale, FeaturedSectionDictionary> = {
   es: {
-    title: "Una Propiedad Familiar,",
-    titleLine2: "Elaborada Por Generaciones.",
+    title: "E Tourism Peru Travel,",
+    titleLine2: "30 Anos de Experiencia.",
     description:
-      "Maxwell Wines elabora vinos premium que celebran el carácter calcáreo de la propiedad. Desde el audaz Shiraz hasta los blancos vibrantes y los icónicos meads de la propiedad, cada botella refleja un compromiso con la sostenibilidad y la elaboración meticulosa.",
-    shopButton: "COMPRAR VINO Y MEAD →",
-    restaurantLabel: "RESTAURANTE MAXWELL",
+      "En E Tourism Peru Travel brindamos tours de la mas alta calidad por todo el Peru. Con mas de 30 anos de experiencia, nuestro equipo crea experiencias autenticas, seguras y memorables para cada viajero.",
+    shopButton: "EXPLORAR TOURS ->",
+    restaurantLabel: "E TOURISM PERU TRAVEL",
   },
   en: {
-    title: "A Family Estate,",
-    titleLine2: "Crafted By Generations.",
+    title: "E Tourism Peru Travel,",
+    titleLine2: "30 Years of Experience.",
     description:
-      "Maxwell Wines crafts premium wines that celebrate the limestone character of the estate. From bold Shiraz to vibrant whites and the estates iconic meads, every bottle reflects a commitment to sustainability and meticulous winemaking.",
-    shopButton: "SHOP WINE & MEAD →",
-    restaurantLabel: "MAXWELL RESTAURANT",
+      "At E Tourism Peru Travel, we provide top-quality tours across Peru. With more than 30 years of experience, our team creates authentic, safe, and memorable experiences for every traveler.",
+    shopButton: "EXPLORE TOURS ->",
+    restaurantLabel: "E TOURISM PERU TRAVEL",
   },
   fr: {
-    title: "Un Domaine Familial,",
-    titleLine2: "Créé Par Les Générations.",
+    title: "E Tourism Peru Travel,",
+    titleLine2: "30 Ans D Experience.",
     description:
-      "Maxwell Wines crée des vins premium qui célèbrent le caractère calcaire du domaine. Du Shiraz audacieux aux blancs vibrants et aux hydromel emblématiques du domaine, chaque bouteille reflète un engagement envers la durabilité et la vinification méticuleuse.",
-    shopButton: "ACHETER VIN ET HYDROMEL →",
-    restaurantLabel: "RESTAURANT MAXWELL",
+      "Chez E Tourism Peru Travel, nous proposons des circuits de la plus haute qualite a travers le Perou. Avec plus de 30 ans d experience, notre equipe cree des experiences authentiques, sures et memorables pour chaque voyageur.",
+    shopButton: "EXPLORER LES TOURS ->",
+    restaurantLabel: "E TOURISM PERU TRAVEL",
   },
   it: {
-    title: "Una Tenuta Familiare,",
-    titleLine2: "Creata Da Generazioni.",
+    title: "E Tourism Peru Travel,",
+    titleLine2: "30 Anni di Esperienza.",
     description:
-      "Maxwell Wines crea vini premium che celebrano il carattere calcareo della tenuta. Dai Shiraz audaci ai bianchi vibranti e ai celebri idromele della tenuta, ogni bottiglia riflette un impegno verso la sostenibilità e la vinificazione meticolosa.",
-    shopButton: "ACQUISTA VINO E IDROMELE →",
-    restaurantLabel: "RISTORANTE MAXWELL",
+      "In E Tourism Peru Travel offriamo tour della piu alta qualita in tutto il Peru. Con oltre 30 anni di esperienza, il nostro team crea esperienze autentiche, sicure e memorabili per ogni viaggiatore.",
+    shopButton: "ESPLORA I TOUR ->",
+    restaurantLabel: "E TOURISM PERU TRAVEL",
   },
   de: {
-    title: "Ein Familienweingut,",
-    titleLine2: "Von Generationen Geprägt.",
+    title: "E Tourism Peru Travel,",
+    titleLine2: "30 Jahre Erfahrung.",
     description:
-      "Maxwell Wines stellt Prämiumweine her, die den Kalksteincharakter des Weinguts würdigen. Von kühnem Shiraz über lebhafte Weißweine bis hin zu den ikonischen Weinen des Weinguts spiegelt jede Flasche ein Engagement für Nachhaltigkeit und sorgfältige Weinbereitung wider.",
-    shopButton: "WEIN UND MET KAUFEN →",
-    restaurantLabel: "MAXWELL RESTAURANT",
+      "Bei E Tourism Peru Travel bieten wir Touren von hoechster Qualitaet in ganz Peru an. Mit mehr als 30 Jahren Erfahrung schafft unser Team authentische, sichere und unvergessliche Erlebnisse fuer jeden Reisenden.",
+    shopButton: "TOUREN ENTDECKEN ->",
+    restaurantLabel: "E TOURISM PERU TRAVEL",
   },
   pt: {
-    title: "Uma Propriedade Familiar,",
-    titleLine2: "Elaborada Por Gerações.",
+    title: "E Tourism Peru Travel,",
+    titleLine2: "30 Anos de Experiencia.",
     description:
-      "Maxwell Wines cria vinhos premium que celebram o caráter calcário da propriedade. Do audacioso Shiraz aos brancos vibrantes e aos hidroméis icônicos da propriedade, cada garrafa reflete um compromisso com a sustentabilidade e a vinificação meticulosa.",
-    shopButton: "COMPRE VINHO E HIDROMEL →",
-    restaurantLabel: "RESTAURANTE MAXWELL",
+      "Na E Tourism Peru Travel oferecemos tours da mais alta qualidade por todo o Peru. Com mais de 30 anos de experiencia, nossa equipe cria experiencias autenticas, seguras e memoraveis para cada viajante.",
+    shopButton: "EXPLORAR TOURS ->",
+    restaurantLabel: "E TOURISM PERU TRAVEL",
   },
   zh: {
-    title: "家族庄园，",
-    titleLine2: "由世代精心打造。",
+    title: "E Tourism Peru Travel,",
+    titleLine2: "30 Nian De Jing Yan.",
     description:
-      "Maxwell Wines 精心酿造优质葡萄酒，彰显庄园的石灰岩特征。从大胆的西拉到充满活力的白葡萄酒，再到庄园标志性的蜂蜜酒，每一瓶都体现了对可持续发展和精心酿造工艺的承诺。",
-    shopButton: "购买葡萄酒和蜂蜜酒 →",
-    restaurantLabel: "MAXWELL 餐厅",
+      "At E Tourism Peru Travel, we provide top-quality tours across Peru. With more than 30 years of experience, our team creates authentic, safe, and memorable experiences for every traveler.",
+    shopButton: "EXPLORE TOURS ->",
+    restaurantLabel: "E TOURISM PERU TRAVEL",
   },
   ja: {
-    title: "ファミリー・エステート、",
-    titleLine2: "世代を通じて職人技で作られました。",
+    title: "E Tourism Peru Travel,",
+    titleLine2: "30 Nen No Keiken.",
     description:
-      "Maxwell Wines は、エステートの石灰岩の性質を祝う高級ワインを製造しています。大胆なシラーズから活気に満ちた白ワイン、そしてエステートのアイコニックなミードまで、すべてのボトルは持続可能性と細心のワイン製造への取り組みを反映しています。",
-    shopButton: "ワインとミードを購入する →",
-    restaurantLabel: "マクスウェル レストラン",
+      "At E Tourism Peru Travel, we provide top-quality tours across Peru. With more than 30 years of experience, our team creates authentic, safe, and memorable experiences for every traveler.",
+    shopButton: "EXPLORE TOURS ->",
+    restaurantLabel: "E TOURISM PERU TRAVEL",
   },
   ru: {
-    title: "Семейное Поместье,",
-    titleLine2: "Созданное Поколениями.",
+    title: "E Tourism Peru Travel,",
+    titleLine2: "30 Let Opyta.",
     description:
-      "Maxwell Wines создает премиальные вина, которые прославляют известняковый характер усадьбы. От смелого Шираза до ярких белых вин и культовых медов поместья, каждая бутылка отражает приверженность устойчивому развитию и тщательному виноделию.",
-    shopButton: "КУПИТЬ ВИНО И МЕД →",
-    restaurantLabel: "РЕСТОРАН MAXWELL",
+      "At E Tourism Peru Travel, we provide top-quality tours across Peru. With more than 30 years of experience, our team creates authentic, safe, and memorable experiences for every traveler.",
+    shopButton: "EXPLORE TOURS ->",
+    restaurantLabel: "E TOURISM PERU TRAVEL",
   },
 }
 
 export function getFeaturedSectionDictionary(locale: Locale): FeaturedSectionDictionary {
   return featuredSectionDictionaries[locale]
 }
-    

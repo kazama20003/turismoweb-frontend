@@ -133,9 +133,16 @@ export function ProductsSection() {
                     <p className="text-xs sm:text-sm md:text-base text-white/90 leading-relaxed mb-3 line-clamp-2">
                       {tour.description}
                     </p>
-                    <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white mb-3">
-                      ${tour.currentPrice.toFixed(2)}
-                    </p>
+                    <div className="flex items-baseline gap-2 mb-3">
+                      <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white">
+                        ${tour.currentPrice.toFixed(2)}
+                      </p>
+                      {tour.oldPrice && tour.oldPrice > tour.currentPrice && (
+                        <p className="text-xs sm:text-sm md:text-base text-white/70 line-through">
+                          ${tour.oldPrice.toFixed(2)}
+                        </p>
+                      )}
+                    </div>
                     <div className="flex items-center gap-4">
                       <AddToCartButton
                         productId={tour._id}
